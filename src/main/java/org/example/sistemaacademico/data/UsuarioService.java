@@ -255,7 +255,7 @@ public class UsuarioService {
                         rs.getString("tipo")
                 );
             }
-
+            System.out.println("Usuario: " + usuario);
         } catch (SQLException e) {
             e.printStackTrace();
             throw new GlobalException("Sentencia no válida");
