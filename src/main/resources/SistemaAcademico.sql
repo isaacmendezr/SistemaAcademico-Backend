@@ -20,7 +20,7 @@ CREATE TABLE Ciclo (
     numero NUMBER,
     fecha_inicio DATE,
     fecha_fin DATE,
-    estado VARCHAR2(5)
+    estado VARCHAR2(10)
 );
 
 CREATE TABLE Carrera_Curso (
@@ -275,7 +275,7 @@ BEGIN
 END;
 /
 
--- Buscar Curso por código
+-- Buscar Curso por cï¿½digo
 CREATE OR REPLACE FUNCTION buscarCursoPorCodigo(codigobuscar IN Curso.codigo%TYPE) 
 RETURN SYS_REFCURSOR AS
     curso_cursor types.ref_cursor;
@@ -352,7 +352,7 @@ BEGIN
 END;
 /
 
--- Consultar Ciclos por año
+-- Consultar Ciclos por aï¿½o
 CREATE OR REPLACE FUNCTION buscarCicloPorAnnio(annioBuscar IN Ciclo.anio%TYPE) 
 RETURN SYS_REFCURSOR AS
     ciclo_cursor types.ref_cursor;
@@ -487,46 +487,43 @@ RETURN Types.ref_cursor
 AS
     alumno_cursor Types.ref_cursor;
 BEGIN
-    OPEN alumno_cursor FOR 
-    SELECT id_alumno, cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera FROM Alumno;
-    RETURN alumno_cursor;
+OPEN alumno_cursor FOR
+SELECT id_alumno, cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera FROM Alumno;
+RETURN alumno_cursor;
 END;
 /
-
 -- Buscar Alumno por cedula
-CREATE OR REPLACE FUNCTION buscarAlumnoPorCedula(cedulabuscar IN Alumno.cedula%TYPE) 
+CREATE OR REPLACE FUNCTION buscarAlumnoPorCedula(cedulabuscar IN Alumno.cedula%TYPE)
 RETURN SYS_REFCURSOR AS
     alumno_cursor types.ref_cursor;
 BEGIN
-    OPEN alumno_cursor FOR 
-    SELECT id_alumno, cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera FROM Alumno WHERE cedula=cedulabuscar;
-    RETURN alumno_cursor;
+OPEN alumno_cursor FOR
+SELECT id_alumno, cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera FROM Alumno WHERE cedula=cedulabuscar;
+RETURN alumno_cursor;
 END;
 /
-
 -- Buscar Alumno por nombre
-CREATE OR REPLACE FUNCTION buscarAlumnoPorNombre(nombrebuscar IN Alumno.nombre%TYPE) 
+CREATE OR REPLACE FUNCTION buscarAlumnoPorNombre(nombrebuscar IN Alumno.nombre%TYPE)
 RETURN SYS_REFCURSOR AS
     alumno_cursor types.ref_cursor;
 BEGIN
-    OPEN alumno_cursor FOR 
-    SELECT id_alumno, cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera FROM Alumno WHERE nombre=nombrebuscar;
-    RETURN alumno_cursor;
+OPEN alumno_cursor FOR
+SELECT id_alumno, cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera FROM Alumno WHERE nombre=nombrebuscar;
+RETURN alumno_cursor;
 END;
 /
-
 -- Buscar Alumno por carrera
-CREATE OR REPLACE FUNCTION buscarAlumnosPorCarrera(carrerabuscar IN Alumno.pk_carrera%TYPE) 
+CREATE OR REPLACE FUNCTION buscarAlumnosPorCarrera(carrerabuscar IN Alumno.pk_carrera%TYPE)
 RETURN SYS_REFCURSOR AS
     alumno_cursor types.ref_cursor;
 BEGIN
-    OPEN alumno_cursor FOR 
-    SELECT id_alumno, cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera FROM Alumno WHERE pk_carrera=carrerabuscar;
-    RETURN alumno_cursor;
+OPEN alumno_cursor FOR
+SELECT id_alumno, cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera FROM Alumno WHERE pk_carrera=carrerabuscar;
+RETURN alumno_cursor;
 END;
 /
 
-
+COMMIT; 
 ------------------------------------------------GRUPOS--------------------------------------------
 -- Insertar Grupo
 CREATE OR REPLACE PROCEDURE insertarGrupo(pk_carrera_curso IN Grupo.pk_carrera_curso%TYPE,

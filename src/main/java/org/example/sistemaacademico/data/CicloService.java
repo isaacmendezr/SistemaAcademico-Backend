@@ -23,7 +23,7 @@ import java.util.List;
 public class CicloService {
     private static final String insertarCiclo= "{call insertarCiclo (?,?,?,?,?)}";
     private static final String modificarCiclo= "{call modificarCiclo(?,?,?,?,?,?)}";
-    private static final String eliminarCiclo = "{call eliminarCiclo(?,?)}";
+    private static final String eliminarCiclo = "{call eliminarCiclo(?)}";
     private static final String listarCiclos = "{?=call listarCiclos()}";
     private static final String buscarPorAnnio = "{?=call buscarCicloPorAnnio(?)}";
     private static final String activarCiclo= "{call activarCiclo(?)}";
@@ -171,7 +171,7 @@ public class CicloService {
                         rs.getLong("numero"),
                         rs.getDate("fecha_inicio").toLocalDate(),
                         rs.getDate("fecha_fin").toLocalDate(),
-                        rs.getString("activo")
+                        rs.getString("estado")
                 ));
             }
         } catch (SQLException var16) {
