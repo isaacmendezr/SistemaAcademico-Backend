@@ -48,4 +48,10 @@ public class CursoController {
     public List<Curso> buscarCursosPorCarrera(@RequestParam Long idCarrera) throws NoDataException, GlobalException {
         return cursoService.buscarCursosPorCarrera(idCarrera);
     }
+    @GetMapping("/buscarCursosPorCarreraYCiclo/{pkCarrera}/{pkCiclo}")
+    public List<Curso> listarCursosPorCarreraYCiclo(
+            @PathVariable Long pkCarrera,
+            @PathVariable Long pkCiclo) throws NoDataException, GlobalException {
+        return cursoService.buscarCursosPorCarreraYCiclo(pkCarrera, pkCiclo);
+    }
 }

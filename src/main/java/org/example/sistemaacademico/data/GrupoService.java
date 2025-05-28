@@ -1,24 +1,17 @@
 package org.example.sistemaacademico.data;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.ParameterMode;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.StoredProcedureQuery;
 import org.example.sistemaacademico.database.GlobalException;
 import org.example.sistemaacademico.database.NoDataException;
 import org.example.sistemaacademico.database.Servicio;
-import org.example.sistemaacademico.logic.CarreraCicloCursoDto;
 import org.example.sistemaacademico.logic.Grupo;
 import org.example.sistemaacademico.logic.GrupoDto;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 @Service
@@ -27,7 +20,6 @@ public class GrupoService {
     private static final String modificarGrupo= "{call modificarGrupo(?,?,?,?,?)}";
     private static final String eliminarGrupo = "{call eliminarGrupo(?)}";
     private static final String listarGrupos = "{?=call listarGrupos()}";
-    private static final String buscarCursosPorCarreraYCiclo = "{?=call buscarCursosPorCarreraYCiclo (?,?)}";
     private static final String buscarGruposPorCarreraCurso = "{?= call buscarGruposPorCarreraCurso(?)}";
 
     private Servicio servicio;
@@ -199,55 +191,7 @@ public class GrupoService {
             throw new NoDataException("No hay datos");
         }
     }
-    public List<CarreraCicloCursoDto> listarCursosPorCarreraYCiclo(Long carrera, Long ciclo) throws GlobalException, NoDataException {
-        try {
-            this.servicio.conectar();
-        } catch (ClassNotFoundException | SQLException e) {
-            throw new GlobalException("No se ha localizado el driver o base de datos no disponible");
-        }
 
-        CallableStatement cs = null;
-        ResultSet rs = null;
-        List<CarreraCicloCursoDto> listaCursos = new ArrayList<>();
-
-        try {
-            cs = this.servicio.conexion.prepareCall(buscarCursosPorCarreraYCiclo);
-            cs.registerOutParameter(1, -10);
-            cs.setLong(2, carrera);
-            cs.setLong(3, ciclo);
-            cs.execute();
-            rs = (ResultSet) cs.getObject(1);
-
-            while (rs.next()) {
-                CarreraCicloCursoDto c = new CarreraCicloCursoDto(
-                        rs.getLong("id_curso"),
-                        rs.getString("codigo"),
-                        rs.getString("nombre"),
-                        rs.getLong("creditos"),
-                        rs.getLong("horas_semanales"),
-                        rs.getLong("id_carrera_curso")
-                );
-                listaCursos.add(c);
-            }
-        }  catch (SQLException e) {
-            e.printStackTrace();
-            throw new GlobalException("Error en sentencia SQL");
-        } finally {
-            try {
-                if (rs != null) rs.close();
-                if (cs != null) cs.close();
-                this.servicio.desconectar();
-            } catch (SQLException e) {
-                throw new GlobalException("Error cerrando recursos");
-            }
-        }
-
-        if (listaCursos.isEmpty()) {
-            throw new NoDataException("No se encontraron cursos para la carrera y ciclo especificados");
-        }
-
-        return listaCursos;
-    }
     public List<GrupoDto> buscarGruposPorCarreraCurso(Long idCarreraCurso) throws GlobalException, NoDataException {
         try {
             this.servicio.conectar();

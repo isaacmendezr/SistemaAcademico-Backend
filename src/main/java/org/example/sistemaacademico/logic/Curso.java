@@ -31,6 +31,15 @@ public class Curso {
         this.idCiclo = idCiclo;
     }
 
+    public Curso(Long idCurso, String codigo, String nombre, Long creditos, Long horasSemanales, Long idCarreraCurso) {
+        this.idCurso = idCurso;
+        this.codigo = codigo;
+        this.nombre = nombre;
+        this.creditos = creditos;
+        this.horasSemanales = horasSemanales;
+        this.idCarreraCurso = idCarreraCurso;
+    }
+
     public Long getIdCurso() {
         return idCurso;
     }

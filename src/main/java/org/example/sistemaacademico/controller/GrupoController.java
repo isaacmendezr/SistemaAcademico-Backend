@@ -3,7 +3,6 @@ package org.example.sistemaacademico.controller;
 import org.example.sistemaacademico.data.GrupoService;
 import org.example.sistemaacademico.database.GlobalException;
 import org.example.sistemaacademico.database.NoDataException;
-import org.example.sistemaacademico.logic.CarreraCicloCursoDto;
 import org.example.sistemaacademico.logic.Grupo;
 import org.example.sistemaacademico.logic.GrupoDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,12 +33,6 @@ public class GrupoController {
     @GetMapping("/listar")
     public List<Grupo> listar() throws NoDataException, GlobalException {
         return grupoService.listarGrupos();
-    }
-    @GetMapping("/buscarCursosPorCarreraYCiclo/{pkCarrera}/{pkCurso}")
-    public List<CarreraCicloCursoDto> listarCursosPorCarreraYCiclo(
-            @PathVariable Long pkCarrera,
-            @PathVariable Long pkCurso) throws NoDataException, GlobalException {
-        return grupoService.listarCursosPorCarreraYCiclo(pkCarrera, pkCurso);
     }
     @GetMapping("/buscarGruposPorCarreraCurso/{pkCarreraCurso}")
     public List<GrupoDto> buscarGruposPorCarreraCurso(@PathVariable Long pkCarreraCurso) throws NoDataException, GlobalException {
