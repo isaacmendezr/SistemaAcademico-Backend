@@ -478,8 +478,8 @@ END;
 CREATE OR REPLACE PROCEDURE activarCiclo(id_cicloin IN Ciclo.id_ciclo%TYPE) 
 AS
 BEGIN
-    UPDATE Ciclo SET estado='I';
-    UPDATE Ciclo SET estado='A' WHERE id_ciclo = id_cicloin;
+    UPDATE Ciclo SET estado='Inactivo';
+    UPDATE Ciclo SET estado='Activo' WHERE id_ciclo = id_cicloin;
 END;
 /
 
