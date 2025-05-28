@@ -4,7 +4,6 @@ import org.example.sistemaacademico.data.GrupoService;
 import org.example.sistemaacademico.database.GlobalException;
 import org.example.sistemaacademico.database.NoDataException;
 import org.example.sistemaacademico.logic.Grupo;
-import org.example.sistemaacademico.logic.GrupoDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

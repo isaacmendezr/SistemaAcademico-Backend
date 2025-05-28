@@ -4,7 +4,6 @@ import org.example.sistemaacademico.database.GlobalException;
 import org.example.sistemaacademico.database.NoDataException;
 import org.example.sistemaacademico.database.Servicio;
 import org.example.sistemaacademico.logic.Grupo;
-import org.example.sistemaacademico.logic.GrupoDto;
 import org.springframework.stereotype.Service;
 
 import java.sql.CallableStatement;
@@ -40,10 +39,10 @@ public class GrupoService {
 
         try {
             pstmt = this.servicio.conexion.prepareCall(insertarGrupo);
-            pstmt.setLong(1, grupo.getPkCarreraCurso());
+            pstmt.setLong(1, grupo.getIdCarreraCurso());
             pstmt.setLong(2, grupo.getNumeroGrupo());
             pstmt.setString(3, grupo.getHorario());
-            pstmt.setLong(4,grupo.getPkProfesor());
+            pstmt.setLong(4,grupo.getIdProfesor());
 
             boolean resultado = pstmt.execute();
             if (resultado) {
@@ -79,10 +78,10 @@ public class GrupoService {
         try {
             pstmt = this.servicio.conexion.prepareCall(modificarGrupo);
             pstmt.setLong(1, grupo.getIdGrupo());
-            pstmt.setLong(2, grupo.getPkCarreraCurso());
+            pstmt.setLong(2, grupo.getIdCarreraCurso());
             pstmt.setLong(3, grupo.getNumeroGrupo());
             pstmt.setString(4, grupo.getHorario());
-            pstmt.setLong(5, grupo.getPkProfesor());
+            pstmt.setLong(5, grupo.getIdProfesor());
 
             int resultado = pstmt.executeUpdate();
             if (resultado == 0) {
@@ -192,7 +191,7 @@ public class GrupoService {
         }
     }
 
-    public List<GrupoDto> buscarGruposPorCarreraCurso(Long idCarreraCurso) throws GlobalException, NoDataException {
+    public List<Grupo> buscarGruposPorCarreraCurso(Long idCarreraCurso) throws GlobalException, NoDataException {
         try {
             this.servicio.conectar();
         } catch (ClassNotFoundException | SQLException e) {
@@ -201,7 +200,7 @@ public class GrupoService {
 
         CallableStatement cs = null;
         ResultSet rs = null;
-        List<GrupoDto> listaGrupos = new ArrayList<>();
+        List<Grupo> listaGrupos = new ArrayList<>();
 
         try {
             cs = this.servicio.conexion.prepareCall(buscarGruposPorCarreraCurso);
@@ -212,10 +211,10 @@ public class GrupoService {
             rs = (ResultSet) cs.getObject(1);
 
             while (rs.next()) {
-                GrupoDto grupo = new GrupoDto(
+                Grupo grupo = new Grupo(
                         rs.getLong("id_grupo"),
                         rs.getLong("pk_carrera_curso"),
-                        rs.getInt("numero_grupo"),
+                        rs.getLong("numero_grupo"),
                         rs.getString("horario"),
                         rs.getLong("pk_profesor"),
                         rs.getString("nombre_profesor")

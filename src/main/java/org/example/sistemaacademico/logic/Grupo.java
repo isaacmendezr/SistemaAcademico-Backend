@@ -2,17 +2,27 @@ package org.example.sistemaacademico.logic;
 
 public class Grupo {
     private Long idGrupo;
-    private Long pkCarreraCurso;
+    private Long idCarreraCurso;
     private Long numeroGrupo;
     private String horario;
-    private Long pkProfesor;
+    private Long idProfesor;
+    private String nombreProfesor;
 
-    public Grupo(Long idGrupo, Long pkCarreraCurso, Long numeroGrupo, String horario, Long pkProfesor) {
+    public Grupo(Long idGrupo, Long idCarreraCurso, Long numeroGrupo, String horario, Long idProfesor) {
         this.idGrupo = idGrupo;
-        this.pkCarreraCurso = pkCarreraCurso;
+        this.idCarreraCurso = idCarreraCurso;
         this.numeroGrupo = numeroGrupo;
         this.horario = horario;
-        this.pkProfesor = pkProfesor;
+        this.idProfesor = idProfesor;
+    }
+
+    public Grupo(Long idGrupo, Long idCarreraCurso, Long numeroGrupo, String horario, Long idProfesor, String nombreProfesor) {
+        this.idGrupo = idGrupo;
+        this.idCarreraCurso = idCarreraCurso;
+        this.numeroGrupo = numeroGrupo;
+        this.horario = horario;
+        this.idProfesor = idProfesor;
+        this.nombreProfesor = nombreProfesor;
     }
 
     public Long getIdGrupo() {
@@ -23,12 +33,12 @@ public class Grupo {
         this.idGrupo = idGrupo;
     }
 
-    public Long getPkCarreraCurso() {
-        return pkCarreraCurso;
+    public Long getIdCarreraCurso() {
+        return idCarreraCurso;
     }
 
-    public void setPkCarreraCurso(Long pkCarreraCurso) {
-        this.pkCarreraCurso = pkCarreraCurso;
+    public void setIdCarreraCurso(Long idCarreraCurso) {
+        this.idCarreraCurso = idCarreraCurso;
     }
 
     public Long getNumeroGrupo() {
@@ -47,11 +57,19 @@ public class Grupo {
         this.horario = horario;
     }
 
-    public Long getPkProfesor() {
-        return pkProfesor;
+    public Long getIdProfesor() {
+        return idProfesor;
     }
 
-    public void setPkProfesor(Long pkProfesor) {
-        this.pkProfesor = pkProfesor;
+    public void setIdProfesor(Long idProfesor) {
+        this.idProfesor = idProfesor;
+    }
+
+    public String getNombreProfesor() {
+        return nombreProfesor;
+    }
+
+    public void setNombreProfesor(String nombreProfesor) {
+        this.nombreProfesor = nombreProfesor;
     }
 }
