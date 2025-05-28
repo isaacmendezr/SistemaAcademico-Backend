@@ -316,7 +316,11 @@ public class CursoService {
                         rs.getString("codigo"),
                         rs.getString("nombre"),
                         rs.getLong("creditos"),
-                        rs.getLong("horas_semanales")
+                        rs.getLong("horas_semanales"),
+                        rs.getLong("id_carrera_curso"),
+                        rs.getLong("anio"),
+                        rs.getLong("numero"),
+                        rs.getLong("id_ciclo")
                 ));
             }
 
@@ -334,7 +338,7 @@ public class CursoService {
         }
 
         if (cursos.isEmpty()) {
-            throw new NoDataException("No hay cursos para esta carrera");
+            throw new NoDataException("No hay datos");
         }
 
         return cursos;

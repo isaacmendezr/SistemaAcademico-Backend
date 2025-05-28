@@ -384,16 +384,29 @@ END;
 /
 
 -- Buscar Curso por carrera
-CREATE OR REPLACE FUNCTION buscarCursosPorCarrera(idCarreraBuscar IN Carrera_Curso.pk_carrera%TYPE)
+CREATE OR REPLACE FUNCTION buscarCursosPorCarrera(
+    p_carrera_id IN Carrera.id_carrera%TYPE
+) 
 RETURN SYS_REFCURSOR AS
-    cursos_cursor types.ref_cursor;
+    v_cursor SYS_REFCURSOR;
 BEGIN
-    OPEN cursos_cursor FOR 
-    SELECT cu.id_curso, cu.codigo, cu.nombre, cu.creditos, cu.horas_semanales
-    FROM Curso cu
-    INNER JOIN Carrera_Curso cc ON cu.id_curso = cc.pk_curso
-    WHERE cc.pk_carrera = idCarreraBuscar;
-    RETURN cursos_cursor;
+    OPEN v_cursor FOR
+        SELECT 
+            c.id_curso,
+            c.codigo,
+            c.nombre,
+            c.creditos,
+            c.horas_semanales,
+            cc.id_carrera_curso,
+            ci.anio,
+            ci.numero,
+            ci.id_ciclo
+        FROM Curso c
+        JOIN Carrera_Curso cc ON c.id_curso = cc.pk_curso
+        JOIN Ciclo ci ON cc.pk_ciclo = ci.id_ciclo
+        WHERE cc.pk_carrera = p_carrera_id
+        ORDER BY ci.anio, ci.numero, c.codigo;
+    RETURN v_cursor;
 END;
 /
 
