@@ -1,18 +1,20 @@
 package org.example.sistemaacademico.logic;
 
-public class Grupo {
+public class GrupoDto {
     private Long idGrupo;
     private Long idCarreraCurso;
     private Long numeroGrupo;
     private String horario;
     private Long idProfesor;
+    private String nombreProfesor;
 
-    public Grupo(Long idGrupo, Long idCarreraCurso, Long numeroGrupo, String horario, Long idProfesor) {
+    public GrupoDto(Long idGrupo, Long idCarreraCurso, Long numeroGrupo, String horario, Long idProfesor, String nombreProfesor) {
         this.idGrupo = idGrupo;
         this.idCarreraCurso = idCarreraCurso;
         this.numeroGrupo = numeroGrupo;
         this.horario = horario;
         this.idProfesor = idProfesor;
+        this.nombreProfesor = nombreProfesor;
     }
 
     public Long getIdGrupo() {
@@ -53,5 +55,13 @@ public class Grupo {
 
     public void setIdProfesor(Long idProfesor) {
         this.idProfesor = idProfesor;
+    }
+
+    public String getNombreProfesor() {
+        return nombreProfesor;
+    }
+
+    public void setNombreProfesor(String nombreProfesor) {
+        this.nombreProfesor = nombreProfesor;
     }
 }

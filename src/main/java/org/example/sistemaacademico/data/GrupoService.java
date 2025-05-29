@@ -4,6 +4,7 @@ import org.example.sistemaacademico.database.GlobalException;
 import org.example.sistemaacademico.database.NoDataException;
 import org.example.sistemaacademico.database.Servicio;
 import org.example.sistemaacademico.logic.Grupo;
+import org.example.sistemaacademico.logic.GrupoDto;
 import org.springframework.stereotype.Service;
 
 import java.sql.CallableStatement;
@@ -191,7 +192,7 @@ public class GrupoService {
         }
     }
 
-    public List<Grupo> buscarGruposPorCarreraCurso(Long idCarreraCurso) throws GlobalException, NoDataException {
+    public List<GrupoDto> buscarGruposPorCarreraCurso(Long idCarreraCurso) throws GlobalException, NoDataException {
         try {
             this.servicio.conectar();
         } catch (ClassNotFoundException | SQLException e) {
@@ -200,7 +201,7 @@ public class GrupoService {
 
         CallableStatement cs = null;
         ResultSet rs = null;
-        List<Grupo> listaGrupos = new ArrayList<>();
+        List<GrupoDto> listaGrupos = new ArrayList<>();
 
         try {
             cs = this.servicio.conexion.prepareCall(buscarGruposPorCarreraCurso);
@@ -211,7 +212,7 @@ public class GrupoService {
             rs = (ResultSet) cs.getObject(1);
 
             while (rs.next()) {
-                Grupo grupo = new Grupo(
+                GrupoDto grupo = new GrupoDto(
                         rs.getLong("id_grupo"),
                         rs.getLong("pk_carrera_curso"),
                         rs.getLong("numero_grupo"),
@@ -235,7 +236,7 @@ public class GrupoService {
         }
 
         if (listaGrupos.isEmpty()) {
-            throw new NoDataException("No se encontraron grupos para el curso indicado");
+            throw new NoDataException("No hay datos");
         }
 
         return listaGrupos;
