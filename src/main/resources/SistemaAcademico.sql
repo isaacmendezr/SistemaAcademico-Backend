@@ -979,9 +979,9 @@ VALUES (2025, 1, TO_DATE('2025-02-01', 'YYYY-MM-DD'), TO_DATE('2025-06-01', 'YYY
 INSERT INTO Ciclo (anio, numero, fecha_inicio, fecha_fin, estado)
 VALUES (2025, 2, TO_DATE('2025-07-01', 'YYYY-MM-DD'), TO_DATE('2025-11-01', 'YYYY-MM-DD'), 'Inactivo');
 INSERT INTO Ciclo (anio, numero, fecha_inicio, fecha_fin, estado)
-VALUES (2025, 3, TO_DATE('2025-11-15', 'YYYY-MM-DD'), TO_DATE('2026-03-15', 'YYYY-MM-DD'), 'Inactivo');
-INSERT INTO Ciclo (anio, numero, fecha_inicio, fecha_fin, estado)
 VALUES (2026, 1, TO_DATE('2026-02-01', 'YYYY-MM-DD'), TO_DATE('2026-06-01', 'YYYY-MM-DD'), 'Inactivo');
+INSERT INTO Ciclo (anio, numero, fecha_inicio, fecha_fin, estado)
+VALUES (2026, 2, TO_DATE('2026-07-01', 'YYYY-MM-DD'), TO_DATE('2026-11-01', 'YYYY-MM-DD'), 'Inactivo');
 
 -- CARRERA CURSO
 INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (1, 1, 1);
