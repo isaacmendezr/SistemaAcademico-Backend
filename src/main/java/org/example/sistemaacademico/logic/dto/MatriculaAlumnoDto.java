@@ -1,4 +1,4 @@
-package org.example.sistemaacademico.logic;
+package org.example.sistemaacademico.logic.dto;
 
 public class MatriculaAlumnoDto {
     private Long idMatricula;

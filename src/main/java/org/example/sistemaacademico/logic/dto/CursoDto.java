@@ -1,4 +1,4 @@
-package org.example.sistemaacademico.logic;
+package org.example.sistemaacademico.logic.dto;
 
 public class CursoDto {
     private Long idCurso;
