@@ -55,4 +55,10 @@ public class CursoController {
             @PathVariable Long pkCiclo) throws NoDataException, GlobalException {
         return cursoService.buscarCursosPorCarreraYCiclo(pkCarrera, pkCiclo);
     }
+    @GetMapping("/buscarCursosPorCiclo/{pkCiclo}")
+    public List<CursoDto> listarCursosPorCiclo(
+            @PathVariable Long pkCiclo) throws NoDataException, GlobalException {
+        return cursoService.buscarCursosPorCiclo(pkCiclo);
+    }
+
 }

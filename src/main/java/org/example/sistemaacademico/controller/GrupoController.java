@@ -41,5 +41,13 @@ public class GrupoController {
             throws NoDataException, GlobalException {
         return grupoService.buscarGruposPorCarreraCurso(pkCarrera, pkCurso);
     }
+    @GetMapping("/buscarGruposPorCursoCicloCarrera/{pkCurso}/{pkCiclo}/{pkCarrera}")
+    public List<GrupoDto> buscarGruposPorCarreraCurso(
+            @PathVariable Long pkCurso,
+            @PathVariable Long pkCiclo,
+            @PathVariable Long pkCarrera)
+            throws NoDataException, GlobalException {
+        return grupoService.buscarGruposPorCursoCicloCarrera(pkCurso, pkCiclo, pkCarrera);
+    }
 
 }

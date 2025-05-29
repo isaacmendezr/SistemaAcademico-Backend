@@ -21,7 +21,7 @@ public class GrupoService {
     private static final String eliminarGrupo = "{call eliminarGrupo(?)}";
     private static final String listarGrupos = "{?=call listarGrupos()}";
     private static final String buscarGruposPorCarreraCurso = "{?= call buscarGruposPorCarreraCurso(?,?)}";
-
+    private static final String buscarGruposPorCursoCicloCarrera = "{?= call buscarGruposPorCursoCicloCarrera(?,?,?)}";
     private Servicio servicio;
 
     public GrupoService() throws ClassNotFoundException, SQLException {
@@ -219,6 +219,57 @@ public class GrupoService {
                         rs.getLong("numero_grupo"),
                         rs.getString("horario"),
                         rs.getLong("pk_profesor"),
+                        rs.getString("nombre_profesor")
+                );
+                listaGrupos.add(grupo);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new GlobalException("Error en sentencia SQL");
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (cs != null) cs.close();
+                this.servicio.desconectar();
+            } catch (SQLException e) {
+                throw new GlobalException("Error cerrando recursos");
+            }
+        }
+
+        if (listaGrupos.isEmpty()) {
+            throw new NoDataException("No hay datos");
+        }
+
+        return listaGrupos;
+    }
+    public List<GrupoDto> buscarGruposPorCursoCicloCarrera(Long curso, Long ciclo, Long carrera) throws GlobalException, NoDataException {
+        try {
+            this.servicio.conectar();
+        } catch (ClassNotFoundException | SQLException e) {
+            throw new GlobalException("No se ha localizado el driver o base de datos no disponible");
+        }
+
+        CallableStatement cs = null;
+        ResultSet rs = null;
+        List<GrupoDto> listaGrupos = new ArrayList<>();
+
+        try {
+            cs = this.servicio.conexion.prepareCall(buscarGruposPorCursoCicloCarrera);
+            cs.registerOutParameter(1, -10);
+            cs.setLong(2, curso);
+            cs.setLong(3, ciclo);
+            cs.setLong(4, carrera);
+            cs.execute();
+
+            rs = (ResultSet) cs.getObject(1);
+
+            while (rs.next()) {
+                GrupoDto grupo = new GrupoDto(
+                        rs.getLong("id_grupo"),
+                        rs.getLong("pk_carrera_curso"),
+                        rs.getLong("numero_grupo"),
+                        rs.getString("horario"),
+                        rs.getLong("id_profesor"),
                         rs.getString("nombre_profesor")
                 );
                 listaGrupos.add(grupo);

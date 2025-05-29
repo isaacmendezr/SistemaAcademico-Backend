@@ -20,6 +20,7 @@ DROP FUNCTION listarCursos;
 DROP FUNCTION buscarCursoPorNombre;
 DROP FUNCTION buscarCursoPorCodigo;
 DROP FUNCTION buscarCursosPorCarrera;
+DROP FUNCTION buscarCursosPorCiclo;
 
 -- CICLO
 DROP PROCEDURE insertarCiclo;
@@ -59,6 +60,7 @@ DROP PROCEDURE modificarGrupo;
 DROP PROCEDURE eliminarGrupo;
 DROP FUNCTION listarGrupos;
 DROP FUNCTION buscarGruposPorCarreraCurso;
+DROP FUNCTION buscarGruposPorCursoCicloCarrera;
 
 -- MATRICULA
 DROP PROCEDURE insertarMatricula;
@@ -426,6 +428,35 @@ BEGIN
 END;
 /
 
+
+-- Listar Cursos por Ciclo
+CREATE OR REPLACE FUNCTION buscarCursosPorCiclo(
+    p_ciclo_id IN Ciclo.id_ciclo%TYPE
+) 
+RETURN Types.ref_cursor AS
+    curso_cursor Types.ref_cursor;
+BEGIN
+    OPEN curso_cursor FOR 
+        SELECT 
+            c.id_curso,
+            c.codigo,
+            c.nombre,
+            c.creditos,
+            c.horas_semanales,
+            cc.id_carrera_curso,
+            ci.anio,
+            ci.numero,
+            ci.id_ciclo
+        FROM Curso c
+        JOIN Carrera_Curso cc ON c.id_curso = cc.pk_curso
+        JOIN Ciclo ci ON cc.pk_ciclo = ci.id_ciclo
+        JOIN Carrera ca ON cc.pk_carrera = ca.id_carrera
+        WHERE ci.id_ciclo = p_ciclo_id
+        ORDER BY ca.nombre, c.codigo;
+    RETURN curso_cursor;
+END;
+/
+
 ------------------------------------------------CICLOS--------------------------------------------
 
 -- Insertar Ciclo
@@ -724,6 +755,33 @@ BEGIN
     WHERE cc.pk_carrera = p_id_carrera
       AND cc.pk_curso = p_id_curso;
     
+    RETURN grupos_cursor;
+END;
+/
+
+-- Listar grupos por curso, ciclo y carrera
+CREATE OR REPLACE FUNCTION buscarGruposPorCursoCicloCarrera(
+    p_id_curso IN Curso.id_curso%TYPE,
+    p_id_ciclo IN Ciclo.id_ciclo%TYPE,
+    p_id_carrera IN Carrera.id_carrera%TYPE
+) RETURN Types.ref_cursor AS
+    grupos_cursor Types.ref_cursor;
+BEGIN
+    OPEN grupos_cursor FOR
+    SELECT 
+        g.id_grupo,
+        g.pk_carrera_curso,
+        g.numero_grupo,
+        g.horario,
+        p.pk_profesor,
+        p.nombre AS nombre_profesor
+    FROM Grupo g
+    JOIN Profesor p ON g.pk_profesor = p.id_profesor
+    JOIN Carrera_Curso cc ON g.pk_carrera_curso = cc.id_carrera_curso
+    WHERE cc.pk_carrera = p_id_carrera
+      AND cc.pk_curso = p_id_curso
+      AND cc.pk_ciclo = p_id_ciclo;
+
     RETURN grupos_cursor;
 END;
 /

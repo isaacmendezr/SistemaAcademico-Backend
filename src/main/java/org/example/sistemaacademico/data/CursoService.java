@@ -24,7 +24,7 @@ public class CursoService {
     private static final String buscarCursoPorCodigo = "{?=call buscarCursoPorCodigo(?)}";
     private static final String buscarCursosPorCarrera = "{?=call buscarCursosPorCarrera(?)}";
     private static final String buscarCursosPorCarreraYCiclo = "{?=call buscarCursosPorCarreraYCiclo (?,?)}";
-
+    private static final String buscarCursosPorCiclo = "{?=call buscarCursosPorCiclo (?)}";
     private Servicio servicio;
 
     public CursoService() throws ClassNotFoundException, SQLException {
@@ -361,6 +361,54 @@ public class CursoService {
             cs.registerOutParameter(1, -10);
             cs.setLong(2, carrera);
             cs.setLong(3, ciclo);
+            cs.execute();
+            rs = (ResultSet) cs.getObject(1);
+
+            while (rs.next()) {
+                CursoDto c = new CursoDto(
+                        rs.getLong("id_curso"),
+                        rs.getString("codigo"),
+                        rs.getString("nombre"),
+                        rs.getLong("creditos"),
+                        rs.getLong("horas_semanales"),
+                        rs.getLong("id_carrera_curso")
+                );
+                listaCursos.add(c);
+            }
+        }  catch (SQLException e) {
+            e.printStackTrace();
+            throw new GlobalException("Error en sentencia SQL");
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (cs != null) cs.close();
+                this.servicio.desconectar();
+            } catch (SQLException e) {
+                throw new GlobalException("Error cerrando recursos");
+            }
+        }
+
+        if (listaCursos.isEmpty()) {
+            throw new NoDataException("No hay datos");
+        }
+
+        return listaCursos;
+    }
+    public List<CursoDto> buscarCursosPorCiclo(Long ciclo) throws GlobalException, NoDataException {
+        try {
+            this.servicio.conectar();
+        } catch (ClassNotFoundException | SQLException e) {
+            throw new GlobalException("No se ha localizado el driver o base de datos no disponible");
+        }
+
+        CallableStatement cs = null;
+        ResultSet rs = null;
+        List<CursoDto> listaCursos = new ArrayList<>();
+
+        try {
+            cs = this.servicio.conexion.prepareCall(buscarCursosPorCiclo);
+            cs.registerOutParameter(1, -10);
+            cs.setLong(2, ciclo);
             cs.execute();
             rs = (ResultSet) cs.getObject(1);
 
