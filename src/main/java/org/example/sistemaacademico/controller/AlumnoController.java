@@ -4,7 +4,7 @@ import org.example.sistemaacademico.data.AlumnoService;
 import org.example.sistemaacademico.database.GlobalException;
 import org.example.sistemaacademico.database.NoDataException;
 import org.example.sistemaacademico.logic.Alumno;
-import org.example.sistemaacademico.logic.MatriculaAlumnoDto;
+import org.example.sistemaacademico.logic.dto.MatriculaAlumnoDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

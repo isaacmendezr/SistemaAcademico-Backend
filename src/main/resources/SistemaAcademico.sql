@@ -823,9 +823,9 @@ INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('TUR201', 
 
 -- CICLOS
 INSERT INTO Ciclo (anio, numero, fecha_inicio, fecha_fin, estado)
-VALUES (2025, 1, TO_DATE('2025-02-01', 'YYYY-MM-DD'), TO_DATE('2025-06-01', 'YYYY-MM-DD'), 'A');
+VALUES (2025, 1, TO_DATE('2025-02-01', 'YYYY-MM-DD'), TO_DATE('2025-06-01', 'YYYY-MM-DD'), 'Activo');
 INSERT INTO Ciclo (anio, numero, fecha_inicio, fecha_fin, estado)
-VALUES (2025, 2, TO_DATE('2025-07-01', 'YYYY-MM-DD'), TO_DATE('2025-11-01', 'YYYY-MM-DD'), 'I');
+VALUES (2025, 2, TO_DATE('2025-07-01', 'YYYY-MM-DD'), TO_DATE('2025-11-01', 'YYYY-MM-DD'), 'Inactivo');
 
 -- CARRERA CURSO
 INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (1, 1, 1);
@@ -885,15 +885,16 @@ COMMIT;
 -- PRUEBAS
 ----------------------------------------------------------------------------------------------------------
 
--- Conteo de registros para verificar inserciones
-SELECT 'Carreras', COUNT(*) FROM CARRERA;
-SELECT 'Cursos', COUNT(*) FROM CURSO;
-SELECT 'Ciclos', COUNT(*) FROM CICLO;
-SELECT 'Profesores', COUNT(*) FROM PROFESOR;
-SELECT 'Alumnos', COUNT(*) FROM ALUMNO;
-SELECT 'Grupos', COUNT(*) FROM GRUPO;
-SELECT 'Matrículas', COUNT(*) FROM MATRICULA;
-SELECT 'Usuarios', COUNT(*) FROM USUARIO;
+-- Visualización general
+SELECT * FROM CARRERA;
+SELECT * FROM CURSO;
+SELECT * FROM CICLO;
+SELECT * FROM CARRERA_CURSO;
+SELECT * FROM PROFESOR;
+SELECT * FROM ALUMNO;
+SELECT * FROM GRUPO;
+SELECT * FROM MATRICULA;
+SELECT * FROM USUARIO;
 
 -- Verificar relaciones entre entidades (JOINs)
 
@@ -925,17 +926,6 @@ FROM PROFESOR p
          JOIN GRUPO g ON p.id_profesor = g.pk_profesor
          JOIN CARRERA_CURSO cc ON g.pk_carrera_curso = cc.id_carrera_curso
          JOIN CURSO cu ON cc.pk_curso = cu.id_curso;
-
--- Visualización general
-SELECT * FROM CARRERA;
-SELECT * FROM CURSO;
-SELECT * FROM CICLO;
-SELECT * FROM CARRERA_CURSO;
-SELECT * FROM PROFESOR;
-SELECT * FROM ALUMNO;
-SELECT * FROM GRUPO;
-SELECT * FROM MATRICULA;
-SELECT * FROM USUARIO;
 
 -- Ver procedimientos y funciones compilados
 SELECT OBJECT_NAME, PROCEDURE_NAME, OBJECT_TYPE

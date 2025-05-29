@@ -4,7 +4,7 @@ import org.example.sistemaacademico.database.GlobalException;
 import org.example.sistemaacademico.database.NoDataException;
 import org.example.sistemaacademico.database.Servicio;
 import org.example.sistemaacademico.logic.Alumno;
-import org.example.sistemaacademico.logic.MatriculaAlumnoDto;
+import org.example.sistemaacademico.logic.dto.MatriculaAlumnoDto;
 import org.springframework.stereotype.Service;
 
 import java.sql.CallableStatement;
