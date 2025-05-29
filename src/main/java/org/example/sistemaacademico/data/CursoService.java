@@ -4,6 +4,7 @@ import org.example.sistemaacademico.database.GlobalException;
 import org.example.sistemaacademico.database.NoDataException;
 import org.example.sistemaacademico.database.Servicio;
 import org.example.sistemaacademico.logic.Curso;
+import org.example.sistemaacademico.logic.CursoDto;
 import org.springframework.stereotype.Service;
 
 import java.sql.CallableStatement;
@@ -290,7 +291,7 @@ public class CursoService {
 
         return curso;
     }
-    public List<Curso> buscarCursosPorCarrera(Long idCarrera) throws GlobalException, NoDataException {
+    public List<CursoDto> buscarCursosPorCarrera(Long idCarrera) throws GlobalException, NoDataException {
         try {
             this.servicio.conectar();
         } catch (ClassNotFoundException e) {
@@ -301,7 +302,7 @@ public class CursoService {
 
         ResultSet rs = null;
         CallableStatement pstmt = null;
-        List<Curso> cursos = new ArrayList<>();
+        List<CursoDto> cursos = new ArrayList<>();
 
         try {
             pstmt = this.servicio.conexion.prepareCall(buscarCursosPorCarrera);
@@ -312,7 +313,7 @@ public class CursoService {
             rs = (ResultSet) pstmt.getObject(1);
 
             while (rs.next()) {
-                cursos.add(new Curso(
+                cursos.add(new CursoDto(
                         rs.getLong("id_curso"),
                         rs.getString("codigo"),
                         rs.getString("nombre"),
@@ -344,7 +345,7 @@ public class CursoService {
 
         return cursos;
     }
-    public List<Curso> buscarCursosPorCarreraYCiclo(Long carrera, Long ciclo) throws GlobalException, NoDataException {
+    public List<CursoDto> buscarCursosPorCarreraYCiclo(Long carrera, Long ciclo) throws GlobalException, NoDataException {
         try {
             this.servicio.conectar();
         } catch (ClassNotFoundException | SQLException e) {
@@ -353,7 +354,7 @@ public class CursoService {
 
         CallableStatement cs = null;
         ResultSet rs = null;
-        List<Curso> listaCursos = new ArrayList<>();
+        List<CursoDto> listaCursos = new ArrayList<>();
 
         try {
             cs = this.servicio.conexion.prepareCall(buscarCursosPorCarreraYCiclo);
@@ -364,7 +365,7 @@ public class CursoService {
             rs = (ResultSet) cs.getObject(1);
 
             while (rs.next()) {
-                Curso c = new Curso(
+                CursoDto c = new CursoDto(
                         rs.getLong("id_curso"),
                         rs.getString("codigo"),
                         rs.getString("nombre"),

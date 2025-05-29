@@ -4,6 +4,7 @@ import org.example.sistemaacademico.data.CursoService;
 import org.example.sistemaacademico.database.GlobalException;
 import org.example.sistemaacademico.database.NoDataException;
 import org.example.sistemaacademico.logic.Curso;
+import org.example.sistemaacademico.logic.CursoDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,11 +46,11 @@ public class CursoController {
         return cursoService.buscarCursoPorNombre(nombre);
     }
     @GetMapping("/buscarCursosPorCarrera")
-    public List<Curso> buscarCursosPorCarrera(@RequestParam Long idCarrera) throws NoDataException, GlobalException {
+    public List<CursoDto> buscarCursosPorCarrera(@RequestParam Long idCarrera) throws NoDataException, GlobalException {
         return cursoService.buscarCursosPorCarrera(idCarrera);
     }
     @GetMapping("/buscarCursosPorCarreraYCiclo/{pkCarrera}/{pkCiclo}")
-    public List<Curso> listarCursosPorCarreraYCiclo(
+    public List<CursoDto> listarCursosPorCarreraYCiclo(
             @PathVariable Long pkCarrera,
             @PathVariable Long pkCiclo) throws NoDataException, GlobalException {
         return cursoService.buscarCursosPorCarreraYCiclo(pkCarrera, pkCiclo);
