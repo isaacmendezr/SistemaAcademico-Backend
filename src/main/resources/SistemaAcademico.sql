@@ -34,6 +34,7 @@ DROP PROCEDURE insertarCursoACarrera;
 DROP PROCEDURE eliminarCursoDeCarrera;
 DROP PROCEDURE modificarOrdenCursoCarrera;
 DROP FUNCTION buscarCursosPorCarreraYCiclo;
+DROP FUNCTION listarCarreraCurso;
 
 -- PROFESOR
 DROP PROCEDURE insertarProfesor;
@@ -63,6 +64,8 @@ DROP FUNCTION buscarGruposPorCarreraCurso;
 DROP PROCEDURE insertarMatricula;
 DROP PROCEDURE modificarMatricula;
 DROP PROCEDURE eliminarMatricula;
+DROP PROCEDURE listarMatriculasPorAlumno;
+DROP PROCEDURE listarMatriculasPorAlumnoYCiclo;
 
 -- USUARIO
 DROP PROCEDURE insertarUsuario;
@@ -310,6 +313,19 @@ BEGIN
         ORDER BY c.codigo;
 
     RETURN v_cursor;
+END;
+/
+
+-- Listar todas las relaciones Carrera_Curso
+CREATE OR REPLACE FUNCTION listarCarreraCurso
+RETURN Types.ref_cursor
+AS
+    cursor_out Types.ref_cursor;
+BEGIN
+OPEN cursor_out FOR
+SELECT id_carrera_curso, pk_carrera, pk_curso, pk_ciclo
+FROM Carrera_Curso;
+RETURN cursor_out;
 END;
 /
 
