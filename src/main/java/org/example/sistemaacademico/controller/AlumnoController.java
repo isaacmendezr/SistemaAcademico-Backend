@@ -49,9 +49,4 @@ public class AlumnoController {
     public List<Alumno> buscarPorCarrera(@RequestParam Long carrera) throws NoDataException, GlobalException {
         return alumnoService.buscarAlumnosPorCarrera(carrera);
     }
-
-    @GetMapping("/historialAlumno/{id}")
-    public List<MatriculaAlumnoDto> listarMatriculasPorAlumno(@PathVariable Long id) throws NoDataException, GlobalException {
-        return alumnoService.listarMatriculasPorAlumno(id);
-    }
 }

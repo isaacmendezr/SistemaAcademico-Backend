@@ -742,6 +742,72 @@ BEGIN
 END;
 /
 
+-- Listar Matricular Por Alumno
+CREATE OR REPLACE FUNCTION listarMatriculasPorAlumno(
+    p_id_alumno IN Alumno.id_alumno%TYPE
+) RETURN SYS_REFCURSOR
+AS
+    matriculas_cursor Types.ref_cursor;
+BEGIN
+    OPEN matriculas_cursor FOR
+        SELECT 
+            m.id_matricula,
+            m.nota,
+            g.numero_grupo,
+            g.horario,
+            c.codigo AS codigo_carrera,
+            c.nombre AS nombre_carrera,
+            cu.codigo AS codigo_curso,
+            cu.nombre AS nombre_curso,
+            p.nombre AS nombre_profesor,
+            p.cedula AS cedula_profesor
+        FROM Matricula m
+        JOIN Grupo g ON m.pk_grupo = g.id_grupo
+        JOIN Profesor p ON g.pk_profesor = p.id_profesor
+        JOIN Carrera_Curso cc ON g.pk_carrera_curso = cc.id_carrera_curso
+        JOIN Carrera c ON cc.pk_carrera = c.id_carrera
+        JOIN Curso cu ON cc.pk_curso = cu.id_curso
+        WHERE m.pk_alumno = p_id_alumno;
+    
+    RETURN matriculas_cursor;
+END;
+/
+
+-- Listar Matricular Por Alumno Y Ciclo
+CREATE OR REPLACE FUNCTION listarMatriculasPorAlumnoYCiclo(
+    p_id_alumno IN Alumno.id_alumno%TYPE,
+    p_id_ciclo  IN Ciclo.id_ciclo%TYPE
+) RETURN SYS_REFCURSOR
+AS
+    resultado SYS_REFCURSOR;
+BEGIN
+    OPEN resultado FOR
+        SELECT 
+            m.id_matricula,
+            m.nota,
+            g.numero_grupo,
+            g.horario,
+            c.codigo AS codigo_carrera,
+            c.nombre AS nombre_carrera,
+            cu.codigo AS codigo_curso,
+            cu.nombre AS nombre_curso,
+            p.nombre AS nombre_profesor,
+            p.cedula AS cedula_profesor
+        FROM Matricula m
+        JOIN Grupo g ON m.pk_grupo = g.id_grupo
+        JOIN Profesor p ON g.pk_profesor = p.id_profesor
+        JOIN Carrera_Curso cc ON g.pk_carrera_curso = cc.id_carrera_curso
+        JOIN Carrera c ON cc.pk_carrera = c.id_carrera
+        JOIN Curso cu ON cc.pk_curso = cu.id_curso
+        JOIN Ciclo ci ON cc.pk_ciclo = ci.id_ciclo
+        WHERE m.pk_alumno = p_id_alumno
+          AND ci.id_ciclo = p_id_ciclo;
+    
+    RETURN resultado;
+END;
+/
+
+
 ------------------------------------------------USUARIOS--------------------------------------------
 
 -- Insertar Usuario

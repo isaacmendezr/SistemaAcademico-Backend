@@ -24,7 +24,6 @@ public class AlumnoService {
     private static final String buscarPorCedula = "{?=call buscarAlumnoPorCedula(?)}";
     private static final String buscarPorNombre = "{?=call buscarAlumnoPorNombre(?)}";
     private static final String buscarAlumnosPorCarrera = "{?=call buscarAlumnosPorCarrera(?)}";
-    private static final String listarMatriculasPorAlumno = "{?=call listarMatriculasPorAlumno(?)}";
 
     private Servicio servicio;
 
@@ -351,58 +350,5 @@ public class AlumnoService {
             throw new NoDataException("No hay datos");
         }
     }
-    public List<MatriculaAlumnoDto> listarMatriculasPorAlumno(Long alumno) throws GlobalException, NoDataException {
-        try {
-            this.servicio.conectar();
-        } catch (ClassNotFoundException | SQLException e) {
-            throw new GlobalException("No se ha localizado el driver o base de datos no disponible");
-        }
 
-        CallableStatement cs = null;
-        ResultSet rs = null;
-        List<MatriculaAlumnoDto> listaMatriculas = new ArrayList<>();
-
-        try {
-            cs = this.servicio.conexion.prepareCall(listarMatriculasPorAlumno);
-            cs.registerOutParameter(1, -10);
-            cs.setLong(2, alumno);
-            cs.execute();
-
-            rs = (ResultSet) cs.getObject(1);
-
-            while (rs.next()) {
-                MatriculaAlumnoDto m = new MatriculaAlumnoDto(
-                        rs.getLong("id_matricula"),
-                        rs.getDouble("nota"),
-                        rs.getString("numero_grupo"),
-                        rs.getString("horario"),
-                        rs.getString("codigo_carrera"),
-                        rs.getString("nombre_carrera"),
-                        rs.getString("codigo_curso"),
-                        rs.getString("nombre_curso"),
-                        rs.getString("nombre_profesor"),
-                        rs.getString("cedula_profesor")
-                );
-                listaMatriculas.add(m);
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new GlobalException("Error en sentencia SQL");
-        } finally {
-            try {
-                if (rs != null) rs.close();
-                if (cs != null) cs.close();
-                this.servicio.desconectar();
-            } catch (SQLException e) {
-                throw new GlobalException("Error cerrando recursos");
-            }
-        }
-
-        if (listaMatriculas.isEmpty()) {
-            throw new NoDataException("No hay matriculas para el alumno con id: " + alumno);
-        }
-
-        return listaMatriculas;
-    }
 }

@@ -5,6 +5,7 @@ import org.example.sistemaacademico.database.GlobalException;
 import org.example.sistemaacademico.database.NoDataException;
 import org.example.sistemaacademico.database.Servicio;
 import org.example.sistemaacademico.logic.Matricula;
+import org.example.sistemaacademico.logic.dto.MatriculaAlumnoDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,13 +15,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 @Service
 public class MatriculaService {
     private static final String insertarMatricula = "{call insertarMatricula (?,?)}";
     private static final String modificarMatricula = "{call modificarMatricula (?,?,?,?)}";
     private static final String eliminarMatricula = "{call eliminarMatricula(?)}";
-    private static final String listarMatriculas = "{?=call listarMatriculas()}";
+    private static final String listarMatriculasPorAlumno = "{?=call listarMatriculasPorAlumno(?)}";
+    private static final String listarMatriculasPorAlumnoYCiclo = "{?=call listarMatriculasPorAlumnoYCiclo(?,?)}";
     private Servicio servicio;
 
     public MatriculaService() throws ClassNotFoundException, SQLException {
@@ -132,5 +135,114 @@ public class MatriculaService {
                 throw new GlobalException("Estatutos invalidos o nulos");
             }
         }
+    }
+    public List<MatriculaAlumnoDto> listarMatriculasPorAlumno(Long alumno) throws GlobalException, NoDataException {
+        try {
+            this.servicio.conectar();
+        } catch (ClassNotFoundException | SQLException e) {
+            throw new GlobalException("No se ha localizado el driver o base de datos no disponible");
+        }
+
+        CallableStatement cs = null;
+        ResultSet rs = null;
+        List<MatriculaAlumnoDto> listaMatriculas = new ArrayList<>();
+
+        try {
+            cs = this.servicio.conexion.prepareCall(listarMatriculasPorAlumno);
+            cs.registerOutParameter(1, -10);
+            cs.setLong(2, alumno);
+            cs.execute();
+
+            rs = (ResultSet) cs.getObject(1);
+
+            while (rs.next()) {
+                MatriculaAlumnoDto m = new MatriculaAlumnoDto(
+                        rs.getLong("id_matricula"),
+                        rs.getDouble("nota"),
+                        rs.getString("numero_grupo"),
+                        rs.getString("horario"),
+                        rs.getString("codigo_carrera"),
+                        rs.getString("nombre_carrera"),
+                        rs.getString("codigo_curso"),
+                        rs.getString("nombre_curso"),
+                        rs.getString("nombre_profesor"),
+                        rs.getString("cedula_profesor")
+                );
+                listaMatriculas.add(m);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new GlobalException("Error en sentencia SQL");
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (cs != null) cs.close();
+                this.servicio.desconectar();
+            } catch (SQLException e) {
+                throw new GlobalException("Error cerrando recursos");
+            }
+        }
+
+        if (listaMatriculas.isEmpty()) {
+            throw new NoDataException("No hay datos");
+        }
+
+        return listaMatriculas;
+    }
+    public List<MatriculaAlumnoDto> listarMatriculasPorAlumnoYCiclo(Long alumno, Long ciclo) throws GlobalException, NoDataException {
+        try {
+            this.servicio.conectar();
+        } catch (ClassNotFoundException | SQLException e) {
+            throw new GlobalException("No hay datos");
+        }
+
+        CallableStatement cs = null;
+        ResultSet rs = null;
+        List<MatriculaAlumnoDto> listaMatriculas = new ArrayList<>();
+
+        try {
+            cs = this.servicio.conexion.prepareCall(listarMatriculasPorAlumnoYCiclo);
+            cs.registerOutParameter(1, -10);
+            cs.setLong(2, alumno);
+            cs.setLong(3, ciclo);
+            cs.execute();
+
+            rs = (ResultSet) cs.getObject(1);
+
+            while (rs.next()) {
+                MatriculaAlumnoDto m = new MatriculaAlumnoDto(
+                        rs.getLong("id_matricula"),
+                        rs.getDouble("nota"),
+                        rs.getString("numero_grupo"),
+                        rs.getString("horario"),
+                        rs.getString("codigo_carrera"),
+                        rs.getString("nombre_carrera"),
+                        rs.getString("codigo_curso"),
+                        rs.getString("nombre_curso"),
+                        rs.getString("nombre_profesor"),
+                        rs.getString("cedula_profesor")
+                );
+                listaMatriculas.add(m);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new GlobalException("Error en sentencia SQL");
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (cs != null) cs.close();
+                this.servicio.desconectar();
+            } catch (SQLException e) {
+                throw new GlobalException("Error cerrando recursos");
+            }
+        }
+
+        if (listaMatriculas.isEmpty()) {
+            throw new NoDataException("No hay datos");
+        }
+
+        return listaMatriculas;
     }
 }
