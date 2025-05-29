@@ -4,7 +4,7 @@ import org.example.sistemaacademico.data.GrupoService;
 import org.example.sistemaacademico.database.GlobalException;
 import org.example.sistemaacademico.database.NoDataException;
 import org.example.sistemaacademico.logic.Grupo;
-import org.example.sistemaacademico.logic.GrupoDto;
+import org.example.sistemaacademico.logic.dto.GrupoDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,9 +34,12 @@ public class GrupoController {
     public List<Grupo> listar() throws NoDataException, GlobalException {
         return grupoService.listarGrupos();
     }
-    @GetMapping("/buscarGruposPorCarreraCurso/{pkCarreraCurso}")
-    public List<GrupoDto> buscarGruposPorCarreraCurso(@PathVariable Long pkCarreraCurso) throws NoDataException, GlobalException {
-        return grupoService.buscarGruposPorCarreraCurso(pkCarreraCurso);
+    @GetMapping("/buscarGruposPorCarreraCurso/{pkCarrera}/{pkCurso}")
+    public List<GrupoDto> buscarGruposPorCarreraCurso(
+            @PathVariable Long pkCarrera,
+            @PathVariable Long pkCurso)
+            throws NoDataException, GlobalException {
+        return grupoService.buscarGruposPorCarreraCurso(pkCarrera, pkCurso);
     }
 
 }

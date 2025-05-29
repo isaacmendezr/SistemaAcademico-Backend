@@ -690,7 +690,8 @@ END;
 
 -- Buscar grupos por curso(carrera_curso)
 CREATE OR REPLACE FUNCTION buscarGruposPorCarreraCurso(
-    p_id_carrera_curso IN Grupo.pk_carrera_curso%TYPE
+    p_id_carrera IN Carrera.id_carrera%TYPE,
+    p_id_curso IN Curso.id_curso%TYPE
 ) RETURN SYS_REFCURSOR AS
     grupos_cursor Types.ref_cursor;
 BEGIN
@@ -703,7 +704,9 @@ BEGIN
            p.nombre AS nombre_profesor
     FROM Grupo g
     JOIN Profesor p ON g.pk_profesor = p.id_profesor
-    WHERE g.pk_carrera_curso = p_id_carrera_curso;
+    JOIN Carrera_Curso cc ON g.pk_carrera_curso = cc.id_carrera_curso
+    WHERE cc.pk_carrera = p_id_carrera
+      AND cc.pk_curso = p_id_curso;
     
     RETURN grupos_cursor;
 END;

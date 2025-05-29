@@ -4,7 +4,7 @@ import org.example.sistemaacademico.database.GlobalException;
 import org.example.sistemaacademico.database.NoDataException;
 import org.example.sistemaacademico.database.Servicio;
 import org.example.sistemaacademico.logic.Grupo;
-import org.example.sistemaacademico.logic.GrupoDto;
+import org.example.sistemaacademico.logic.dto.GrupoDto;
 import org.springframework.stereotype.Service;
 
 import java.sql.CallableStatement;
@@ -20,7 +20,7 @@ public class GrupoService {
     private static final String modificarGrupo= "{call modificarGrupo(?,?,?,?,?)}";
     private static final String eliminarGrupo = "{call eliminarGrupo(?)}";
     private static final String listarGrupos = "{?=call listarGrupos()}";
-    private static final String buscarGruposPorCarreraCurso = "{?= call buscarGruposPorCarreraCurso(?)}";
+    private static final String buscarGruposPorCarreraCurso = "{?= call buscarGruposPorCarreraCurso(?,?)}";
 
     private Servicio servicio;
 
@@ -192,7 +192,7 @@ public class GrupoService {
         }
     }
 
-    public List<GrupoDto> buscarGruposPorCarreraCurso(Long idCarreraCurso) throws GlobalException, NoDataException {
+    public List<GrupoDto> buscarGruposPorCarreraCurso(Long idCarrera, Long idCurso) throws GlobalException, NoDataException {
         try {
             this.servicio.conectar();
         } catch (ClassNotFoundException | SQLException e) {
@@ -206,7 +206,8 @@ public class GrupoService {
         try {
             cs = this.servicio.conexion.prepareCall(buscarGruposPorCarreraCurso);
             cs.registerOutParameter(1, -10);
-            cs.setLong(2, idCarreraCurso);
+            cs.setLong(2, idCarrera);
+            cs.setLong(3, idCurso);
             cs.execute();
 
             rs = (ResultSet) cs.getObject(1);
