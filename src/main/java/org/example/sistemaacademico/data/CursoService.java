@@ -389,7 +389,7 @@ public class CursoService {
         }
 
         if (listaCursos.isEmpty()) {
-            throw new NoDataException("No se encontraron cursos para la carrera y ciclo especificados");
+            throw new NoDataException("No hay datos");
         }
 
         return listaCursos;
