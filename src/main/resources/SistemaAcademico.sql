@@ -176,7 +176,7 @@ CREATE TABLE Usuario (
     cedula VARCHAR2(15) UNIQUE,
     clave VARCHAR2(100),
     tipo VARCHAR2(20) CHECK (tipo IN ('Administrador', 'Matriculador', 'Profesor', 'Alumno')) NOT NULL
-); 
+);
 COMMIT;
 
 --------------------------------------------------CURSOR--------------------------------------------------
@@ -190,7 +190,7 @@ END Types;
 -------------------------------------------------CARRERAS-------------------------------------------------
 
 -- Insertar Carrera
-CREATE OR REPLACE PROCEDURE insertarCarrera( 
+CREATE OR REPLACE PROCEDURE insertarCarrera(
                                             codigo IN Carrera.codigo%TYPE, 
                                             nombre IN Carrera.nombre%TYPE, 
                                             titulo IN Carrera.titulo%TYPE) 
@@ -202,7 +202,7 @@ END;
 /
 
 -- Modificar Carrera
-CREATE OR REPLACE PROCEDURE modificarCarrera(id_carrerain IN Carrera.id_carrera%TYPE, 
+CREATE OR REPLACE PROCEDURE modificarCarrera(id_carrerain IN Carrera.id_carrera%TYPE,
                                             codigoin IN Carrera.codigo%TYPE, 
                                             nombrein IN Carrera.nombre%TYPE, 
                                             tituloin IN Carrera.titulo%TYPE) AS
@@ -219,34 +219,34 @@ END;
 /
 
 -- Listar Carreras 
-CREATE OR REPLACE FUNCTION listarCarreras 
+CREATE OR REPLACE FUNCTION listarCarreras
 RETURN Types.ref_cursor 
 AS
     carrera_cursor Types.ref_cursor;
 BEGIN
-    OPEN carrera_cursor FOR 
+    OPEN carrera_cursor FOR
     SELECT id_carrera, codigo, nombre, titulo FROM Carrera;
     RETURN carrera_cursor;
 END;
 /
 
 -- Buscar Carrera por codigo
-CREATE OR REPLACE FUNCTION buscarCarreraPorCodigo(codigobuscar IN Carrera.codigo%TYPE) 
+CREATE OR REPLACE FUNCTION buscarCarreraPorCodigo(codigobuscar IN Carrera.codigo%TYPE)
 RETURN SYS_REFCURSOR AS
     carrera_cursor types.ref_cursor;
 BEGIN
-    OPEN carrera_cursor FOR 
+    OPEN carrera_cursor FOR
     SELECT id_carrera, codigo, nombre, titulo FROM Carrera WHERE codigo=codigobuscar;
     RETURN carrera_cursor;
 END;
 /
 
 -- Buscar Carrera por nombre
-CREATE OR REPLACE FUNCTION buscarCarreraPorNombre(nombrebuscar IN Carrera.nombre%TYPE) 
+CREATE OR REPLACE FUNCTION buscarCarreraPorNombre(nombrebuscar IN Carrera.nombre%TYPE)
 RETURN SYS_REFCURSOR AS
     carrera_cursor types.ref_cursor;
 BEGIN
-    OPEN carrera_cursor FOR 
+    OPEN carrera_cursor FOR
     SELECT  id_carrera, codigo, nombre, titulo FROM Carrera WHERE nombre=nombrebuscar;
     RETURN carrera_cursor;
 END;
@@ -286,7 +286,7 @@ CREATE OR REPLACE PROCEDURE modificarOrdenCursoCarrera(
 )
 AS
 BEGIN
-    UPDATE Carrera_Curso 
+    UPDATE Carrera_Curso
     SET pk_ciclo = p_nuevo_pk_ciclo
     WHERE pk_carrera = p_pk_carrera AND pk_curso = p_pk_curso;
 END;
@@ -301,7 +301,7 @@ RETURN SYS_REFCURSOR AS
     v_cursor SYS_REFCURSOR;
 BEGIN
     OPEN v_cursor FOR
-        SELECT 
+        SELECT
             c.id_curso,
             c.codigo,
             c.nombre,
@@ -354,7 +354,7 @@ CREATE OR REPLACE PROCEDURE modificarCurso(id_cursoin IN curso.id_curso%TYPE,
                                           horas_semanalesin IN Curso.horas_semanales%TYPE)
 AS
 BEGIN
-    UPDATE Curso SET codigo = codigoin, nombre = nombrein, creditos = creditosin, 
+    UPDATE Curso SET codigo = codigoin, nombre = nombrein, creditos = creditosin,
     horas_semanales = horas_semanalesin WHERE id_curso = id_cursoin;
 END;
 /
@@ -373,29 +373,29 @@ RETURN Types.ref_cursor
 AS
     curso_cursor Types.ref_cursor;
 BEGIN
-    OPEN curso_cursor FOR 
+    OPEN curso_cursor FOR
     SELECT id_curso, codigo, nombre, creditos, horas_semanales FROM Curso;
     RETURN curso_cursor;
 END;
 / 
 
 -- Busacr Curso por nombre
-CREATE OR REPLACE FUNCTION buscarCursoPorNombre(nombrebuscar IN Curso.nombre%TYPE) 
+CREATE OR REPLACE FUNCTION buscarCursoPorNombre(nombrebuscar IN Curso.nombre%TYPE)
 RETURN SYS_REFCURSOR AS
     curso_cursor types.ref_cursor;
 BEGIN
-    OPEN curso_cursor FOR 
+    OPEN curso_cursor FOR
     SELECT id_curso, codigo, nombre, creditos, horas_semanales FROM Curso WHERE nombre=nombrebuscar;
     RETURN curso_cursor;
 END;
 /
 
 -- Buscar Curso por c�digo
-CREATE OR REPLACE FUNCTION buscarCursoPorCodigo(codigobuscar IN Curso.codigo%TYPE) 
+CREATE OR REPLACE FUNCTION buscarCursoPorCodigo(codigobuscar IN Curso.codigo%TYPE)
 RETURN SYS_REFCURSOR AS
     curso_cursor types.ref_cursor;
 BEGIN
-    OPEN curso_cursor FOR 
+    OPEN curso_cursor FOR
     SELECT id_curso, codigo, nombre, creditos, horas_semanales FROM Curso WHERE codigo=codigobuscar;
     RETURN curso_cursor;
 END;
@@ -409,7 +409,7 @@ RETURN SYS_REFCURSOR AS
     v_cursor SYS_REFCURSOR;
 BEGIN
     OPEN v_cursor FOR
-        SELECT 
+        SELECT
             c.id_curso,
             c.codigo,
             c.nombre,
@@ -436,8 +436,8 @@ CREATE OR REPLACE FUNCTION buscarCursosPorCiclo(
 RETURN Types.ref_cursor AS
     curso_cursor Types.ref_cursor;
 BEGIN
-    OPEN curso_cursor FOR 
-        SELECT 
+    OPEN curso_cursor FOR
+        SELECT
             c.id_curso,
             c.codigo,
             c.nombre,
@@ -483,13 +483,13 @@ CREATE OR REPLACE PROCEDURE modificarCiclo(id_cicloin IN Ciclo.id_ciclo%TYPE,
                                            estadoin IN Ciclo.estado%TYPE) 
 AS
 BEGIN
-    UPDATE Ciclo SET fecha_inicio = fecha_inicioin, fecha_fin = fecha_finin, 
+    UPDATE Ciclo SET fecha_inicio = fecha_inicioin, fecha_fin = fecha_finin,
     estado=estadoin, anio = anioin, numero = numeroin WHERE id_cicloin = id_ciclo;
 END;
 /
 
 -- Eliminar Ciclo
-CREATE OR REPLACE PROCEDURE eliminarCiclo(id_cicloin IN Ciclo.id_ciclo%TYPE) 
+CREATE OR REPLACE PROCEDURE eliminarCiclo(id_cicloin IN Ciclo.id_ciclo%TYPE)
 AS
 BEGIN
     DELETE FROM Ciclo WHERE id_ciclo = id_cicloin;
@@ -503,26 +503,26 @@ RETURN Types.ref_cursor
 AS
     ciclo_cursor Types.ref_cursor;
 BEGIN
-    OPEN ciclo_cursor FOR 
+    OPEN ciclo_cursor FOR
     SELECT id_ciclo, anio, numero, fecha_inicio, fecha_fin, estado FROM Ciclo;
     RETURN ciclo_cursor;
 END;
 /
 
 -- Consultar Ciclos por a�o
-CREATE OR REPLACE FUNCTION buscarCicloPorAnnio(annioBuscar IN Ciclo.anio%TYPE) 
+CREATE OR REPLACE FUNCTION buscarCicloPorAnnio(annioBuscar IN Ciclo.anio%TYPE)
 RETURN SYS_REFCURSOR AS
     ciclo_cursor types.ref_cursor;
 BEGIN
-    OPEN ciclo_cursor FOR 
-    SELECT id_ciclo, anio, numero, fecha_inicio, fecha_fin, estado FROM Ciclo 
+    OPEN ciclo_cursor FOR
+    SELECT id_ciclo, anio, numero, fecha_inicio, fecha_fin, estado FROM Ciclo
     WHERE anio=annioBuscar;
     RETURN ciclo_cursor;
 END;
 /
 
 -- Activar ciclo
-CREATE OR REPLACE PROCEDURE activarCiclo(id_cicloin IN Ciclo.id_ciclo%TYPE) 
+CREATE OR REPLACE PROCEDURE activarCiclo(id_cicloin IN Ciclo.id_ciclo%TYPE)
 AS
 BEGIN
     UPDATE Ciclo SET estado='Inactivo';
@@ -571,29 +571,29 @@ RETURN Types.ref_cursor
 AS
     profesor_cursor Types.ref_cursor;
 BEGIN
-    OPEN profesor_cursor FOR 
+    OPEN profesor_cursor FOR
     SELECT id_profesor, cedula, nombre, telefono, email FROM Profesor;
     RETURN profesor_cursor;
 END;
 /
 
 -- Buscar Profesor por cedula
-CREATE OR REPLACE FUNCTION buscarProfesorPorCedula(cedulabuscar IN Profesor.cedula%TYPE) 
+CREATE OR REPLACE FUNCTION buscarProfesorPorCedula(cedulabuscar IN Profesor.cedula%TYPE)
 RETURN SYS_REFCURSOR AS
     profesor_cursor types.ref_cursor;
 BEGIN
-    OPEN profesor_cursor FOR 
+    OPEN profesor_cursor FOR
     SELECT id_profesor, cedula, nombre, telefono, email FROM Profesor WHERE cedula=cedulabuscar;
     RETURN profesor_cursor;
 END;
 /
 
 -- Buscar Profesor por nombre
-CREATE OR REPLACE FUNCTION buscarProfesorPorNombre(nombrebuscar IN Profesor.nombre%TYPE) 
+CREATE OR REPLACE FUNCTION buscarProfesorPorNombre(nombrebuscar IN Profesor.nombre%TYPE)
 RETURN SYS_REFCURSOR AS
     profesor_cursor types.ref_cursor;
 BEGIN
-    OPEN profesor_cursor FOR 
+    OPEN profesor_cursor FOR
     SELECT id_profesor, cedula, nombre, telefono, email FROM Profesor WHERE nombre=nombrebuscar;
     RETURN profesor_cursor;
 END;
@@ -632,7 +632,7 @@ END;
 /
 
 -- Eliminar Alumno
-CREATE OR REPLACE PROCEDURE eliminarAlumno(id_alumnoin IN Alumno.id_alumno%TYPE) 
+CREATE OR REPLACE PROCEDURE eliminarAlumno(id_alumnoin IN Alumno.id_alumno%TYPE)
 AS
 BEGIN
     DELETE FROM Alumno WHERE id_alumno = id_alumnoin;
@@ -701,7 +701,7 @@ END;
 /
 
 -- Modificar Grupo
-CREATE OR REPLACE PROCEDURE modificarGrupo(id_grupoin Grupo.id_grupo%TYPE, 
+CREATE OR REPLACE PROCEDURE modificarGrupo(id_grupoin Grupo.id_grupo%TYPE,
                                           pk_carrera_cursoin Grupo.pk_carrera_curso%TYPE,
                                           numero_grupoin Grupo.numero_grupo%TYPE, 
                                           horarioin Grupo.horario%TYPE, 
@@ -709,14 +709,14 @@ CREATE OR REPLACE PROCEDURE modificarGrupo(id_grupoin Grupo.id_grupo%TYPE,
 AS
 BEGIN
     UPDATE Grupo SET  pk_carrera_curso = pk_carrera_cursoin,
-                      numero_grupo = numero_grupoin, 
-                      horario =  horarioin, 
+                      numero_grupo = numero_grupoin,
+                      horario =  horarioin,
                       pk_profesor = pk_profesorin WHERE id_grupo = id_grupoin;
 END;
 /
 
 -- Eliminar Grupo
-CREATE OR REPLACE PROCEDURE eliminarGrupo(id_grupoin IN Grupo.id_grupo%TYPE) 
+CREATE OR REPLACE PROCEDURE eliminarGrupo(id_grupoin IN Grupo.id_grupo%TYPE)
 AS
 BEGIN
     DELETE FROM Grupo WHERE id_grupo = id_grupoin;
@@ -729,7 +729,7 @@ RETURN Types.ref_cursor
 AS
     grupo_cursor Types.ref_cursor;
 BEGIN
-    OPEN grupo_cursor FOR 
+    OPEN grupo_cursor FOR
     SELECT id_grupo, pk_carrera_curso, numero_grupo, horario, pk_profesor FROM Grupo;
     RETURN grupo_cursor;
 END;
@@ -754,7 +754,7 @@ BEGIN
     JOIN Carrera_Curso cc ON g.pk_carrera_curso = cc.id_carrera_curso
     WHERE cc.pk_carrera = p_id_carrera
       AND cc.pk_curso = p_id_curso;
-    
+
     RETURN grupos_cursor;
 END;
 /
@@ -768,7 +768,7 @@ CREATE OR REPLACE FUNCTION buscarGruposPorCursoCicloCarrera(
     grupos_cursor Types.ref_cursor;
 BEGIN
     OPEN grupos_cursor FOR
-    SELECT 
+    SELECT
         g.id_grupo,
         g.pk_carrera_curso,
         g.numero_grupo,
@@ -789,7 +789,7 @@ END;
 ------------------------------------------------MATRICULAS--------------------------------------------
 
 -- Insertar Matricula
-CREATE OR REPLACE PROCEDURE insertarMatricula(pk_alumno IN Matricula.pk_alumno%TYPE, pk_grupo IN Matricula.pk_grupo%TYPE) 
+CREATE OR REPLACE PROCEDURE insertarMatricula(pk_alumno IN Matricula.pk_alumno%TYPE, pk_grupo IN Matricula.pk_grupo%TYPE)
 AS
 BEGIN
     INSERT INTO Matricula (pk_alumno,pk_grupo)
@@ -798,7 +798,7 @@ END;
 /
 
 -- Modificar Matricula
-CREATE OR REPLACE PROCEDURE modificarMatricula(id_matriculain Matricula.id_matricula%TYPE, 
+CREATE OR REPLACE PROCEDURE modificarMatricula(id_matriculain Matricula.id_matricula%TYPE,
                                               pk_alumnoin Matricula.pk_alumno%TYPE, 
                                               pk_grupoin Matricula.pk_grupo%TYPE, 
                                               notain Matricula.nota%TYPE) 
@@ -809,7 +809,7 @@ END;
 /
 
 -- Eliminar Matricula
-CREATE OR REPLACE PROCEDURE eliminarMatricula(id_matriculain IN Matricula.id_matricula%TYPE) 
+CREATE OR REPLACE PROCEDURE eliminarMatricula(id_matriculain IN Matricula.id_matricula%TYPE)
 AS
 BEGIN
     DELETE FROM Matricula WHERE id_matricula = id_matriculain;
@@ -824,7 +824,7 @@ AS
     matriculas_cursor Types.ref_cursor;
 BEGIN
     OPEN matriculas_cursor FOR
-        SELECT 
+        SELECT
             m.id_matricula,
             m.nota,
             g.numero_grupo,
@@ -842,7 +842,7 @@ BEGIN
         JOIN Carrera c ON cc.pk_carrera = c.id_carrera
         JOIN Curso cu ON cc.pk_curso = cu.id_curso
         WHERE m.pk_alumno = p_id_alumno;
-    
+
     RETURN matriculas_cursor;
 END;
 /
@@ -856,7 +856,7 @@ AS
     resultado SYS_REFCURSOR;
 BEGIN
     OPEN resultado FOR
-        SELECT 
+        SELECT
             m.id_matricula,
             m.nota,
             g.numero_grupo,
@@ -876,7 +876,7 @@ BEGIN
         JOIN Ciclo ci ON cc.pk_ciclo = ci.id_ciclo
         WHERE m.pk_alumno = p_id_alumno
           AND ci.id_ciclo = p_id_ciclo;
-    
+
     RETURN resultado;
 END;
 /
@@ -885,7 +885,7 @@ END;
 ------------------------------------------------USUARIOS--------------------------------------------
 
 -- Insertar Usuario
-CREATE OR REPLACE PROCEDURE insertarUsuario(cedula IN Usuario.cedula%TYPE, clave IN Usuario.clave%TYPE, tipo IN Usuario.tipo%TYPE) 
+CREATE OR REPLACE PROCEDURE insertarUsuario(cedula IN Usuario.cedula%TYPE, clave IN Usuario.clave%TYPE, tipo IN Usuario.tipo%TYPE)
 AS
 BEGIN
     INSERT INTO Usuario (cedula, clave, tipo)
@@ -915,18 +915,18 @@ RETURN Types.ref_cursor
 AS
     usuario_cursor Types.ref_cursor;
 BEGIN
-    OPEN usuario_cursor FOR 
+    OPEN usuario_cursor FOR
     SELECT id_usuario, cedula, tipo FROM Usuario;
     RETURN usuario_cursor;
 END;
 /
 
 -- Consultar Usuario por cedula
-CREATE OR REPLACE FUNCTION buscarUsuarioPorCedula(cedulabuscar IN Usuario.cedula%TYPE) 
+CREATE OR REPLACE FUNCTION buscarUsuarioPorCedula(cedulabuscar IN Usuario.cedula%TYPE)
 RETURN SYS_REFCURSOR AS
     usuario_cursor types.ref_cursor;
 BEGIN
-    OPEN usuario_cursor FOR 
+    OPEN usuario_cursor FOR
     SELECT id_usuario, cedula, tipo FROM Usuario WHERE cedula=cedulabuscar;
     RETURN usuario_cursor;
 END;
@@ -955,6 +955,9 @@ END;
 INSERT INTO Carrera (codigo, nombre, titulo) VALUES ('INF01', 'Ingeniería en Informática', 'Bachiller en Ingeniería en Informática');
 INSERT INTO Carrera (codigo, nombre, titulo) VALUES ('ADM01', 'Administración de Empresas', 'Bachiller en Administración');
 INSERT INTO Carrera (codigo, nombre, titulo) VALUES ('TUR01', 'Gestión Turística', 'Bachiller en Gestión Turística');
+INSERT INTO Carrera (codigo, nombre, titulo) VALUES ('MAT01', 'Matemáticas Aplicadas', 'Bachiller en Matemáticas Aplicadas');
+INSERT INTO Carrera (codigo, nombre, titulo) VALUES ('BIO01', 'Biología', 'Bachiller en Biología');
+INSERT INTO Carrera (codigo, nombre, titulo) VALUES ('ING01', 'Ingeniería Industrial', 'Bachiller en Ingeniería Industrial');
 
 -- CURSOS
 INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('INF101', 'Programación I', 4, 6);
@@ -963,12 +966,22 @@ INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('ADM101', 
 INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('ADM201', 'Gestión Financiera', 4, 5);
 INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('TUR101', 'Introducción al Turismo', 3, 3);
 INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('TUR201', 'Turismo Sostenible', 4, 4);
+INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('MAT101', 'Cálculo I', 4, 6);
+INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('MAT201', 'Álgebra Lineal', 4, 5);
+INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('BIO101', 'Biología General', 4, 6);
+INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('BIO201', 'Ecología', 3, 4);
+INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('ING101', 'Introducción a la Ingeniería', 3, 3);
+INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('ING201', 'Gestión de Producción', 4, 5);
 
 -- CICLOS
 INSERT INTO Ciclo (anio, numero, fecha_inicio, fecha_fin, estado)
 VALUES (2025, 1, TO_DATE('2025-02-01', 'YYYY-MM-DD'), TO_DATE('2025-06-01', 'YYYY-MM-DD'), 'Activo');
 INSERT INTO Ciclo (anio, numero, fecha_inicio, fecha_fin, estado)
 VALUES (2025, 2, TO_DATE('2025-07-01', 'YYYY-MM-DD'), TO_DATE('2025-11-01', 'YYYY-MM-DD'), 'Inactivo');
+INSERT INTO Ciclo (anio, numero, fecha_inicio, fecha_fin, estado)
+VALUES (2025, 3, TO_DATE('2025-11-15', 'YYYY-MM-DD'), TO_DATE('2026-03-15', 'YYYY-MM-DD'), 'Inactivo');
+INSERT INTO Ciclo (anio, numero, fecha_inicio, fecha_fin, estado)
+VALUES (2026, 1, TO_DATE('2026-02-01', 'YYYY-MM-DD'), TO_DATE('2026-06-01', 'YYYY-MM-DD'), 'Inactivo');
 
 -- CARRERA CURSO
 INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (1, 1, 1);
@@ -977,12 +990,21 @@ INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (2, 3, 1);
 INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (2, 4, 2);
 INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (3, 5, 1);
 INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (3, 6, 2);
+INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (4, 7, 1); -- Matemáticas Aplicadas, Cálculo I, Ciclo 1
+INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (4, 8, 2); -- Matemáticas Aplicadas, Álgebra Lineal, Ciclo 2
+INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (5, 9, 1); -- Biología, Biología General, Ciclo 1
+INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (5, 10, 2); -- Biología, Ecología, Ciclo 2
+INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (6, 11, 1); -- Ingeniería Industrial, Introducción a la Ingeniería, Ciclo 1
+INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (6, 12, 2); -- Ingeniería Industrial, Gestión de Producción, Ciclo 2
 
 -- PROFESORES
 INSERT INTO Profesor (cedula, nombre, telefono, email) VALUES ('100100100', 'Carlos Rojas', '88888888', 'crojas@uni.edu');
 INSERT INTO Profesor (cedula, nombre, telefono, email) VALUES ('200200200', 'María López', '87777777', 'mlopez@uni.edu');
 INSERT INTO Profesor (cedula, nombre, telefono, email) VALUES ('300300300', 'Luis Jiménez', '86666666', 'ljimenez@uni.edu');
 INSERT INTO Profesor (cedula, nombre, telefono, email) VALUES ('400400400', 'Ana Salas', '85555555', 'asalas@uni.edu');
+INSERT INTO Profesor (cedula, nombre, telefono, email) VALUES ('500500500', 'Elena Gómez', '84444444', 'egomez@uni.edu');
+INSERT INTO Profesor (cedula, nombre, telefono, email) VALUES ('600600600', 'Ricardo Vargas', '83333333', 'rvargas@uni.edu');
+INSERT INTO Profesor (cedula, nombre, telefono, email) VALUES ('700700700', 'Clara Martínez', '82222222', 'cmartinez@uni.edu');
 
 -- ALUMNOS
 INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera)
@@ -997,12 +1019,30 @@ INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrer
 VALUES ('555555555', 'Sofía Vega', '89006789', 'sofia@correo.com', TO_DATE('2002-08-30','YYYY-MM-DD'), 3);
 INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera)
 VALUES ('666666666', 'Andrés Mora', '82001234', 'andres@correo.com', TO_DATE('1998-04-17','YYYY-MM-DD'), 3);
+INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera)
+VALUES ('777777777', 'Carla Sánchez', '81001234', 'carla@correo.com', TO_DATE('2001-05-12', 'YYYY-MM-DD'), 4);
+INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera)
+VALUES ('888888888', 'Miguel Torres', '82005678', 'miguel@correo.com', TO_DATE('2000-09-25', 'YYYY-MM-DD'), 4);
+INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera)
+VALUES ('999999999', 'Lucía Pérez', '83007890', 'lucia@correo.com', TO_DATE('2002-02-14', 'YYYY-MM-DD'), 5);
+INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera)
+VALUES ('101010101', 'Felipe Rojas', '84009876', 'felipe@correo.com', TO_DATE('1999-07-30', 'YYYY-MM-DD'), 5);
+INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera)
+VALUES ('121212121', 'Valeria Díaz', '85006789', 'valeria@correo.com', TO_DATE('2001-11-05', 'YYYY-MM-DD'), 6);
+INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera)
+VALUES ('131313131', 'Esteban López', '86001234', 'esteban@correo.com', TO_DATE('2000-01-22', 'YYYY-MM-DD'), 6);
 
 -- GRUPOS
 INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (1, 1, 'Lunes 8:00-10:00', 1);
 INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (2, 1, 'Miércoles 10:00-12:00', 1);
 INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (3, 1, 'Martes 9:00-11:00', 2);
 INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (5, 1, 'Jueves 2:00-4:00', 4);
+INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (7, 1, 'Lunes 10:00-12:00', 5); -- Cálculo I
+INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (8, 1, 'Martes 14:00-16:00', 5); -- Álgebra Lineal
+INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (9, 1, 'Miércoles 8:00-10:00', 6); -- Biología General
+INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (10, 1, 'Jueves 10:00-12:00', 6); -- Ecología
+INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (11, 1, 'Viernes 9:00-11:00', 7); -- Introducción a la Ingeniería
+INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (12, 1, 'Lunes 13:00-15:00', 7); -- Gestión de Producción
 
 -- MATRICULAS
 INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (1, 1, 85);
@@ -1013,6 +1053,14 @@ INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (5, 4, 92);
 INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (6, 4, 74);
 INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (2, 1, 81);
 INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (1, 2, 87);
+INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (7, 5, 80); -- Carla Sánchez en Cálculo I
+INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (8, 5, 85); -- Miguel Torres en Cálculo I
+INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (9, 7, 88); -- Lucía Pérez en Biología General
+INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (10, 7, 90); -- Felipe Rojas en Biología General
+INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (11, 9, 82); -- Valeria Díaz en Introducción a la Ingeniería
+INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (12, 9, 87); -- Esteban López en Introducción a la Ingeniería
+INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (7, 6, 78); -- Carla Sánchez en Álgebra Lineal
+INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (9, 8, 91); -- Lucía Pérez en Ecología
 
 -- USUARIOS
 INSERT INTO Usuario (cedula, clave, tipo) VALUES ('100100100', 'admin123', 'Administrador');
@@ -1021,6 +1069,11 @@ INSERT INTO Usuario (cedula, clave, tipo) VALUES ('300300300', 'prof789', 'Profe
 INSERT INTO Usuario (cedula, clave, tipo) VALUES ('111111111', 'alumno1', 'Alumno');
 INSERT INTO Usuario (cedula, clave, tipo) VALUES ('333333333', 'alumno2', 'Alumno');
 INSERT INTO Usuario (cedula, clave, tipo) VALUES ('555555555', 'alumno3', 'Alumno');
+INSERT INTO Usuario (cedula, clave, tipo) VALUES ('500500500', 'prof456', 'Profesor');
+INSERT INTO Usuario (cedula, clave, tipo) VALUES ('600600600', 'prof789', 'Profesor');
+INSERT INTO Usuario (cedula, clave, tipo) VALUES ('777777777', 'alumno4', 'Alumno');
+INSERT INTO Usuario (cedula, clave, tipo) VALUES ('999999999', 'alumno5', 'Alumno');
+INSERT INTO Usuario (cedula, clave, tipo) VALUES ('121212121', 'alumno6', 'Alumno');
 
 COMMIT;
 
