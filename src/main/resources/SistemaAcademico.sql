@@ -894,11 +894,19 @@ END;
 /
 
 -- Modificar Usuario
-CREATE OR REPLACE PROCEDURE modificarUsuario(id_usuarioin IN Usuario.id_usuario%TYPE,
-                                            cedulain IN Usuario.cedula%TYPE,
-                                            tipoin IN Usuario.tipo%TYPE) AS
+CREATE OR REPLACE PROCEDURE modificarUsuario(
+    id_usuarioin IN Usuario.id_usuario%TYPE,
+    cedulain     IN Usuario.cedula%TYPE,
+    clavein      IN Usuario.clave%TYPE,
+    tipoin       IN Usuario.tipo%TYPE
+) AS
 BEGIN
-    UPDATE Usuario SET cedula = cedulain, tipo = tipoin WHERE id_usuario = id_usuarioin;
+UPDATE Usuario
+SET
+    cedula = cedulain,
+    tipo   = tipoin,
+    clave  = NVL(clavein, clave)  -- Si clavein es null, deja la existente
+WHERE id_usuario = id_usuarioin;
 END;
 /
 
