@@ -136,7 +136,7 @@ public class MatriculaService {
             }
         }
     }
-    public List<MatriculaAlumnoDto> listarMatriculasPorAlumno(Long alumno) throws GlobalException, NoDataException {
+    public List<MatriculaAlumnoDto> listarMatriculasPorAlumno(String cedula) throws GlobalException, NoDataException {
         try {
             this.servicio.conectar();
         } catch (ClassNotFoundException | SQLException e) {
@@ -150,7 +150,7 @@ public class MatriculaService {
         try {
             cs = this.servicio.conexion.prepareCall(listarMatriculasPorAlumno);
             cs.registerOutParameter(1, -10);
-            cs.setLong(2, alumno);
+            cs.setString(2, cedula);
             cs.execute();
 
             rs = (ResultSet) cs.getObject(1);

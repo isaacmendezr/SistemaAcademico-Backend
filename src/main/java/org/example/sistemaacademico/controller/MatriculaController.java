@@ -28,10 +28,10 @@ public class MatriculaController {
     public void eliminar(@PathVariable("id") Long id) throws NoDataException, GlobalException {
         matriculaService.eliminarMatricula(id);
     }
-    @GetMapping("/listarMatriculasPorAlumno/{idAlumno}")
+    @GetMapping("/listarMatriculasPorAlumno/{cedula}")
     public List<MatriculaAlumnoDto> listarMatriculasPorAlumno(
-            @PathVariable Long idAlumno) throws NoDataException, GlobalException {
-        return matriculaService.listarMatriculasPorAlumno(idAlumno);
+            @PathVariable String cedula) throws NoDataException, GlobalException {
+        return matriculaService.listarMatriculasPorAlumno(cedula);
     }
     @GetMapping("/listarMatriculasPorAlumnoYCiclo/{idAlumno}/{idCiclo}")
     public List<MatriculaAlumnoDto> listarMatriculasPorAlumnoYCiclo(

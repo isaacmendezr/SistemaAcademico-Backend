@@ -853,9 +853,9 @@ CREATE OR REPLACE FUNCTION listarMatriculasPorAlumnoYCiclo(
     p_id_ciclo  IN Ciclo.id_ciclo%TYPE
 ) RETURN SYS_REFCURSOR
 AS
-    resultado SYS_REFCURSOR;
+    matriculas_cursor SYS_REFCURSOR;
 BEGIN
-    OPEN resultado FOR
+    OPEN matriculas_cursor FOR
         SELECT
             m.id_matricula,
             m.nota,
@@ -877,7 +877,7 @@ BEGIN
         WHERE m.pk_alumno = p_id_alumno
           AND ci.id_ciclo = p_id_ciclo;
 
-    RETURN resultado;
+    RETURN matriculas_cursor;
 END;
 /
 
@@ -967,7 +967,7 @@ INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('ADM201', 
 INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('TUR101', 'Introducción al Turismo', 3, 3);
 INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('TUR201', 'Turismo Sostenible', 4, 4);
 INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('MAT101', 'Cálculo I', 4, 6);
-INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('MAT201', 'Álgebra Lineal', 4, 5);
+INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('MAT201', '�?lgebra Lineal', 4, 5);
 INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('BIO101', 'Biología General', 4, 6);
 INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('BIO201', 'Ecología', 3, 4);
 INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('ING101', 'Introducción a la Ingeniería', 3, 3);
@@ -991,7 +991,7 @@ INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (2, 4, 2);
 INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (3, 5, 1);
 INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (3, 6, 2);
 INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (4, 7, 1); -- Matemáticas Aplicadas, Cálculo I, Ciclo 1
-INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (4, 8, 2); -- Matemáticas Aplicadas, Álgebra Lineal, Ciclo 2
+INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (4, 8, 2); -- Matemáticas Aplicadas, �?lgebra Lineal, Ciclo 2
 INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (5, 9, 1); -- Biología, Biología General, Ciclo 1
 INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (5, 10, 2); -- Biología, Ecología, Ciclo 2
 INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (6, 11, 1); -- Ingeniería Industrial, Introducción a la Ingeniería, Ciclo 1
@@ -1038,7 +1038,7 @@ INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES 
 INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (3, 1, 'Martes 9:00-11:00', 2);
 INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (5, 1, 'Jueves 2:00-4:00', 4);
 INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (7, 1, 'Lunes 10:00-12:00', 5); -- Cálculo I
-INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (8, 1, 'Martes 14:00-16:00', 5); -- Álgebra Lineal
+INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (8, 1, 'Martes 14:00-16:00', 5); -- �?lgebra Lineal
 INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (9, 1, 'Miércoles 8:00-10:00', 6); -- Biología General
 INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (10, 1, 'Jueves 10:00-12:00', 6); -- Ecología
 INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (11, 1, 'Viernes 9:00-11:00', 7); -- Introducción a la Ingeniería
@@ -1059,7 +1059,7 @@ INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (9, 7, 88); -- Lucía P
 INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (10, 7, 90); -- Felipe Rojas en Biología General
 INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (11, 9, 82); -- Valeria Díaz en Introducción a la Ingeniería
 INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (12, 9, 87); -- Esteban López en Introducción a la Ingeniería
-INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (7, 6, 78); -- Carla Sánchez en Álgebra Lineal
+INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (7, 6, 78); -- Carla Sánchez en �?lgebra Lineal
 INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (9, 8, 91); -- Lucía Pérez en Ecología
 
 -- USUARIOS
