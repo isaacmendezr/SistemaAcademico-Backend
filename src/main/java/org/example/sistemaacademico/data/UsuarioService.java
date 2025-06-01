@@ -1,28 +1,21 @@
 package org.example.sistemaacademico.data;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.ParameterMode;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.StoredProcedureQuery;
 import org.example.sistemaacademico.database.GlobalException;
 import org.example.sistemaacademico.database.NoDataException;
 import org.example.sistemaacademico.database.Servicio;
-import org.example.sistemaacademico.logic.Curso;
 import org.example.sistemaacademico.logic.Usuario;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.sql.CallableStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 @Service
 public class UsuarioService {
     private static final String insertarUsuario = "{call insertarUsuario (?,?,?)}";
-    private static final String modificarUsuario = "{call modificarUsuario (?,?,?)}";
+    private static final String modificarUsuario = "{call modificarUsuario (?,?,?,?)}";
     private static final String eliminarUsuario = "{call eliminarUsuario(?)}";
     private static final String listarUsuarios = "{?=call listarUsuarios()}";
     private static final String buscarUsuarioPorCedula = "{?=call buscarUsuarioPorCedula(?)}";
@@ -32,6 +25,7 @@ public class UsuarioService {
     public UsuarioService() throws ClassNotFoundException, SQLException {
         this.servicio = org.example.sistemaacademico.database.Servicio.getInstancia();
     }
+
     public void insertarUsuario(Usuario usuario) throws GlobalException, NoDataException {
         try {
             this.servicio.conectar();
@@ -64,6 +58,7 @@ public class UsuarioService {
             }
         }
     }
+
     public void modificarUsuario(Usuario usuario) throws GlobalException, NoDataException {
         try {
             this.servicio.conectar();
@@ -79,8 +74,9 @@ public class UsuarioService {
             pstmt = this.servicio.conexion.prepareCall(modificarUsuario);
             pstmt.setLong(1, usuario.getIdUsuario());
             pstmt.setString(2, usuario.getCedula());
-            pstmt.setString(3, usuario.getTipo());
-            boolean var4 = pstmt.execute();
+            pstmt.setString(3, usuario.getClave()); // clave incluida
+            pstmt.setString(4, usuario.getTipo());
+            pstmt.execute();
         } catch (SQLException var7) {
             var7.printStackTrace();
             throw new GlobalException("Sentencia no valida");
@@ -89,13 +85,13 @@ public class UsuarioService {
                 if (pstmt != null) {
                     pstmt.close();
                 }
-
                 this.servicio.desconectar();
             } catch (SQLException var4) {
                 throw new GlobalException("Estatutos invalidos o nulos");
             }
         }
     }
+
     public void eliminarUsuario(Long usuario) throws GlobalException, NoDataException {
         try {
             this.servicio.conectar();
@@ -126,6 +122,7 @@ public class UsuarioService {
             }
         }
     }
+
     public List<Usuario> listarUsuarios() throws GlobalException, NoDataException {
         try {
             this.servicio.conectar();
@@ -143,9 +140,9 @@ public class UsuarioService {
             pstmt = this.servicio.conexion.prepareCall(listarUsuarios);
             pstmt.registerOutParameter(1, -10);
             pstmt.execute();
-            rs = (ResultSet)pstmt.getObject(1);
+            rs = (ResultSet) pstmt.getObject(1);
 
-            while(rs.next()) {
+            while (rs.next()) {
                 coleccion.add(new Usuario(
                         rs.getLong("id_usuario"),
                         rs.getString("cedula"),
@@ -176,6 +173,7 @@ public class UsuarioService {
             throw new NoDataException("No hay datos");
         }
     }
+
     public Usuario buscarUsuarioPorCedula(String cedula) throws GlobalException, NoDataException {
         try {
             this.servicio.conectar();
@@ -194,7 +192,7 @@ public class UsuarioService {
             pstmt.registerOutParameter(1, -10);
             pstmt.setString(2, cedula);
             pstmt.execute();
-            rs = (ResultSet)pstmt.getObject(1);
+            rs = (ResultSet) pstmt.getObject(1);
             if (rs.next()) {
                 usuario = new Usuario(
                         rs.getLong("id_usuario"),
@@ -226,6 +224,7 @@ public class UsuarioService {
             throw new NoDataException("No hay datos");
         }
     }
+
     public Usuario loginUsuario(String cedula, String clave) throws GlobalException, NoDataException {
         try {
             this.servicio.conectar();
@@ -243,7 +242,7 @@ public class UsuarioService {
             pstmt = this.servicio.conexion.prepareCall(loginUsuario);
             pstmt.setString(1, cedula);
             pstmt.setString(2, clave);
-            pstmt.registerOutParameter(3,-10);
+            pstmt.registerOutParameter(3, -10);
 
             pstmt.execute();
 
