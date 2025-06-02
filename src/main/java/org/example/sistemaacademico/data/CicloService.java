@@ -11,10 +11,7 @@ import org.example.sistemaacademico.logic.Ciclo;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.sql.CallableStatement;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -27,6 +24,7 @@ public class CicloService {
     private static final String listarCiclos = "{?=call listarCiclos()}";
     private static final String buscarPorAnnio = "{?=call buscarCicloPorAnnio(?)}";
     private static final String activarCiclo= "{call activarCiclo(?)}";
+    private static final String buscarPorId= "{?=call buscarCicloPorId(?)}";
     private Servicio servicio;
 
     public CicloService() throws ClassNotFoundException, SQLException {
@@ -282,5 +280,55 @@ public class CicloService {
                 throw new GlobalException("Estatutos invalidos o nulos");
             }
         }
+    }
+    public Ciclo buscarCicloPorId(Long id) throws GlobalException, NoDataException {
+        try {
+            this.servicio.conectar();
+        } catch (ClassNotFoundException e) {
+            throw new GlobalException("No se ha localizado el driver");
+        } catch (SQLException e) {
+            throw new NoDataException("La base de datos no se encuentra disponible");
+        }
+
+        ResultSet rs = null;
+        Ciclo ciclo = null;
+        CallableStatement pstmt = null;
+
+        try {
+            pstmt = this.servicio.conexion.prepareCall(buscarPorId);
+            pstmt.registerOutParameter(1, Types.REF_CURSOR);
+            pstmt.setLong(2, id);
+            pstmt.execute();
+            rs = (ResultSet) pstmt.getObject(1);
+            if (rs.next()) {
+                ciclo = new Ciclo(
+                        rs.getLong("id_ciclo"),
+                        rs.getLong("anio"),
+                        rs.getLong("numero"),
+                        rs.getDate("fecha_inicio").toLocalDate(),
+                        rs.getDate("fecha_fin").toLocalDate(),
+                        rs.getString("estado")
+                );
+            }
+        } catch (SQLException e) {
+            throw new GlobalException("Sentencia no válida");
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+                this.servicio.desconectar();
+            } catch (SQLException e) {
+                throw new GlobalException("Estatutos inválidos o nulos");
+            }
+        }
+
+        if (ciclo == null) {
+            throw new NoDataException("Ciclo no encontrado");
+        }
+        return ciclo;
     }
 }

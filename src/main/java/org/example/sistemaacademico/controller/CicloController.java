@@ -46,4 +46,9 @@ public class CicloController {
         cicloService.activarCiclo(id);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/buscarPorId/{id}")
+    public Ciclo buscarPorId(@PathVariable Long id) throws NoDataException, GlobalException {
+        return cicloService.buscarCicloPorId(id);
+    }
 }
