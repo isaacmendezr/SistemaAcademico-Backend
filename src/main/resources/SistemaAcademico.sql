@@ -1,85 +1,143 @@
+SET SERVEROUTPUT ON;
+
 ----------------------------------------------------------------------------------------------------------
 -- LIMPIEZA OPCIONAL DE TABLAS Y OBJETOS EXISTENTES
 ----------------------------------------------------------------------------------------------------------
 
--- Procedimientos y funciones (si no existen, ignora el error)
-
+-- Procedimientos y funciones
 -- CARRERA
-DROP PROCEDURE insertarCarrera;
-DROP PROCEDURE modificarCarrera;
-DROP PROCEDURE eliminarCarrera;
-DROP FUNCTION listarCarreras;
-DROP FUNCTION buscarCarreraPorCodigo;
-DROP FUNCTION buscarCarreraPorNombre;
+BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE insertarCarrera'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE modificarCarrera'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE eliminarCarrera'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION listarCarreras'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION buscarCarreraPorCodigo'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION buscarCarreraPorNombre'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
 
 -- CURSO
-DROP PROCEDURE insertarCurso;
-DROP PROCEDURE modificarCurso;
-DROP PROCEDURE eliminarCurso;
-DROP FUNCTION listarCursos;
-DROP FUNCTION buscarCursoPorNombre;
-DROP FUNCTION buscarCursoPorCodigo;
-DROP FUNCTION buscarCursosPorCarrera;
-DROP FUNCTION buscarCursosPorCiclo;
+BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE insertarCurso'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE modificarCurso'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE eliminarCurso'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION listarCursos'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION buscarCursoPorNombre'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION buscarCursoPorCodigo'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION buscarCursosPorCarrera'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION buscarCursosPorCiclo'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
 
 -- CICLO
-DROP PROCEDURE insertarCiclo;
-DROP PROCEDURE modificarCiclo;
-DROP PROCEDURE eliminarCiclo;
-DROP FUNCTION listarCiclos;
-DROP FUNCTION buscarCicloPorAnnio;
-DROP PROCEDURE activarCiclo;
-DROP PROCEDURE buscarCicloPorId;
+BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE insertarCiclo'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE modificarCiclo'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE eliminarCiclo'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION listarCiclos'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION buscarCicloPorAnnio'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE activarCiclo'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE buscarCicloPorId'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
 
 -- CARRERA_CURSO
-DROP PROCEDURE insertarCursoACarrera;
-DROP PROCEDURE eliminarCursoDeCarrera;
-DROP PROCEDURE modificarOrdenCursoCarrera;
-DROP FUNCTION buscarCursosPorCarreraYCiclo;
-DROP FUNCTION listarCarreraCurso;
+BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE insertarCursoACarrera'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE eliminarCursoDeCarrera'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE modificarOrdenCursoCarrera'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION buscarCursosPorCarreraYCiclo'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION listarCarreraCurso'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
 
 -- PROFESOR
-DROP PROCEDURE insertarProfesor;
-DROP PROCEDURE modificarProfesor;
-DROP PROCEDURE eliminarProfesor;
-DROP FUNCTION listarProfesores;
-DROP FUNCTION buscarProfesorPorCedula;
-DROP FUNCTION buscarProfesorPorNombre;
+BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE insertarProfesor'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE modificarProfesor'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE eliminarProfesor'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION listarProfesores'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION buscarProfesorPorCedula'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION buscarProfesorPorNombre'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
 
 -- ALUMNO
-DROP PROCEDURE insertarAlumno;
-DROP PROCEDURE modificarAlumno;
-DROP PROCEDURE eliminarAlumno;
-DROP FUNCTION listarAlumnos;
-DROP FUNCTION buscarAlumnoPorCedula;
-DROP FUNCTION buscarAlumnoPorNombre;
-DROP FUNCTION buscarAlumnosPorCarrera;
+BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE insertarAlumno'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE modificarAlumno'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE eliminarAlumno'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION listarAlumnos'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION buscarAlumnoPorCedula'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION buscarAlumnoPorNombre'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION buscarAlumnosPorCarrera'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
 
 -- GRUPO
-DROP PROCEDURE insertarGrupo;
-DROP PROCEDURE modificarGrupo;
-DROP PROCEDURE eliminarGrupo;
-DROP FUNCTION listarGrupos;
-DROP FUNCTION buscarGruposPorCarreraCurso;
-DROP FUNCTION buscarGruposPorCursoCicloCarrera;
+BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE insertarGrupo'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE modificarGrupo'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE eliminarGrupo'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION listarGrupos'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION buscarGruposPorCarreraCurso'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION buscarGruposPorCursoCicloCarrera'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
 
 -- MATRICULA
-DROP PROCEDURE insertarMatricula;
-DROP PROCEDURE modificarMatricula;
-DROP PROCEDURE eliminarMatricula;
-DROP PROCEDURE listarMatriculasPorAlumno;
-DROP PROCEDURE listarMatriculasPorAlumnoYCiclo;
+BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE insertarMatricula'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE modificarMatricula'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE eliminarMatricula'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE listarMatriculasPorAlumno'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE listarMatriculasPorAlumnoYCiclo'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
 
 -- USUARIO
-DROP PROCEDURE insertarUsuario;
-DROP PROCEDURE modificarUsuario;
-DROP PROCEDURE eliminarUsuario;
-DROP FUNCTION listarUsuarios;
-DROP FUNCTION buscarUsuarioPorCedula;
-DROP PROCEDURE loginUsuario;
+BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE insertarUsuario'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE modificarUsuario'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE eliminarUsuario'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION listarUsuarios'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION buscarUsuarioPorCedula'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE loginUsuario'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
 
--- Package
-DROP PACKAGE Types;
+-- PACKAGE
+BEGIN EXECUTE IMMEDIATE 'DROP PACKAGE Types'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
 
 -- Tablas
 DROP TABLE Matricula CASCADE CONSTRAINTS;
@@ -91,6 +149,34 @@ DROP TABLE Ciclo CASCADE CONSTRAINTS;
 DROP TABLE Curso CASCADE CONSTRAINTS;
 DROP TABLE Carrera CASCADE CONSTRAINTS;
 DROP TABLE Usuario CASCADE CONSTRAINTS;
+
+-- Triggers
+BEGIN EXECUTE IMMEDIATE 'DROP TRIGGER trg_prevent_delete_carrera'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP TRIGGER trg_prevent_delete_curso'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP TRIGGER trg_prevent_delete_ciclo'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP TRIGGER trg_prevent_delete_grupo'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP TRIGGER trg_prevent_delete_alumno'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP TRIGGER trg_prevent_delete_profesor'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP TRIGGER trg_validar_ciclo_fecha'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP TRIGGER trg_validar_datos_alumno'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP TRIGGER trg_validar_datos_profesor'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP TRIGGER trg_prevent_duplicate_carrera_curso'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP TRIGGER trg_prevent_duplicate_grupo'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP TRIGGER trg_prevent_duplicate_usuario'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP TRIGGER trg_prevent_duplicate_matricula'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
 
 COMMIT;
 
@@ -192,9 +278,9 @@ END Types;
 
 -- Insertar Carrera
 CREATE OR REPLACE PROCEDURE insertarCarrera(
-                                            codigo IN Carrera.codigo%TYPE, 
-                                            nombre IN Carrera.nombre%TYPE, 
-                                            titulo IN Carrera.titulo%TYPE) 
+                                            codigo IN Carrera.codigo%TYPE,
+                                            nombre IN Carrera.nombre%TYPE,
+                                            titulo IN Carrera.titulo%TYPE)
 AS
 BEGIN
     INSERT INTO Carrera (codigo, nombre, titulo)
@@ -204,8 +290,8 @@ END;
 
 -- Modificar Carrera
 CREATE OR REPLACE PROCEDURE modificarCarrera(id_carrerain IN Carrera.id_carrera%TYPE,
-                                            codigoin IN Carrera.codigo%TYPE, 
-                                            nombrein IN Carrera.nombre%TYPE, 
+                                            codigoin IN Carrera.codigo%TYPE,
+                                            nombrein IN Carrera.nombre%TYPE,
                                             tituloin IN Carrera.titulo%TYPE) AS
 BEGIN
     UPDATE Carrera SET  codigo = codigoin, nombre = nombrein, titulo = tituloin WHERE id_carrera = id_carrerain;
@@ -221,7 +307,7 @@ END;
 
 -- Listar Carreras 
 CREATE OR REPLACE FUNCTION listarCarreras
-RETURN Types.ref_cursor 
+RETURN Types.ref_cursor
 AS
     carrera_cursor Types.ref_cursor;
 BEGIN
@@ -297,7 +383,7 @@ END;
 CREATE OR REPLACE FUNCTION buscarCursosPorCarreraYCiclo(
     p_carrera_id IN Carrera.id_carrera%TYPE,
     p_ciclo_id IN Ciclo.id_ciclo%TYPE
-) 
+)
 RETURN SYS_REFCURSOR AS
     v_cursor SYS_REFCURSOR;
 BEGIN
@@ -336,8 +422,8 @@ END;
 
 -- Insertar Curso
 CREATE OR REPLACE PROCEDURE insertarCurso(
-                                          codigo IN Curso.codigo%TYPE, 
-                                          nombre IN Curso.nombre%TYPE, 
+                                          codigo IN Curso.codigo%TYPE,
+                                          nombre IN Curso.nombre%TYPE,
                                           creditos IN Curso.creditos%TYPE,
                                           horas_semanales IN Curso.horas_semanales%TYPE)
 AS
@@ -349,8 +435,8 @@ END;
 
 -- Modificar Curso
 CREATE OR REPLACE PROCEDURE modificarCurso(id_cursoin IN curso.id_curso%TYPE,
-                                          codigoin IN Curso.codigo%TYPE, 
-                                          nombrein IN Curso.nombre%TYPE, 
+                                          codigoin IN Curso.codigo%TYPE,
+                                          nombrein IN Curso.nombre%TYPE,
                                           creditosin IN Curso.creditos%TYPE,
                                           horas_semanalesin IN Curso.horas_semanales%TYPE)
 AS
@@ -370,7 +456,7 @@ END;
 
 -- Listar Cursos 
 CREATE OR REPLACE FUNCTION listarCursos
-RETURN Types.ref_cursor 
+RETURN Types.ref_cursor
 AS
     curso_cursor Types.ref_cursor;
 BEGIN
@@ -378,7 +464,7 @@ BEGIN
     SELECT id_curso, codigo, nombre, creditos, horas_semanales FROM Curso;
     RETURN curso_cursor;
 END;
-/ 
+/
 
 -- Busacr Curso por nombre
 CREATE OR REPLACE FUNCTION buscarCursoPorNombre(nombrebuscar IN Curso.nombre%TYPE)
@@ -405,7 +491,7 @@ END;
 -- Buscar Curso por carrera
 CREATE OR REPLACE FUNCTION buscarCursosPorCarrera(
     p_carrera_id IN Carrera.id_carrera%TYPE
-) 
+)
 RETURN SYS_REFCURSOR AS
     v_cursor SYS_REFCURSOR;
 BEGIN
@@ -433,7 +519,7 @@ END;
 -- Listar Cursos por Ciclo
 CREATE OR REPLACE FUNCTION buscarCursosPorCiclo(
     p_ciclo_id IN Ciclo.id_ciclo%TYPE
-) 
+)
 RETURN Types.ref_cursor AS
     curso_cursor Types.ref_cursor;
 BEGIN
@@ -462,11 +548,11 @@ END;
 
 -- Insertar Ciclo
 CREATE OR REPLACE PROCEDURE insertarCiclo(
-                                          anio IN Ciclo.anio%TYPE, 
-                                          numero IN Ciclo.numero%TYPE, 
-                                          fecha_inicio IN Ciclo.fecha_inicio%TYPE, 
-                                          fecha_fin IN Ciclo.fecha_fin%TYPE, 
-                                          estado IN Ciclo.estado%TYPE) 
+                                          anio IN Ciclo.anio%TYPE,
+                                          numero IN Ciclo.numero%TYPE,
+                                          fecha_inicio IN Ciclo.fecha_inicio%TYPE,
+                                          fecha_fin IN Ciclo.fecha_fin%TYPE,
+                                          estado IN Ciclo.estado%TYPE)
 AS
 BEGIN
     INSERT INTO Ciclo (anio, numero, fecha_inicio, fecha_fin, estado)
@@ -477,11 +563,11 @@ END;
 
 -- Modificar Ciclo
 CREATE OR REPLACE PROCEDURE modificarCiclo(id_cicloin IN Ciclo.id_ciclo%TYPE,
-                                           anioin IN Ciclo.anio%TYPE, 
-                                           numeroin IN Ciclo.numero%TYPE, 
-                                           fecha_inicioin IN Ciclo.fecha_inicio%TYPE, 
-                                           fecha_finin IN Ciclo.fecha_fin%TYPE, 
-                                           estadoin IN Ciclo.estado%TYPE) 
+                                           anioin IN Ciclo.anio%TYPE,
+                                           numeroin IN Ciclo.numero%TYPE,
+                                           fecha_inicioin IN Ciclo.fecha_inicio%TYPE,
+                                           fecha_finin IN Ciclo.fecha_fin%TYPE,
+                                           estadoin IN Ciclo.estado%TYPE)
 AS
 BEGIN
     UPDATE Ciclo SET fecha_inicio = fecha_inicioin, fecha_fin = fecha_finin,
@@ -500,7 +586,7 @@ END;
 
 -- Listar Ciclos 
 CREATE OR REPLACE FUNCTION listarCiclos
-RETURN Types.ref_cursor 
+RETURN Types.ref_cursor
 AS
     ciclo_cursor Types.ref_cursor;
 BEGIN
@@ -548,10 +634,10 @@ END;
 
 -- Insertar Profesor
 CREATE OR REPLACE PROCEDURE insertarProfesor(
-                                            cedula IN Profesor.cedula%TYPE, 
-                                            nombre IN Profesor.nombre%TYPE, 
-                                            telefono IN Profesor.telefono%TYPE , 
-                                            email IN Profesor.email%TYPE) 
+                                            cedula IN Profesor.cedula%TYPE,
+                                            nombre IN Profesor.nombre%TYPE,
+                                            telefono IN Profesor.telefono%TYPE ,
+                                            email IN Profesor.email%TYPE)
 AS
 BEGIN
     INSERT INTO Profesor  (cedula, nombre, telefono, email)
@@ -561,10 +647,10 @@ END;
 
 -- Modificar Profesor
 CREATE OR REPLACE PROCEDURE modificarProfesor(id_profesorin IN Profesor.id_profesor%TYPE,
-                                              cedulain IN Profesor.cedula%TYPE, 
-                                              nombrein IN Profesor.nombre%TYPE, 
-                                              telefonoin IN Profesor.telefono%TYPE , 
-                                              emailin IN Profesor.email%TYPE) 
+                                              cedulain IN Profesor.cedula%TYPE,
+                                              nombrein IN Profesor.nombre%TYPE,
+                                              telefonoin IN Profesor.telefono%TYPE ,
+                                              emailin IN Profesor.email%TYPE)
 AS
 BEGIN
     UPDATE Profesor SET cedula = cedulain, nombre = nombrein, telefono = telefonoin, email = emailin WHERE id_profesor = id_profesorin;
@@ -581,7 +667,7 @@ END;
 
 -- Listar Profesores 
 CREATE OR REPLACE FUNCTION listarProfesores
-RETURN Types.ref_cursor 
+RETURN Types.ref_cursor
 AS
     profesor_cursor Types.ref_cursor;
 BEGIN
@@ -617,12 +703,12 @@ END;
 
 -- Insertar Alumno
 CREATE OR REPLACE PROCEDURE insertarAlumno(
-                                            cedula Alumno.cedula%TYPE, 
-                                            nombre Alumno.nombre%TYPE, 
-                                            telefono Alumno.telefono%TYPE, 
-                                            email Alumno.email%TYPE, 
-                                            fecha_nacimiento Alumno.fecha_nacimiento%TYPE, 
-                                            pk_carrera Alumno.pk_carrera%TYPE) 
+                                            cedula Alumno.cedula%TYPE,
+                                            nombre Alumno.nombre%TYPE,
+                                            telefono Alumno.telefono%TYPE,
+                                            email Alumno.email%TYPE,
+                                            fecha_nacimiento Alumno.fecha_nacimiento%TYPE,
+                                            pk_carrera Alumno.pk_carrera%TYPE)
 AS
 BEGIN
     INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera)
@@ -633,11 +719,11 @@ END;
 
 -- Modificar Alumno
 CREATE OR REPLACE PROCEDURE modificarAlumno(id_alumnoin IN Alumno.id_alumno%TYPE,
-                                            cedulain IN Alumno.cedula%TYPE, 
-                                            nombrein IN Alumno.nombre%TYPE, 
-                                            telefonoin IN Alumno.telefono%TYPE, 
-                                            emailin IN Alumno.email%TYPE, 
-                                            fecha_nacimientoin IN Alumno.fecha_nacimiento%TYPE, 
+                                            cedulain IN Alumno.cedula%TYPE,
+                                            nombrein IN Alumno.nombre%TYPE,
+                                            telefonoin IN Alumno.telefono%TYPE,
+                                            emailin IN Alumno.email%TYPE,
+                                            fecha_nacimientoin IN Alumno.fecha_nacimiento%TYPE,
                                             pk_carrerain IN Alumno.pk_carrera%TYPE) AS
 BEGIN
     UPDATE Alumno SET cedula = cedulain, nombre = nombrein, telefono = telefonoin, email = emailin, fecha_nacimiento = fecha_Nacimientoin,
@@ -655,7 +741,7 @@ END;
 
 -- Listar Alumnos 
 CREATE OR REPLACE FUNCTION listarAlumnos
-RETURN Types.ref_cursor 
+RETURN Types.ref_cursor
 AS
     alumno_cursor Types.ref_cursor;
 BEGIN
@@ -704,9 +790,9 @@ COMMIT;
 
 -- Insertar Grupo
 CREATE OR REPLACE PROCEDURE insertarGrupo(pk_carrera_curso IN Grupo.pk_carrera_curso%TYPE,
-                                          numero_grupo IN Grupo.numero_grupo%TYPE, 
-                                          horario IN Grupo.horario%TYPE, 
-                                          pk_profesor IN Grupo.pk_profesor%TYPE) 
+                                          numero_grupo IN Grupo.numero_grupo%TYPE,
+                                          horario IN Grupo.horario%TYPE,
+                                          pk_profesor IN Grupo.pk_profesor%TYPE)
 AS
 BEGIN
     INSERT INTO Grupo(pk_carrera_curso, numero_grupo, horario, pk_profesor)
@@ -717,9 +803,9 @@ END;
 -- Modificar Grupo
 CREATE OR REPLACE PROCEDURE modificarGrupo(id_grupoin Grupo.id_grupo%TYPE,
                                           pk_carrera_cursoin Grupo.pk_carrera_curso%TYPE,
-                                          numero_grupoin Grupo.numero_grupo%TYPE, 
-                                          horarioin Grupo.horario%TYPE, 
-                                          pk_profesorin Grupo.pk_profesor%TYPE) 
+                                          numero_grupoin Grupo.numero_grupo%TYPE,
+                                          horarioin Grupo.horario%TYPE,
+                                          pk_profesorin Grupo.pk_profesor%TYPE)
 AS
 BEGIN
     UPDATE Grupo SET  pk_carrera_curso = pk_carrera_cursoin,
@@ -739,7 +825,7 @@ END;
 
 -- Listar Grupos
 CREATE OR REPLACE FUNCTION listarGrupos
-RETURN Types.ref_cursor 
+RETURN Types.ref_cursor
 AS
     grupo_cursor Types.ref_cursor;
 BEGIN
@@ -787,7 +873,7 @@ BEGIN
         g.pk_carrera_curso,
         g.numero_grupo,
         g.horario,
-        p.pk_profesor,
+        p.id_profesor AS pk_profesor,
         p.nombre AS nombre_profesor
     FROM Grupo g
     JOIN Profesor p ON g.pk_profesor = p.id_profesor
@@ -813,9 +899,9 @@ END;
 
 -- Modificar Matricula
 CREATE OR REPLACE PROCEDURE modificarMatricula(id_matriculain Matricula.id_matricula%TYPE,
-                                              pk_alumnoin Matricula.pk_alumno%TYPE, 
-                                              pk_grupoin Matricula.pk_grupo%TYPE, 
-                                              notain Matricula.nota%TYPE) 
+                                              pk_alumnoin Matricula.pk_alumno%TYPE,
+                                              pk_grupoin Matricula.pk_grupo%TYPE,
+                                              notain Matricula.nota%TYPE)
 AS
 BEGIN
     UPDATE Matricula SET pk_alumno = pk_alumnoin,  pk_grupo = pk_grupoin, nota = notain WHERE id_matricula = id_matriculain;
@@ -933,7 +1019,7 @@ END;
 
 -- Listar Usuarios 
 CREATE OR REPLACE FUNCTION listarUsuarios
-RETURN Types.ref_cursor 
+RETURN Types.ref_cursor
 AS
     usuario_cursor Types.ref_cursor;
 BEGIN
@@ -970,40 +1056,248 @@ END;
 /
 
 ----------------------------------------------------------------------------------------------------------
+-- VALIDACIONES Y RESTRICCIONES CON TRIGGERS
+----------------------------------------------------------------------------------------------------------
+
+-- 1. No permitir eliminar CARRERA con cursos o alumnos asociados
+CREATE OR REPLACE TRIGGER trg_prevent_delete_carrera
+BEFORE DELETE ON Carrera
+FOR EACH ROW
+DECLARE
+v_count NUMBER;
+BEGIN
+SELECT COUNT(*) INTO v_count FROM Carrera_Curso WHERE pk_carrera = :OLD.id_carrera;
+IF v_count > 0 THEN
+        RAISE_APPLICATION_ERROR(-20001, 'No se puede eliminar la carrera: tiene cursos asociados.');
+END IF;
+
+SELECT COUNT(*) INTO v_count FROM Alumno WHERE pk_carrera = :OLD.id_carrera;
+IF v_count > 0 THEN
+        RAISE_APPLICATION_ERROR(-20002, 'No se puede eliminar la carrera: tiene alumnos inscritos.');
+END IF;
+END;
+/
+
+-- 2. No permitir eliminar CURSO con asociaciones
+CREATE OR REPLACE TRIGGER trg_prevent_delete_curso
+BEFORE DELETE ON Curso
+FOR EACH ROW
+DECLARE
+v_count NUMBER;
+BEGIN
+SELECT COUNT(*) INTO v_count FROM Carrera_Curso WHERE pk_curso = :OLD.id_curso;
+IF v_count > 0 THEN
+        RAISE_APPLICATION_ERROR(-20003, 'No se puede eliminar el curso: asociado a una carrera.');
+END IF;
+
+SELECT COUNT(*) INTO v_count FROM Grupo g JOIN Carrera_Curso cc ON g.pk_carrera_curso = cc.id_carrera_curso WHERE cc.pk_curso = :OLD.id_curso;
+IF v_count > 0 THEN
+        RAISE_APPLICATION_ERROR(-20004, 'No se puede eliminar el curso: tiene grupos asociados.');
+END IF;
+END;
+/
+
+-- 3. No permitir eliminar CICLO con asociaciones
+CREATE OR REPLACE TRIGGER trg_prevent_delete_ciclo
+BEFORE DELETE ON Ciclo
+FOR EACH ROW
+DECLARE
+v_count NUMBER;
+BEGIN
+SELECT COUNT(*) INTO v_count FROM Carrera_Curso WHERE pk_ciclo = :OLD.id_ciclo;
+IF v_count > 0 THEN
+        RAISE_APPLICATION_ERROR(-20005, 'No se puede eliminar el ciclo: tiene cursos asociados.');
+END IF;
+END;
+/
+
+-- 4. No permitir eliminar GRUPO con matrículas
+CREATE OR REPLACE TRIGGER trg_prevent_delete_grupo
+BEFORE DELETE ON Grupo
+FOR EACH ROW
+DECLARE
+v_count NUMBER;
+BEGIN
+SELECT COUNT(*) INTO v_count FROM Matricula WHERE pk_grupo = :OLD.id_grupo;
+IF v_count > 0 THEN
+        RAISE_APPLICATION_ERROR(-20006, 'No se puede eliminar el grupo: tiene estudiantes matriculados.');
+END IF;
+END;
+/
+
+-- 5. No permitir eliminar ALUMNO o PROFESOR con usuario asociado
+CREATE OR REPLACE TRIGGER trg_prevent_delete_alumno
+BEFORE DELETE ON Alumno
+FOR EACH ROW
+DECLARE
+v_count NUMBER;
+BEGIN
+SELECT COUNT(*) INTO v_count FROM Usuario WHERE cedula = :OLD.cedula AND tipo = 'Alumno';
+IF v_count > 0 THEN
+        RAISE_APPLICATION_ERROR(-20009, 'No se puede eliminar el alumno: existe un usuario asociado.');
+END IF;
+END;
+/
+
+CREATE OR REPLACE TRIGGER trg_prevent_delete_profesor
+BEFORE DELETE ON Profesor
+FOR EACH ROW
+DECLARE
+v_count NUMBER;
+BEGIN
+SELECT COUNT(*) INTO v_count FROM Usuario WHERE cedula = :OLD.cedula AND tipo = 'Profesor';
+IF v_count > 0 THEN
+        RAISE_APPLICATION_ERROR(-20010, 'No se puede eliminar el profesor: existe un usuario asociado.');
+END IF;
+END;
+/
+
+-- 6. Validaciones de unicidad y formato lógico
+CREATE OR REPLACE TRIGGER trg_validar_ciclo_fecha
+BEFORE INSERT OR UPDATE ON Ciclo
+                            FOR EACH ROW
+BEGIN
+    IF :NEW.fecha_inicio >= :NEW.fecha_fin THEN
+        RAISE_APPLICATION_ERROR(-20020, 'La fecha de inicio debe ser anterior a la fecha de fin.');
+END IF;
+END;
+/
+
+CREATE OR REPLACE TRIGGER trg_validar_datos_alumno
+    BEFORE INSERT OR UPDATE ON Alumno
+    FOR EACH ROW
+BEGIN
+    IF :NEW.nombre IS NULL OR TRIM(:NEW.nombre) = '' THEN
+        RAISE_APPLICATION_ERROR(-20021, 'El nombre del alumno no puede estar vacío.');
+    END IF;
+
+    IF :NEW.email IS NULL OR NOT REGEXP_LIKE(:NEW.email, '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$') THEN
+        RAISE_APPLICATION_ERROR(-20022, 'El correo del alumno no tiene un formato válido.');
+    END IF;
+
+    IF :NEW.fecha_nacimiento > SYSDATE THEN
+        RAISE_APPLICATION_ERROR(-20023, 'La fecha de nacimiento no puede ser futura.');
+    END IF;
+END;
+/
+
+CREATE OR REPLACE TRIGGER trg_validar_datos_profesor
+    BEFORE INSERT OR UPDATE ON Profesor
+    FOR EACH ROW
+BEGIN
+    IF :NEW.nombre IS NULL OR TRIM(:NEW.nombre) = '' THEN
+        RAISE_APPLICATION_ERROR(-20024, 'El nombre del profesor no puede estar vacío.');
+    END IF;
+
+    IF :NEW.email IS NULL OR NOT REGEXP_LIKE(:NEW.email, '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$') THEN
+        RAISE_APPLICATION_ERROR(-20025, 'El correo del profesor no tiene un formato válido.');
+    END IF;
+END;
+/
+
+-- 7. Validar duplicado de curso en carrera y ciclo
+CREATE OR REPLACE TRIGGER trg_prevent_duplicate_carrera_curso
+BEFORE INSERT ON Carrera_Curso
+FOR EACH ROW
+DECLARE
+v_count NUMBER;
+BEGIN
+SELECT COUNT(*) INTO v_count FROM Carrera_Curso
+WHERE pk_carrera = :NEW.pk_carrera AND pk_curso = :NEW.pk_curso AND pk_ciclo = :NEW.pk_ciclo;
+IF v_count > 0 THEN
+        RAISE_APPLICATION_ERROR(-20026, 'Ya existe una asociación de ese curso en esa carrera y ciclo.');
+END IF;
+END;
+/
+
+-- 8. Validar duplicado de grupo dentro del mismo curso y ciclo
+CREATE OR REPLACE TRIGGER trg_prevent_duplicate_grupo
+BEFORE INSERT ON Grupo
+FOR EACH ROW
+DECLARE
+v_count NUMBER;
+BEGIN
+SELECT COUNT(*) INTO v_count FROM Grupo g
+                                      JOIN Carrera_Curso cc ON g.pk_carrera_curso = cc.id_carrera_curso
+WHERE cc.pk_curso = (SELECT pk_curso FROM Carrera_Curso WHERE id_carrera_curso = :NEW.pk_carrera_curso)
+  AND cc.pk_ciclo = (SELECT pk_ciclo FROM Carrera_Curso WHERE id_carrera_curso = :NEW.pk_carrera_curso)
+  AND g.numero_grupo = :NEW.numero_grupo;
+IF v_count > 0 THEN
+        RAISE_APPLICATION_ERROR(-20027, 'Ya existe un grupo con ese número para el mismo curso y ciclo.');
+END IF;
+END;
+/
+
+-- 9. Validar duplicado de usuario por cédula
+CREATE OR REPLACE TRIGGER trg_prevent_duplicate_usuario
+BEFORE INSERT ON Usuario
+FOR EACH ROW
+DECLARE
+v_count NUMBER;
+BEGIN
+SELECT COUNT(*) INTO v_count FROM Usuario WHERE cedula = :NEW.cedula;
+IF v_count > 0 THEN
+        RAISE_APPLICATION_ERROR(-20028, 'Ya existe un usuario con esta cédula.');
+END IF;
+END;
+/
+
+-- 10. Validar duplicado de matrícula por alumno y curso
+CREATE OR REPLACE TRIGGER trg_prevent_duplicate_matricula
+BEFORE INSERT ON Matricula
+FOR EACH ROW
+DECLARE
+v_id_curso NUMBER;
+    v_count NUMBER;
+BEGIN
+SELECT cc.pk_curso INTO v_id_curso
+FROM Grupo g JOIN Carrera_Curso cc ON g.pk_carrera_curso = cc.id_carrera_curso
+WHERE g.id_grupo = :NEW.pk_grupo;
+
+SELECT COUNT(*) INTO v_count
+FROM Matricula m
+         JOIN Grupo g ON m.pk_grupo = g.id_grupo
+         JOIN Carrera_Curso cc ON g.pk_carrera_curso = cc.id_carrera_curso
+WHERE m.pk_alumno = :NEW.pk_alumno AND cc.pk_curso = v_id_curso;
+
+IF v_count > 0 THEN
+        RAISE_APPLICATION_ERROR(-20029, 'El alumno ya está matriculado en otro grupo de este curso.');
+END IF;
+END;
+/
+
+
+----------------------------------------------------------------------------------------------------------
 -- INSERCIÓN DE DATOS DE PRUEBA
 ----------------------------------------------------------------------------------------------------------
 
 -- CARRERAS
-INSERT INTO Carrera (codigo, nombre, titulo) VALUES ('INF01', 'Ingeniería en Informática', 'Bachiller en Ingeniería en Informática');
-INSERT INTO Carrera (codigo, nombre, titulo) VALUES ('ADM01', 'Administración de Empresas', 'Bachiller en Administración');
-INSERT INTO Carrera (codigo, nombre, titulo) VALUES ('TUR01', 'Gestión Turística', 'Bachiller en Gestión Turística');
-INSERT INTO Carrera (codigo, nombre, titulo) VALUES ('MAT01', 'Matemáticas Aplicadas', 'Bachiller en Matemáticas Aplicadas');
-INSERT INTO Carrera (codigo, nombre, titulo) VALUES ('BIO01', 'Biología', 'Bachiller en Biología');
-INSERT INTO Carrera (codigo, nombre, titulo) VALUES ('ING01', 'Ingeniería Industrial', 'Bachiller en Ingeniería Industrial');
+INSERT INTO Carrera (codigo, nombre, titulo) VALUES ('INF01', 'Ingenieria en Informatica', 'Bachiller en Ingenieria en Informatica');
+INSERT INTO Carrera (codigo, nombre, titulo) VALUES ('ADM01', 'Administracion de Empresas', 'Bachiller en Administracion');
+INSERT INTO Carrera (codigo, nombre, titulo) VALUES ('TUR01', 'Gestion Turistica', 'Bachiller en Gestion Turistica');
+INSERT INTO Carrera (codigo, nombre, titulo) VALUES ('MAT01', 'Matematicas Aplicadas', 'Bachiller en Matematicas Aplicadas');
+INSERT INTO Carrera (codigo, nombre, titulo) VALUES ('BIO01', 'Biologia', 'Bachiller en Biologia');
+INSERT INTO Carrera (codigo, nombre, titulo) VALUES ('ING01', 'Ingenieria Industrial', 'Bachiller en Ingenieria Industrial');
 
 -- CURSOS
-INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('INF101', 'Programación I', 4, 6);
+INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('INF101', 'Programacion I', 4, 6);
 INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('INF201', 'Estructuras de Datos', 4, 5);
-INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('ADM101', 'Contabilidad Básica', 3, 4);
-INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('ADM201', 'Gestión Financiera', 4, 5);
-INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('TUR101', 'Introducción al Turismo', 3, 3);
+INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('ADM101', 'Contabilidad Basica', 3, 4);
+INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('ADM201', 'Gestion Financiera', 4, 5);
+INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('TUR101', 'Introduccion al Turismo', 3, 3);
 INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('TUR201', 'Turismo Sostenible', 4, 4);
-INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('MAT101', 'Cálculo I', 4, 6);
-INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('MAT201', '�?lgebra Lineal', 4, 5);
-INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('BIO101', 'Biología General', 4, 6);
-INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('BIO201', 'Ecología', 3, 4);
-INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('ING101', 'Introducción a la Ingeniería', 3, 3);
-INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('ING201', 'Gestión de Producción', 4, 5);
+INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('MAT101', 'Calculo I', 4, 6);
+INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('MAT201', 'Algebra Lineal', 4, 5);
+INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('BIO101', 'Biologia General', 4, 6);
+INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('BIO201', 'Ecologia', 3, 4);
+INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('ING101', 'Introduccion a la Ingenieria', 3, 3);
+INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('ING201', 'Gestion de Produccion', 4, 5);
 
 -- CICLOS
-INSERT INTO Ciclo (anio, numero, fecha_inicio, fecha_fin, estado)
-VALUES (2025, 1, TO_DATE('2025-02-01', 'YYYY-MM-DD'), TO_DATE('2025-06-01', 'YYYY-MM-DD'), 'Activo');
-INSERT INTO Ciclo (anio, numero, fecha_inicio, fecha_fin, estado)
-VALUES (2025, 2, TO_DATE('2025-07-01', 'YYYY-MM-DD'), TO_DATE('2025-11-01', 'YYYY-MM-DD'), 'Inactivo');
-INSERT INTO Ciclo (anio, numero, fecha_inicio, fecha_fin, estado)
-VALUES (2026, 1, TO_DATE('2026-02-01', 'YYYY-MM-DD'), TO_DATE('2026-06-01', 'YYYY-MM-DD'), 'Inactivo');
-INSERT INTO Ciclo (anio, numero, fecha_inicio, fecha_fin, estado)
-VALUES (2026, 2, TO_DATE('2026-07-01', 'YYYY-MM-DD'), TO_DATE('2026-11-01', 'YYYY-MM-DD'), 'Inactivo');
+INSERT INTO Ciclo (anio, numero, fecha_inicio, fecha_fin, estado) VALUES (2025, 1, TO_DATE('2025-02-01', 'YYYY-MM-DD'), TO_DATE('2025-06-01', 'YYYY-MM-DD'), 'Activo');
+INSERT INTO Ciclo (anio, numero, fecha_inicio, fecha_fin, estado) VALUES (2025, 2, TO_DATE('2025-07-01', 'YYYY-MM-DD'), TO_DATE('2025-11-01', 'YYYY-MM-DD'), 'Inactivo');
+INSERT INTO Ciclo (anio, numero, fecha_inicio, fecha_fin, estado) VALUES (2026, 1, TO_DATE('2026-02-01', 'YYYY-MM-DD'), TO_DATE('2026-06-01', 'YYYY-MM-DD'), 'Inactivo');
+INSERT INTO Ciclo (anio, numero, fecha_inicio, fecha_fin, estado) VALUES (2026, 2, TO_DATE('2026-07-01', 'YYYY-MM-DD'), TO_DATE('2026-11-01', 'YYYY-MM-DD'), 'Inactivo');
 
 -- CARRERA CURSO
 INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (1, 1, 1);
@@ -1012,59 +1306,47 @@ INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (2, 3, 1);
 INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (2, 4, 2);
 INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (3, 5, 1);
 INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (3, 6, 2);
-INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (4, 7, 1); -- Matemáticas Aplicadas, Cálculo I, Ciclo 1
-INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (4, 8, 2); -- Matemáticas Aplicadas, �?lgebra Lineal, Ciclo 2
-INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (5, 9, 1); -- Biología, Biología General, Ciclo 1
-INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (5, 10, 2); -- Biología, Ecología, Ciclo 2
-INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (6, 11, 1); -- Ingeniería Industrial, Introducción a la Ingeniería, Ciclo 1
-INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (6, 12, 2); -- Ingeniería Industrial, Gestión de Producción, Ciclo 2
+INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (4, 7, 1);
+INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (4, 8, 2);
+INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (5, 9, 1);
+INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (5, 10, 2);
+INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (6, 11, 1);
+INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (6, 12, 2);
 
 -- PROFESORES
-INSERT INTO Profesor (cedula, nombre, telefono, email) VALUES ('100100100', 'Carlos Rojas', '88888888', 'crojas@uni.edu');
-INSERT INTO Profesor (cedula, nombre, telefono, email) VALUES ('200200200', 'María López', '87777777', 'mlopez@uni.edu');
-INSERT INTO Profesor (cedula, nombre, telefono, email) VALUES ('300300300', 'Luis Jiménez', '86666666', 'ljimenez@uni.edu');
+INSERT INTO Profesor (cedula, nombre, telefono, email) VALUES ('100100100', 'Carlos Rojas', '88888888', 'crojas@yahoo.com');
+INSERT INTO Profesor (cedula, nombre, telefono, email) VALUES ('200200200', 'Maria Lopez', '87777777', 'mlopez@docente.edu');
+INSERT INTO Profesor (cedula, nombre, telefono, email) VALUES ('300300300', 'Luis Jimenez', '86666666', 'ljimenez@correo.com');
 INSERT INTO Profesor (cedula, nombre, telefono, email) VALUES ('400400400', 'Ana Salas', '85555555', 'asalas@uni.edu');
-INSERT INTO Profesor (cedula, nombre, telefono, email) VALUES ('500500500', 'Elena Gómez', '84444444', 'egomez@uni.edu');
-INSERT INTO Profesor (cedula, nombre, telefono, email) VALUES ('600600600', 'Ricardo Vargas', '83333333', 'rvargas@uni.edu');
-INSERT INTO Profesor (cedula, nombre, telefono, email) VALUES ('700700700', 'Clara Martínez', '82222222', 'cmartinez@uni.edu');
+INSERT INTO Profesor (cedula, nombre, telefono, email) VALUES ('500500500', 'Elena Gomez', '84444444', 'egomez@academico.net');
+INSERT INTO Profesor (cedula, nombre, telefono, email) VALUES ('600600600', 'Ricardo Vargas', '83333333', 'rvargas@profe.ac.cr');
+INSERT INTO Profesor (cedula, nombre, telefono, email) VALUES ('700700700', 'Clara Martinez', '82222222', 'cmartinez@icloud.com');
 
 -- ALUMNOS
-INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera)
-VALUES ('111111111', 'Laura Fernández', '85001234', 'laura@correo.com', TO_DATE('2000-03-15','YYYY-MM-DD'), 1);
-INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera)
-VALUES ('222222222', 'José Ramírez', '84005678', 'jose@correo.com', TO_DATE('1999-11-20','YYYY-MM-DD'), 1);
-INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera)
-VALUES ('333333333', 'Ana Rodríguez', '87007890', 'ana@correo.com', TO_DATE('2001-06-10','YYYY-MM-DD'), 2);
-INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera)
-VALUES ('444444444', 'David Castro', '83009876', 'david@correo.com', TO_DATE('2000-12-25','YYYY-MM-DD'), 2);
-INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera)
-VALUES ('555555555', 'Sofía Vega', '89006789', 'sofia@correo.com', TO_DATE('2002-08-30','YYYY-MM-DD'), 3);
-INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera)
-VALUES ('666666666', 'Andrés Mora', '82001234', 'andres@correo.com', TO_DATE('1998-04-17','YYYY-MM-DD'), 3);
-INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera)
-VALUES ('777777777', 'Carla Sánchez', '81001234', 'carla@correo.com', TO_DATE('2001-05-12', 'YYYY-MM-DD'), 4);
-INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera)
-VALUES ('888888888', 'Miguel Torres', '82005678', 'miguel@correo.com', TO_DATE('2000-09-25', 'YYYY-MM-DD'), 4);
-INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera)
-VALUES ('999999999', 'Lucía Pérez', '83007890', 'lucia@correo.com', TO_DATE('2002-02-14', 'YYYY-MM-DD'), 5);
-INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera)
-VALUES ('101010101', 'Felipe Rojas', '84009876', 'felipe@correo.com', TO_DATE('1999-07-30', 'YYYY-MM-DD'), 5);
-INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera)
-VALUES ('121212121', 'Valeria Díaz', '85006789', 'valeria@correo.com', TO_DATE('2001-11-05', 'YYYY-MM-DD'), 6);
-INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera)
-VALUES ('131313131', 'Esteban López', '86001234', 'esteban@correo.com', TO_DATE('2000-01-22', 'YYYY-MM-DD'), 6);
+INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera) VALUES ('111111111', 'Laura Fernandez', '85001234', 'laura@gmail.com', TO_DATE('2000-03-15','YYYY-MM-DD'), 1);
+INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera) VALUES ('222222222', 'Jose Ramirez', '84005678', 'jose@yahoo.com', TO_DATE('1999-11-20','YYYY-MM-DD'), 1);
+INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera) VALUES ('333333333', 'Ana Rodriguez', '87007890', 'ana@outlook.com', TO_DATE('2001-06-10','YYYY-MM-DD'), 2);
+INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera) VALUES ('444444444', 'David Castro', '83009876', 'david@hotmail.com', TO_DATE('2000-12-25','YYYY-MM-DD'), 2);
+INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera) VALUES ('555555555', 'Sofia Vega', '89006789', 'sofia@estudiante.edu', TO_DATE('2002-08-30','YYYY-MM-DD'), 3);
+INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera) VALUES ('666666666', 'Andres Mora', '82001234', 'andres@live.com', TO_DATE('1998-04-17','YYYY-MM-DD'), 3);
+INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera) VALUES ('777777777', 'Carla Sanchez', '81001234', 'carla@alumno.universidad.ac.cr', TO_DATE('2001-05-12','YYYY-MM-DD'), 4);
+INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera) VALUES ('888888888', 'Miguel Torres', '82005678', 'miguel@protonmail.com', TO_DATE('2000-09-25','YYYY-MM-DD'), 4);
+INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera) VALUES ('999999999', 'Lucia Perez', '83007890', 'lucia@icloud.com', TO_DATE('2002-02-14','YYYY-MM-DD'), 5);
+INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera) VALUES ('101010101', 'Felipe Rojas', '84009876', 'felipe@edu.cr', TO_DATE('1999-07-30','YYYY-MM-DD'), 5);
+INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera) VALUES ('121212121', 'Valeria Diaz', '85006789', 'valeria@estudiantes.universidad.edu', TO_DATE('2001-11-05','YYYY-MM-DD'), 6);
+INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera) VALUES ('131313131', 'Esteban Lopez', '86001234', 'esteban@alumno.edu', TO_DATE('2000-01-22','YYYY-MM-DD'), 6);
 
 -- GRUPOS
 INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (1, 1, 'Lunes 8:00-10:00', 1);
-INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (2, 1, 'Miércoles 10:00-12:00', 1);
+INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (2, 1, 'Miercoles 10:00-12:00', 1);
 INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (3, 1, 'Martes 9:00-11:00', 2);
 INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (5, 1, 'Jueves 2:00-4:00', 4);
-INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (7, 1, 'Lunes 10:00-12:00', 5); -- Cálculo I
-INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (8, 1, 'Martes 14:00-16:00', 5); -- �?lgebra Lineal
-INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (9, 1, 'Miércoles 8:00-10:00', 6); -- Biología General
-INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (10, 1, 'Jueves 10:00-12:00', 6); -- Ecología
-INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (11, 1, 'Viernes 9:00-11:00', 7); -- Introducción a la Ingeniería
-INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (12, 1, 'Lunes 13:00-15:00', 7); -- Gestión de Producción
+INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (7, 1, 'Lunes 10:00-12:00', 5);
+INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (8, 1, 'Martes 14:00-16:00', 5);
+INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (9, 1, 'Miercoles 8:00-10:00', 6);
+INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (10, 1, 'Jueves 10:00-12:00', 6);
+INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (11, 1, 'Viernes 9:00-11:00', 7);
+INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (12, 1, 'Lunes 13:00-15:00', 7);
 
 -- MATRICULAS
 INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (1, 1, 85);
@@ -1075,14 +1357,14 @@ INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (5, 4, 92);
 INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (6, 4, 74);
 INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (2, 1, 81);
 INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (1, 2, 87);
-INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (7, 5, 80); -- Carla Sánchez en Cálculo I
-INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (8, 5, 85); -- Miguel Torres en Cálculo I
-INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (9, 7, 88); -- Lucía Pérez en Biología General
-INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (10, 7, 90); -- Felipe Rojas en Biología General
-INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (11, 9, 82); -- Valeria Díaz en Introducción a la Ingeniería
-INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (12, 9, 87); -- Esteban López en Introducción a la Ingeniería
-INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (7, 6, 78); -- Carla Sánchez en �?lgebra Lineal
-INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (9, 8, 91); -- Lucía Pérez en Ecología
+INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (7, 5, 80);
+INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (8, 5, 85);
+INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (9, 7, 88);
+INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (10, 7, 90);
+INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (11, 9, 82);
+INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (12, 9, 87);
+INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (7, 6, 78);
+INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (9, 8, 91);
 
 -- USUARIOS
 INSERT INTO Usuario (cedula, clave, tipo) VALUES ('100100100', 'admin123', 'Administrador');
@@ -1114,39 +1396,83 @@ SELECT * FROM GRUPO;
 SELECT * FROM MATRICULA;
 SELECT * FROM USUARIO;
 
--- Verificar relaciones entre entidades (JOINs)
-
--- Alumnos con su carrera
-SELECT a.nombre AS alumno, c.nombre AS carrera
-FROM ALUMNO a
-         JOIN CARRERA c ON a.pk_carrera = c.id_carrera;
-
--- Matrículas con detalle completo: alumno, carrera, curso, nota
-SELECT
-    a.nombre AS alumno,
-    c.nombre AS carrera,
-    cu.nombre AS curso,
-    m.nota
-FROM MATRICULA m
-         JOIN ALUMNO a ON m.pk_alumno = a.id_alumno
-         JOIN GRUPO g ON m.pk_grupo = g.id_grupo
-         JOIN CARRERA_CURSO cc ON g.pk_carrera_curso = cc.id_carrera_curso
-         JOIN CURSO cu ON cc.pk_curso = cu.id_curso
-         JOIN CARRERA c ON a.pk_carrera = c.id_carrera;
-
--- Profesores y los grupos que imparten
-SELECT
-    p.nombre AS profesor,
-    cu.nombre AS curso,
-    g.numero_grupo,
-    g.horario
-FROM PROFESOR p
-         JOIN GRUPO g ON p.id_profesor = g.pk_profesor
-         JOIN CARRERA_CURSO cc ON g.pk_carrera_curso = cc.id_carrera_curso
-         JOIN CURSO cu ON cc.pk_curso = cu.id_curso;
-
 -- Ver procedimientos y funciones compilados
 SELECT OBJECT_NAME, PROCEDURE_NAME, OBJECT_TYPE
 FROM USER_PROCEDURES
 WHERE OBJECT_TYPE IN ('FUNCTION', 'PROCEDURE')
 ORDER BY OBJECT_NAME, PROCEDURE_NAME;
+
+-- Ver triggers creados por el usuario
+SELECT TRIGGER_NAME, TABLE_NAME, TRIGGER_TYPE, STATUS
+FROM USER_TRIGGERS
+ORDER BY TABLE_NAME, TRIGGER_NAME;
+
+-- Script de pruebas para validación de restricciones en triggers
+
+-- 1. Prueba: eliminar carrera con cursos (ID 1)
+BEGIN
+DELETE FROM Carrera WHERE id_carrera = 1;
+EXCEPTION
+  WHEN OTHERS THEN DBMS_OUTPUT.PUT_LINE('OK - No se puede eliminar carrera con cursos: ' || SQLERRM);
+END;
+/
+
+-- 2. Prueba: insertar alumno con fecha de nacimiento futura
+BEGIN
+INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera)
+VALUES ('999000999', 'Error Test', '80000000', 'error@correo.com', SYSDATE + 10, 1);
+EXCEPTION
+  WHEN OTHERS THEN DBMS_OUTPUT.PUT_LINE('OK - Fecha nacimiento futura inválida: ' || SQLERRM);
+END;
+/
+
+-- 3. Prueba: insertar usuario duplicado (cédula ya existe)
+BEGIN
+INSERT INTO Usuario (cedula, clave, tipo) VALUES ('111111111', 'clave123', 'Alumno');
+EXCEPTION
+  WHEN OTHERS THEN DBMS_OUTPUT.PUT_LINE('OK - Usuario duplicado por cédula: ' || SQLERRM);
+END;
+/
+
+-- 4. Prueba: insertar matrícula duplicada (mismo alumno, mismo curso diferente grupo)
+-- Alumno 1 ya matriculado en curso INF101 (grupo 1 y 2)
+BEGIN
+INSERT INTO Matricula (pk_alumno, pk_grupo) VALUES (1, 2);
+EXCEPTION
+  WHEN OTHERS THEN DBMS_OUTPUT.PUT_LINE('OK - Matrícula duplicada en curso: ' || SQLERRM);
+END;
+/
+
+-- 5. Prueba: insertar grupo duplicado (mismo número para curso y ciclo)
+BEGIN
+INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor)
+VALUES (1, 1, 'Viernes 13:00-15:00', 2);
+EXCEPTION
+  WHEN OTHERS THEN DBMS_OUTPUT.PUT_LINE('OK - Grupo duplicado detectado: ' || SQLERRM);
+END;
+/
+
+-- 6. Prueba: insertar curso en carrera duplicado
+BEGIN
+INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo)
+VALUES (1, 1, 1);
+EXCEPTION
+  WHEN OTHERS THEN DBMS_OUTPUT.PUT_LINE('OK - Curso duplicado en carrera/ciclo: ' || SQLERRM);
+END;
+/
+
+-- 7. Prueba: eliminar alumno con usuario asociado (cedula 111111111)
+BEGIN
+DELETE FROM Alumno WHERE cedula = '111111111';
+EXCEPTION
+  WHEN OTHERS THEN DBMS_OUTPUT.PUT_LINE('OK - No se puede eliminar alumno con usuario: ' || SQLERRM);
+END;
+/
+
+-- 8. Prueba: eliminar profesor con usuario asociado (cedula 100100100)
+BEGIN
+DELETE FROM Profesor WHERE cedula = '100100100';
+EXCEPTION
+  WHEN OTHERS THEN DBMS_OUTPUT.PUT_LINE('OK - No se puede eliminar profesor con usuario: ' || SQLERRM);
+END;
+/
