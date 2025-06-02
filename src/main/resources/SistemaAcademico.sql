@@ -72,6 +72,8 @@ BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE modificarProfesor'; EXCEPTION WHEN OTHER
 /
 BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE eliminarProfesor'; EXCEPTION WHEN OTHERS THEN NULL; END;
 /
+BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE eliminarProfesorPorCedula'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
 BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION listarProfesores'; EXCEPTION WHEN OTHERS THEN NULL; END;
 /
 BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION buscarProfesorPorCedula'; EXCEPTION WHEN OTHERS THEN NULL; END;
@@ -85,6 +87,8 @@ BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE insertarAlumno'; EXCEPTION WHEN OTHERS T
 BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE modificarAlumno'; EXCEPTION WHEN OTHERS THEN NULL; END;
 /
 BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE eliminarAlumno'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE eliminarAlumnoPorCedula'; EXCEPTION WHEN OTHERS THEN NULL; END;
 /
 BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION listarAlumnos'; EXCEPTION WHEN OTHERS THEN NULL; END;
 /
@@ -107,6 +111,8 @@ BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION listarGrupos'; EXCEPTION WHEN OTHERS THEN
 BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION buscarGruposPorCarreraCurso'; EXCEPTION WHEN OTHERS THEN NULL; END;
 /
 BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION buscarGruposPorCursoCicloCarrera'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION buscarGruposPorProfesor'; EXCEPTION WHEN OTHERS THEN NULL; END;
 /
 
 -- MATRICULA
@@ -176,6 +182,18 @@ BEGIN EXECUTE IMMEDIATE 'DROP TRIGGER trg_prevent_duplicate_grupo'; EXCEPTION WH
 BEGIN EXECUTE IMMEDIATE 'DROP TRIGGER trg_prevent_duplicate_usuario'; EXCEPTION WHEN OTHERS THEN NULL; END;
 /
 BEGIN EXECUTE IMMEDIATE 'DROP TRIGGER trg_prevent_duplicate_matricula'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP TRIGGER trg_prevent_delete_alumno_matricula'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP TRIGGER trg_prevent_delete_profesor_grupo'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP TRIGGER trg_validate_matricula_nota'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+/*BEGIN EXECUTE IMMEDIATE 'DROP TRIGGER trg_ensure_single_active_ciclo'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP TRIGGER trg_validate_usuario_tipo'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/*/
+BEGIN EXECUTE IMMEDIATE 'DROP TRIGGER trg_prevent_delete_carrera_curso'; EXCEPTION WHEN OTHERS THEN NULL; END;
 /
 
 COMMIT;
@@ -665,6 +683,17 @@ BEGIN
 END;
 /
 
+-- Eliminar Profesor por cédula
+CREATE OR REPLACE PROCEDURE eliminarProfesorPorCedula(
+    p_cedula IN Profesor.cedula%TYPE
+)
+AS
+BEGIN
+    DELETE FROM Profesor WHERE cedula = p_cedula;
+    COMMIT;
+END;
+/
+
 -- Listar Profesores 
 CREATE OR REPLACE FUNCTION listarProfesores
 RETURN Types.ref_cursor
@@ -736,6 +765,17 @@ CREATE OR REPLACE PROCEDURE eliminarAlumno(id_alumnoin IN Alumno.id_alumno%TYPE)
 AS
 BEGIN
     DELETE FROM Alumno WHERE id_alumno = id_alumnoin;
+END;
+/
+
+-- Eliminar Alumno por cédula
+CREATE OR REPLACE PROCEDURE eliminarAlumnoPorCedula(
+    p_cedula IN Alumno.cedula%TYPE
+)
+AS
+BEGIN
+    DELETE FROM Alumno WHERE cedula = p_cedula;
+    COMMIT;
 END;
 /
 
@@ -881,6 +921,28 @@ BEGIN
     WHERE cc.pk_carrera = p_id_carrera
       AND cc.pk_curso = p_id_curso
       AND cc.pk_ciclo = p_id_ciclo;
+
+    RETURN grupos_cursor;
+END;
+/
+
+-- Buscar grupos por cédula de profesor
+CREATE OR REPLACE FUNCTION buscarGruposPorProfesor(
+    p_cedula IN Profesor.cedula%TYPE
+) RETURN Types.ref_cursor AS
+    grupos_cursor Types.ref_cursor;
+BEGIN
+    OPEN grupos_cursor FOR
+        SELECT
+            g.id_grupo,
+            g.pk_carrera_curso,
+            g.numero_grupo,
+            g.horario,
+            p.id_profesor AS pk_profesor,
+            p.nombre AS nombre_profesor
+        FROM Grupo g
+                 JOIN Profesor p ON g.pk_profesor = p.id_profesor
+        WHERE p.cedula = p_cedula;
 
     RETURN grupos_cursor;
 END;
@@ -1059,7 +1121,7 @@ END;
 -- VALIDACIONES Y RESTRICCIONES CON TRIGGERS
 ----------------------------------------------------------------------------------------------------------
 
--- 1. No permitir eliminar CARRERA con cursos o alumnos asociados
+-- No permitir eliminar CARRERA con cursos o alumnos asociados
 CREATE OR REPLACE TRIGGER trg_prevent_delete_carrera
 BEFORE DELETE ON Carrera
 FOR EACH ROW
@@ -1078,7 +1140,7 @@ END IF;
 END;
 /
 
--- 2. No permitir eliminar CURSO con asociaciones
+-- No permitir eliminar CURSO con asociaciones
 CREATE OR REPLACE TRIGGER trg_prevent_delete_curso
 BEFORE DELETE ON Curso
 FOR EACH ROW
@@ -1097,7 +1159,7 @@ END IF;
 END;
 /
 
--- 3. No permitir eliminar CICLO con asociaciones
+-- No permitir eliminar CICLO con asociaciones
 CREATE OR REPLACE TRIGGER trg_prevent_delete_ciclo
 BEFORE DELETE ON Ciclo
 FOR EACH ROW
@@ -1111,7 +1173,7 @@ END IF;
 END;
 /
 
--- 4. No permitir eliminar GRUPO con matrículas
+-- No permitir eliminar GRUPO con matrículas
 CREATE OR REPLACE TRIGGER trg_prevent_delete_grupo
 BEFORE DELETE ON Grupo
 FOR EACH ROW
@@ -1125,7 +1187,7 @@ END IF;
 END;
 /
 
--- 5. No permitir eliminar ALUMNO o PROFESOR con usuario asociado
+-- No permitir eliminar ALUMNO o PROFESOR con usuario asociado
 CREATE OR REPLACE TRIGGER trg_prevent_delete_alumno
 BEFORE DELETE ON Alumno
 FOR EACH ROW
@@ -1152,7 +1214,7 @@ END IF;
 END;
 /
 
--- 6. Validaciones de unicidad y formato lógico
+-- Validaciones de unicidad y formato lógico
 CREATE OR REPLACE TRIGGER trg_validar_ciclo_fecha
 BEFORE INSERT OR UPDATE ON Ciclo
                             FOR EACH ROW
@@ -1195,7 +1257,7 @@ BEGIN
 END;
 /
 
--- 7. Validar duplicado de curso en carrera y ciclo
+-- Validar duplicado de curso en carrera y ciclo
 CREATE OR REPLACE TRIGGER trg_prevent_duplicate_carrera_curso
 BEFORE INSERT ON Carrera_Curso
 FOR EACH ROW
@@ -1210,7 +1272,7 @@ END IF;
 END;
 /
 
--- 8. Validar duplicado de grupo dentro del mismo curso y ciclo
+-- Validar duplicado de grupo dentro del mismo curso y ciclo
 CREATE OR REPLACE TRIGGER trg_prevent_duplicate_grupo
 BEFORE INSERT ON Grupo
 FOR EACH ROW
@@ -1228,7 +1290,7 @@ END IF;
 END;
 /
 
--- 9. Validar duplicado de usuario por cédula
+-- Validar duplicado de usuario por cédula
 CREATE OR REPLACE TRIGGER trg_prevent_duplicate_usuario
 BEFORE INSERT ON Usuario
 FOR EACH ROW
@@ -1242,7 +1304,7 @@ END IF;
 END;
 /
 
--- 10. Validar duplicado de matrícula por alumno y curso
+-- Validar duplicado de matrícula por alumno y curso
 CREATE OR REPLACE TRIGGER trg_prevent_duplicate_matricula
 BEFORE INSERT ON Matricula
 FOR EACH ROW
@@ -1263,6 +1325,97 @@ WHERE m.pk_alumno = :NEW.pk_alumno AND cc.pk_curso = v_id_curso;
 IF v_count > 0 THEN
         RAISE_APPLICATION_ERROR(-20029, 'El alumno ya está matriculado en otro grupo de este curso.');
 END IF;
+END;
+/
+
+-- Evita la eliminación de un Alumno con matrículas asociadas
+CREATE OR REPLACE TRIGGER trg_prevent_delete_alumno_matricula
+    BEFORE DELETE ON Alumno
+    FOR EACH ROW
+DECLARE
+    v_count NUMBER;
+BEGIN
+    SELECT COUNT(*) INTO v_count FROM Matricula WHERE pk_alumno = :OLD.id_alumno;
+    IF v_count > 0 THEN
+        RAISE_APPLICATION_ERROR(-20011, 'No se puede eliminar el alumno: tiene matrículas asociadas.');
+    END IF;
+END;
+/
+
+-- Evita la eliminación de un Profesor con grupos asociados
+CREATE OR REPLACE TRIGGER trg_prevent_delete_profesor_grupo
+    BEFORE DELETE ON Profesor
+    FOR EACH ROW
+DECLARE
+    v_count NUMBER;
+BEGIN
+    SELECT COUNT(*) INTO v_count FROM Grupo WHERE pk_profesor = :OLD.id_profesor;
+    IF v_count > 0 THEN
+        RAISE_APPLICATION_ERROR(-20030, 'No se puede eliminar el profesor: tiene grupos asignados.');
+    END IF;
+END;
+/
+
+-- Valida que la nota en Matricula esté entre 0 y 100
+CREATE OR REPLACE TRIGGER trg_validate_matricula_nota
+    BEFORE INSERT OR UPDATE ON Matricula
+    FOR EACH ROW
+BEGIN
+    IF :NEW.nota IS NOT NULL AND (:NEW.nota < 0 OR :NEW.nota > 100) THEN
+        RAISE_APPLICATION_ERROR(-20031, 'La nota debe estar entre 0 y 100.');
+    END IF;
+END;
+/
+
+/*-- Asegura que solo un Ciclo esté Activo
+CREATE OR REPLACE TRIGGER trg_ensure_single_active_ciclo
+    BEFORE INSERT OR UPDATE OF estado ON Ciclo
+    FOR EACH ROW
+DECLARE
+    v_count NUMBER;
+BEGIN
+    IF :NEW.estado = 'Activo' THEN
+        SELECT COUNT(*) INTO v_count FROM Ciclo
+        WHERE estado = 'Activo' AND id_ciclo != NVL(:OLD.id_ciclo, -1);
+        IF v_count > 0 THEN
+            RAISE_APPLICATION_ERROR(-20032, 'Ya existe un ciclo activo. Desactive el ciclo actual primero.');
+        END IF;
+    END IF;
+END;
+/
+
+-- Valida que Usuario con tipo Alumno o Profesor tenga registro correspondiente
+CREATE OR REPLACE TRIGGER trg_validate_usuario_tipo
+    BEFORE INSERT OR UPDATE OF tipo, cedula ON Usuario
+    FOR EACH ROW
+DECLARE
+    v_count NUMBER;
+BEGIN
+    IF :NEW.tipo = 'Alumno' THEN
+        SELECT COUNT(*) INTO v_count FROM Alumno WHERE cedula = :NEW.cedula;
+        IF v_count = 0 THEN
+            RAISE_APPLICATION_ERROR(-20033, 'No existe un alumno con esta cédula para asignar como usuario.');
+        END IF;
+    ELSIF :NEW.tipo = 'Profesor' THEN
+        SELECT COUNT(*) INTO v_count FROM Profesor WHERE cedula = :NEW.cedula;
+        IF v_count = 0 THEN
+            RAISE_APPLICATION_ERROR(-20034, 'No existe un profesor con esta cédula para asignar como usuario.');
+        END IF;
+    END IF;
+END;
+/*/
+
+-- Evita la eliminación de Carrera_Curso con grupos asociados
+CREATE OR REPLACE TRIGGER trg_prevent_delete_carrera_curso
+    BEFORE DELETE ON Carrera_Curso
+    FOR EACH ROW
+DECLARE
+    v_count NUMBER;
+BEGIN
+    SELECT COUNT(*) INTO v_count FROM Grupo WHERE pk_carrera_curso = :OLD.id_carrera_curso;
+    IF v_count > 0 THEN
+        RAISE_APPLICATION_ERROR(-20035, 'No se puede eliminar la relación carrera-curso: tiene grupos asociados.');
+    END IF;
 END;
 /
 
@@ -1408,7 +1561,7 @@ FROM USER_TRIGGERS
 ORDER BY TABLE_NAME, TRIGGER_NAME;
 
 -- Script de pruebas para validación de restricciones en triggers
-
+/*
 -- 1. Prueba: eliminar carrera con cursos (ID 1)
 BEGIN
 DELETE FROM Carrera WHERE id_carrera = 1;
@@ -1476,3 +1629,4 @@ EXCEPTION
   WHEN OTHERS THEN DBMS_OUTPUT.PUT_LINE('OK - No se puede eliminar profesor con usuario: ' || SQLERRM);
 END;
 /
+*/
