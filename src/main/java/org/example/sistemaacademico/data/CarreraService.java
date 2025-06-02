@@ -91,7 +91,7 @@ public class CarreraService {
                 throw new NoDataException("No se realizo la actualizacion");
             }
 
-            //System.out.println("\nModificaci�n Satisfactoria!");
+            //System.out.println("\nModificacin Satisfactoria!");
         } catch (SQLException var15) {
             throw new GlobalException("Sentencia no valida");
         } finally {
@@ -125,7 +125,7 @@ public class CarreraService {
                 throw new NoDataException("No se realizo el borrado");
             }
 
-            //System.out.println("\nEliminaci�n Satisfactoria!");
+            //System.out.println("\nEliminacin Satisfactoria!");
         } catch (SQLException var15) {
             throw new GlobalException("Sentencia no valida");
         } finally {
@@ -142,19 +142,12 @@ public class CarreraService {
 
     }
     public List<Carrera> listarCarreras() throws GlobalException, NoDataException {
-        try {
-            this.servicio.conectar();
-        } catch (ClassNotFoundException var14) {
-            throw new GlobalException("No se ha localizado el Driver");
-        } catch (SQLException var15) {
-            throw new NoDataException("La base de datos no se encuentra disponible");
-        }
-
         ResultSet rs = null;
         ArrayList<Carrera> coleccion = new ArrayList<>();
         CallableStatement pstmt = null;
 
         try {
+            this.servicio.conectar();
             pstmt = this.servicio.conexion.prepareCall(listarCarreras);
             pstmt.registerOutParameter(1, -10);
             pstmt.execute();
@@ -162,35 +155,35 @@ public class CarreraService {
 
             while(rs.next()) {
                 coleccion.add(new Carrera(
-                        rs.getLong("id_carrera"),
-                        rs.getString("codigo"),
-                        rs.getString("nombre"),
-                        rs.getString("titulo"))
+                    rs.getLong("id_carrera"),
+                    rs.getString("codigo"),
+                    rs.getString("nombre"),
+                    rs.getString("titulo"))
                 );
             }
-        } catch (SQLException var16) {
-            var16.printStackTrace();
-            throw new GlobalException("Sentencia no valida");
+
+            if (coleccion.isEmpty()) {
+                throw new NoDataException("No hay datos");
+            }
+
+            return coleccion;
+
+        } catch (ClassNotFoundException e) {
+            throw new GlobalException("No se ha localizado el Driver");
+        } catch (SQLException e) {
+            throw new GlobalException("Error en la sentencia SQL: " + e.getMessage());
         } finally {
             try {
                 if (rs != null) {
                     rs.close();
                 }
-
                 if (pstmt != null) {
                     pstmt.close();
                 }
-
                 this.servicio.desconectar();
-            } catch (SQLException var13) {
-                throw new GlobalException("Estatutos invalidos o nulos");
+            } catch (SQLException e) {
+                throw new GlobalException("Error al cerrar la conexión: " + e.getMessage());
             }
-        }
-
-        if (coleccion != null && coleccion.size() != 0) {
-            return coleccion;
-        } else {
-            throw new NoDataException("No hay datos");
         }
     }
     public Carrera buscarCarreraPorNombre(String nombre) throws GlobalException, NoDataException {
