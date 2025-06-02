@@ -2,82 +2,82 @@ package org.example.sistemaacademico.data;
 
 import org.example.sistemaacademico.database.GlobalException;
 import org.example.sistemaacademico.database.NoDataException;
-import org.example.sistemaacademico.database.Servicio;
 import org.example.sistemaacademico.logic.Profesor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.sql.CallableStatement;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import javax.sql.DataSource;
+import java.sql.*;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
+/**
+ * Servicio para gestionar operaciones relacionadas con Profesores en la base de datos.
+ * Implementa operaciones CRUD y búsquedas, asegurando manejo adecuado de excepciones y cierre de recursos.
+ */
 @Service
 public class ProfesorService {
-    private static final String insertarProfesor = "{call insertarProfesor (?,?,?,?)}";
-    private static final String modificarProfesor = "{call modificarProfesor (?,?,?,?,?)}";
-    private static final String eliminarProfesor = "{call eliminarProfesor(?)}";
-    private static final String listarProfesores= "{?=call listarProfesores()}";
-    private static final String buscarPorCedula = "{?=call buscarProfesorPorCedula(?)}";
-    private static final String buscarPorNombre = "{?=call buscarProfesorPorNombre(?)}";
-    private Servicio servicio;
 
-    public ProfesorService() throws ClassNotFoundException, SQLException {
-        this.servicio = Servicio.getInstancia();
+    private static final Logger logger = LoggerFactory.getLogger(ProfesorService.class);
+
+    // Consultas SQL para procedimientos almacenados
+    private static final String INSERTAR_PROFESOR = "{call insertarProfesor(?,?,?,?)}";
+    private static final String MODIFICAR_PROFESOR = "{call modificarProfesor(?,?,?,?,?)}";
+    private static final String ELIMINAR_PROFESOR = "{call eliminarProfesor(?)}";
+    private static final String ELIMINAR_PROFESOR_POR_CEDULA = "{call eliminarProfesorPorCedula(?)}";
+    private static final String LISTAR_PROFESORES = "{?=call listarProfesores()}";
+    private static final String BUSCAR_POR_CEDULA = "{?=call buscarProfesorPorCedula(?)}";
+    private static final String BUSCAR_POR_NOMBRE = "{?=call buscarProfesorPorNombre(?)}";
+
+    private final DataSource dataSource;
+
+    /**
+     * Constructor que utiliza inyección de dependencias para inicializar el DataSource.
+     *
+     * @param dataSource El DataSource gestionado por Spring Boot.
+     */
+    @Autowired
+    public ProfesorService(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
-    public void insertarProfesor(Profesor profesor) throws GlobalException, NoDataException {
-        try {
-            this.servicio.conectar();
-        } catch (ClassNotFoundException var13) {
-            throw new GlobalException("No se ha localizado el driver");
-        } catch (SQLException var14) {
-            throw new NoDataException("La base de datos no se encuentra disponible");
-        }
 
-        CallableStatement pstmt = null;
-
-        try {
-            pstmt = this.servicio.conexion.prepareCall(insertarProfesor);
+    /**
+     * Inserta un nuevo profesor en la base de datos.
+     *
+     * @param profesor El objeto Profesor a insertar.
+     * @throws GlobalException Si ocurre un error relacionado con la base de datos, como una llave duplicada o sentencia inválida.
+     * @throws NoDataException Si la inserción no se realiza.
+     */
+    public void insertar(Profesor profesor) throws GlobalException, NoDataException {
+        logger.debug("Insertando profesor: cedula {}, nombre {}", profesor.getCedula(), profesor.getNombre());
+        try (Connection conn = dataSource.getConnection();
+             CallableStatement pstmt = conn.prepareCall(INSERTAR_PROFESOR)) {
             pstmt.setString(1, profesor.getCedula());
             pstmt.setString(2, profesor.getNombre());
             pstmt.setString(3, profesor.getTelefono());
             pstmt.setString(4, profesor.getEmail());
-            boolean resultado = pstmt.execute();
-            if (resultado) {
-                throw new NoDataException("No se realizo la inserci�n");
-            }
-        } catch (SQLException var15) {
-            var15.printStackTrace();
-            throw new GlobalException("Llave duplicada");
-        } finally {
-            try {
-                if (pstmt != null) {
-                    pstmt.close();
-                }
-
-                this.servicio.desconectar();
-            } catch (SQLException var12) {
-                throw new GlobalException("Estatutos invalidos o nulos");
-            }
+            pstmt.executeUpdate();
+            logger.info("Profesor insertado exitosamente: cedula {}", profesor.getCedula());
+        } catch (SQLException e) {
+            logger.error("Error al insertar profesor: {}", e.getMessage(), e);
+            handleSQLExceptionInsert(e);
         }
-
     }
-    public void modificarProfesor(Profesor profesor) throws GlobalException, NoDataException {
-        try {
-            this.servicio.conectar();
-        } catch (ClassNotFoundException var13) {
-            throw new GlobalException("No se ha localizado el driver");
-        } catch (SQLException var14) {
-            throw new NoDataException("La base de datos no se encuentra disponible");
-        }
 
-        CallableStatement pstmt = null;
-
-        try {
-            pstmt = this.servicio.conexion.prepareCall(modificarProfesor);
+    /**
+     * Modifica un profesor existente en la base de datos.
+     *
+     * @param profesor El objeto Profesor con los datos actualizados.
+     * @throws GlobalException Si ocurre un error relacionado con la base de datos, como una sentencia inválida.
+     * @throws NoDataException Si la actualización no se realiza.
+     */
+    public void modificar(Profesor profesor) throws GlobalException, NoDataException {
+        logger.debug("Modificando profesor: id {}, cedula {}, nombre {}",
+                profesor.getIdProfesor(), profesor.getCedula(), profesor.getNombre());
+        try (Connection conn = dataSource.getConnection();
+             CallableStatement pstmt = conn.prepareCall(MODIFICAR_PROFESOR)) {
             pstmt.setLong(1, profesor.getIdProfesor());
             pstmt.setString(2, profesor.getCedula());
             pstmt.setString(3, profesor.getNombre());
@@ -85,205 +85,205 @@ public class ProfesorService {
             pstmt.setString(5, profesor.getEmail());
             int resultado = pstmt.executeUpdate();
             if (resultado == 0) {
-                throw new NoDataException("No se realizo la actualizaci�n");
+                throw new NoDataException("No se realizó la actualización del profesor");
             }
-
-            //System.out.println("\nModificaci�n Satisfactoria!");
-        } catch (SQLException var15) {
-            throw new GlobalException("Sentencia no valida");
-        } finally {
-            try {
-                if (pstmt != null) {
-                    pstmt.close();
-                }
-
-                this.servicio.desconectar();
-            } catch (SQLException var12) {
-                throw new GlobalException("Estatutos invalidos o nulos");
-            }
+            logger.info("Profesor modificado exitosamente: id {}", profesor.getIdProfesor());
+        } catch (SQLException e) {
+            logger.error("Error al modificar profesor: {}", e.getMessage(), e);
+            handleSQLException(e, "Error al modificar profesor");
         }
     }
-    public void eliminarProfesor(Long profesor) throws GlobalException, NoDataException {
-        try {
-            this.servicio.conectar();
-        } catch (ClassNotFoundException var13) {
-            throw new GlobalException("No se ha localizado el driver");
-        } catch (SQLException var14) {
-            throw new NoDataException("La base de datos no se encuentra disponible");
-        }
 
-        PreparedStatement pstmt = null;
-
-        try {
-            pstmt = this.servicio.conexion.prepareStatement(eliminarProfesor);
-            pstmt.setLong(1, profesor);
+    /**
+     * Elimina un profesor por su ID.
+     *
+     * @param idProfesor El ID del profesor a eliminar.
+     * @throws GlobalException Si hay dependencias (como grupos asignados) o errores en la base de datos.
+     * @throws NoDataException Si el profesor no existe o no se elimina.
+     */
+    public void eliminar(Long idProfesor) throws GlobalException, NoDataException {
+        logger.debug("Eliminando profesor: id {}", idProfesor);
+        try (Connection conn = dataSource.getConnection();
+             CallableStatement pstmt = conn.prepareCall(ELIMINAR_PROFESOR)) {
+            pstmt.setLong(1, idProfesor);
             int resultado = pstmt.executeUpdate();
             if (resultado == 0) {
-                throw new NoDataException("No se realizo el borrado");
+                throw new NoDataException("No se realizó el borrado: el profesor no existe");
             }
-
-            //System.out.println("\nEliminaci�n Satisfactoria!");
-        } catch (SQLException var15) {
-            throw new GlobalException("Sentencia no valida");
-        } finally {
-            try {
-                if (pstmt != null) {
-                    pstmt.close();
-                }
-
-                this.servicio.desconectar();
-            } catch (SQLException var12) {
-                throw new GlobalException("Estatutos invalidos o nulos");
-            }
+            logger.info("Profesor eliminado exitosamente: id {}", idProfesor);
+        } catch (SQLException e) {
+            logger.error("Error al eliminar profesor: {}", e.getMessage(), e);
+            handleDeleteSQLException(e);
         }
-
     }
-    public List<Profesor> listarProfesores() throws GlobalException, NoDataException {
-        try {
-            this.servicio.conectar();
-        } catch (ClassNotFoundException var14) {
-            throw new GlobalException("No se ha localizado el Driver");
-        } catch (SQLException var15) {
-            throw new NoDataException("La base de datos no se encuentra disponible");
+
+    /**
+     * Elimina un profesor por su cédula.
+     *
+     * @param cedula La cédula del profesor a eliminar.
+     * @throws GlobalException Si hay dependencias (como grupos asignados) o errores en la base de datos.
+     * @throws NoDataException Si el profesor no existe o no se elimina.
+     */
+    public void eliminarPorCedula(String cedula) throws GlobalException, NoDataException {
+        logger.debug("Eliminando profesor por cédula: {}", cedula);
+        try (Connection conn = dataSource.getConnection();
+             CallableStatement pstmt = conn.prepareCall(ELIMINAR_PROFESOR_POR_CEDULA)) {
+            pstmt.setString(1, cedula);
+            int resultado = pstmt.executeUpdate();
+            if (resultado == 0) {
+                throw new NoDataException("No se realizó el borrado: el profesor con cédula " + cedula + " no existe");
+            }
+            logger.info("Profesor eliminado exitosamente por cédula: {}", cedula);
+        } catch (SQLException e) {
+            logger.error("Error al eliminar profesor por cédula: {}", e.getMessage(), e);
+            handleDeleteSQLException(e);
         }
+    }
 
-        ResultSet rs = null;
-        ArrayList<Profesor> coleccion = new ArrayList<>();
-        CallableStatement pstmt = null;
-
-        try {
-            pstmt = this.servicio.conexion.prepareCall(listarProfesores);
-            pstmt.registerOutParameter(1, -10);
+    /**
+     * Lista todos los profesores registrados.
+     *
+     * @return Lista de objetos Profesor.
+     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
+     * @throws NoDataException Si no hay datos disponibles.
+     */
+    public List<Profesor> listar() throws GlobalException, NoDataException {
+        logger.debug("Listando todos los profesores");
+        List<Profesor> profesores = new ArrayList<>();
+        try (Connection conn = dataSource.getConnection();
+             CallableStatement pstmt = conn.prepareCall(LISTAR_PROFESORES)) {
+            pstmt.registerOutParameter(1, Types.REF_CURSOR);
             pstmt.execute();
-            rs = (ResultSet)pstmt.getObject(1);
-
-            while(rs.next()) {
-                coleccion.add(new Profesor(
-                        rs.getLong("id_profesor"),
-                        rs.getString("cedula"),
-                        rs.getString("nombre"),
-                        rs.getString("telefono"),
-                        rs.getString("email")));
-            }
-        } catch (SQLException var16) {
-            var16.printStackTrace();
-            throw new GlobalException("Sentencia no valida");
-        } finally {
-            try {
-                if (rs != null) {
-                    rs.close();
+            try (ResultSet rs = (ResultSet) pstmt.getObject(1)) {
+                while (rs.next()) {
+                    profesores.add(mapResultSetToProfesor(rs));
                 }
-
-                if (pstmt != null) {
-                    pstmt.close();
-                }
-
-                this.servicio.desconectar();
-            } catch (SQLException var13) {
-                throw new GlobalException("Estatutos invalidos o nulos");
             }
+        } catch (SQLException e) {
+            logger.error("Error al listar profesores: {}", e.getMessage(), e);
+            handleSQLException(e, "Error al listar profesores");
         }
-
-        if (coleccion != null && coleccion.size() != 0) {
-            return coleccion;
-        } else {
-            throw new NoDataException("No hay datos");
+        if (profesores.isEmpty()) {
+            throw new NoDataException("No hay profesores registrados");
         }
+        logger.info("Listado de profesores obtenido exitosamente, total: {}", profesores.size());
+        return profesores;
     }
-    public Profesor buscarProfesorPorCedula(String cedula) throws GlobalException, NoDataException {
-        try {
-            this.servicio.conectar();
-        } catch (ClassNotFoundException var15) {
-            throw new GlobalException("No se ha localizado el driver");
-        } catch (SQLException var16) {
-            throw new NoDataException("La base de datos no se encuentra disponible");
-        }
 
-        ResultSet rs = null;
-        Profesor profesor = null;
-        CallableStatement pstmt = null;
-
-        try {
-            pstmt = this.servicio.conexion.prepareCall(buscarPorCedula);
-            pstmt.registerOutParameter(1, -10);
+    /**
+     * Busca un profesor por su cédula.
+     *
+     * @param cedula La cédula del profesor.
+     * @return El objeto Profesor encontrado.
+     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
+     * @throws NoDataException Si no se encuentra un profesor con la cédula especificada.
+     */
+    public Profesor buscarPorCedula(String cedula) throws GlobalException, NoDataException {
+        logger.debug("Buscando profesor por cédula: {}", cedula);
+        try (Connection conn = dataSource.getConnection();
+             CallableStatement pstmt = conn.prepareCall(BUSCAR_POR_CEDULA)) {
+            pstmt.registerOutParameter(1, Types.REF_CURSOR);
             pstmt.setString(2, cedula);
             pstmt.execute();
-            rs = (ResultSet)pstmt.getObject(1);
-            if (rs.next()) {
-                profesor = new Profesor(
-                        rs.getLong("id_profesor"),
-                        rs.getString("cedula"),
-                        rs.getString("nombre"),
-                        rs.getString("telefono"),
-                        rs.getString("email"));
-            }
-        } catch (SQLException var17) {
-            var17.printStackTrace();
-            throw new GlobalException("Sentencia no valida");
-        } finally {
-            try {
-                if (rs != null) {
-                    rs.close();
+            try (ResultSet rs = (ResultSet) pstmt.getObject(1)) {
+                if (rs.next()) {
+                    Profesor profesor = mapResultSetToProfesor(rs);
+                    logger.info("Profesor encontrado por cédula: {}", cedula);
+                    return profesor;
                 }
-
-                if (pstmt != null) {
-                    pstmt.close();
-                }
-
-                this.servicio.desconectar();
-            } catch (SQLException var14) {
-                throw new GlobalException("Estatutos invalidos o nulos");
             }
+        } catch (SQLException e) {
+            logger.error("Error al buscar profesor por cédula: {}", e.getMessage(), e);
+            handleSQLException(e, "Error al buscar profesor por cédula");
         }
-
-        return profesor;
+        throw new NoDataException("No se encontró un profesor con cédula: " + cedula);
     }
-    public Profesor buscarProfesorPorNombre(String nombre) throws GlobalException, NoDataException {
-        try {
-            this.servicio.conectar();
-        } catch (ClassNotFoundException var15) {
-            throw new GlobalException("No se ha localizado el driver");
-        } catch (SQLException var16) {
-            throw new NoDataException("La base de datos no se encuentra disponible");
-        }
 
-        ResultSet rs = null;
-        Profesor profesor = null;
-        CallableStatement pstmt = null;
-
-        try {
-            pstmt = this.servicio.conexion.prepareCall(buscarPorNombre);
-            pstmt.registerOutParameter(1, -10);
+    /**
+     * Busca un profesor por su nombre.
+     *
+     * @param nombre El nombre del profesor.
+     * @return El objeto Profesor encontrado.
+     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
+     * @throws NoDataException Si no se encuentra un profesor con el nombre especificado.
+     */
+    public Profesor buscarPorNombre(String nombre) throws GlobalException, NoDataException {
+        logger.debug("Buscando profesor por nombre: {}", nombre);
+        try (Connection conn = dataSource.getConnection();
+             CallableStatement pstmt = conn.prepareCall(BUSCAR_POR_NOMBRE)) {
+            pstmt.registerOutParameter(1, Types.REF_CURSOR);
             pstmt.setString(2, nombre);
             pstmt.execute();
-            rs = (ResultSet)pstmt.getObject(1);
-            if (rs.next()) {
-                profesor = new Profesor(
-                        rs.getLong("id_profesor"),
-                        rs.getString("cedula"),
-                        rs.getString("nombre"),
-                        rs.getString("telefono"),
-                        rs.getString("email"));
-            }
-        } catch (SQLException var17) {
-            var17.printStackTrace();
-            throw new GlobalException("Sentencia no valida");
-        } finally {
-            try {
-                if (rs != null) {
-                    rs.close();
+            try (ResultSet rs = (ResultSet) pstmt.getObject(1)) {
+                if (rs.next()) {
+                    Profesor profesor = mapResultSetToProfesor(rs);
+                    logger.info("Profesor encontrado por nombre: {}", nombre);
+                    return profesor;
                 }
-
-                if (pstmt != null) {
-                    pstmt.close();
-                }
-
-                this.servicio.desconectar();
-            } catch (SQLException var14) {
-                throw new GlobalException("Estatutos invalidos o nulos");
             }
+        } catch (SQLException e) {
+            logger.error("Error al buscar profesor por nombre: {}", e.getMessage(), e);
+            handleSQLException(e, "Error al buscar profesor por nombre");
         }
+        throw new NoDataException("No se encontró un profesor con nombre: " + nombre);
+    }
 
-        return profesor;
+    // Métodos utilitarios privados
+
+    /**
+     * Mapea un ResultSet a un objeto Profesor.
+     *
+     * @param rs El ResultSet con los datos del profesor.
+     * @return Un objeto Profesor mapeado.
+     * @throws SQLException Si ocurre un error al leer los datos.
+     */
+    private Profesor mapResultSetToProfesor(ResultSet rs) throws SQLException {
+        return new Profesor(
+                rs.getLong("id_profesor"),
+                rs.getString("cedula"),
+                rs.getString("nombre"),
+                rs.getString("telefono"),
+                rs.getString("email")
+        );
+    }
+
+    /**
+     * Maneja excepciones SQL genéricas y lanza GlobalException con un mensaje específico.
+     * Usado para operaciones como modificar, listar y buscar.
+     *
+     * @param e       La excepción SQL capturada.
+     * @param message El mensaje base para la excepción, que describe la operación fallida.
+     * @throws GlobalException Si ocurre un error en la base de datos, como una sentencia SQL inválida.
+     */
+    private void handleSQLException(SQLException e, String message) throws GlobalException {
+        throw new GlobalException(message + ": " + e.getMessage());
+    }
+
+    /**
+     * Maneja excepciones SQL específicas para operaciones de inserción, mapeando códigos de error de triggers.
+     *
+     * @param e La excepción SQL capturada.
+     * @throws GlobalException Si el profesor no puede ser insertado debido a una cédula duplicada o errores genéricos de base de datos.
+     */
+    private void handleSQLExceptionInsert(SQLException e) throws GlobalException {
+        int errorCode = e.getErrorCode();
+        String errorMessage = errorCode == -20007 ?
+                "No se puede insertar el profesor: ya existe un profesor con esta cédula." :
+                "Error al insertar profesor: " + e.getMessage();
+        throw new GlobalException(errorMessage);
+    }
+
+    /**
+     * Maneja excepciones SQL específicas para operaciones de eliminación, mapeando códigos de error de triggers.
+     *
+     * @param e La excepción SQL capturada.
+     * @throws GlobalException Si el profesor no puede ser eliminado debido a grupos asignados o errores genéricos de base de datos.
+     */
+    private void handleDeleteSQLException(SQLException e) throws GlobalException {
+        int errorCode = e.getErrorCode();
+        String errorMessage = errorCode == -20010 ?
+                "No se puede eliminar el profesor: tiene grupos asignados." :
+                "Error al eliminar profesor: " + e.getMessage();
+        throw new GlobalException(errorMessage);
     }
 }

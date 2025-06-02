@@ -1,5 +1,16 @@
 package org.example.sistemaacademico.logic.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+/**
+ * DTO que representa un curso con información adicional como carrera y ciclo.
+ * Utiliza Lombok para generar getters, setters, constructores, toString, equals y hashCode.
+ */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class CursoDto {
     private Long idCurso;
     private String codigo;
@@ -11,18 +22,18 @@ public class CursoDto {
     private Long numero;
     private Long idCiclo;
 
-    public CursoDto(Long idCurso, String codigo, String nombre, Long creditos, Long horasSemanales, Long idCarreraCurso, Long anio, Long numero, Long idCiclo) {
-        this.idCurso = idCurso;
-        this.codigo = codigo;
-        this.nombre = nombre;
-        this.creditos = creditos;
-        this.horasSemanales = horasSemanales;
-        this.idCarreraCurso = idCarreraCurso;
-        this.anio = anio;
-        this.numero = numero;
-        this.idCiclo = idCiclo;
-    }
-
+    /**
+     * Constructor con 6 parámetros para compatibilidad con código existente.
+     * Los campos anio, numero e idCiclo serán null.
+     *
+     * @param idCurso        ID del curso.
+     * @param codigo         Código del curso.
+     * @param nombre         Nombre del curso.
+     * @param creditos       Créditos del curso.
+     * @param horasSemanales Horas semanales del curso.
+     * @param idCarreraCurso ID de la relación carrera-curso.
+     */
+    @Deprecated
     public CursoDto(Long idCurso, String codigo, String nombre, Long creditos, Long horasSemanales, Long idCarreraCurso) {
         this.idCurso = idCurso;
         this.codigo = codigo;
@@ -30,77 +41,8 @@ public class CursoDto {
         this.creditos = creditos;
         this.horasSemanales = horasSemanales;
         this.idCarreraCurso = idCarreraCurso;
-    }
-
-    public Long getIdCurso() {
-        return idCurso;
-    }
-
-    public void setIdCurso(Long idCurso) {
-        this.idCurso = idCurso;
-    }
-
-    public String getCodigo() {
-        return codigo;
-    }
-
-    public void setCodigo(String codigo) {
-        this.codigo = codigo;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public Long getCreditos() {
-        return creditos;
-    }
-
-    public void setCreditos(Long creditos) {
-        this.creditos = creditos;
-    }
-
-    public Long getHorasSemanales() {
-        return horasSemanales;
-    }
-
-    public void setHorasSemanales(Long horasSemanales) {
-        this.horasSemanales = horasSemanales;
-    }
-
-    public Long getIdCarreraCurso() {
-        return idCarreraCurso;
-    }
-
-    public void setIdCarreraCurso(Long idCarreraCurso) {
-        this.idCarreraCurso = idCarreraCurso;
-    }
-
-    public Long getAnio() {
-        return anio;
-    }
-
-    public void setAnio(Long anio) {
-        this.anio = anio;
-    }
-
-    public Long getNumero() {
-        return numero;
-    }
-
-    public void setNumero(Long numero) {
-        this.numero = numero;
-    }
-
-    public Long getIdCiclo() {
-        return idCiclo;
-    }
-
-    public void setIdCiclo(Long idCiclo) {
-        this.idCiclo = idCiclo;
+        this.anio = null;
+        this.numero = null;
+        this.idCiclo = null;
     }
 }

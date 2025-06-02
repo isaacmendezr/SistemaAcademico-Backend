@@ -1,46 +1,174 @@
 package org.example.sistemaacademico.controller;
 
+import org.example.sistemaacademico.data.ProfesorService;
 import org.example.sistemaacademico.database.GlobalException;
 import org.example.sistemaacademico.database.NoDataException;
 import org.example.sistemaacademico.logic.Profesor;
-import org.example.sistemaacademico.data.ProfesorService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * Controlador REST para gestionar operaciones relacionadas con profesores.
+ * Proporciona endpoints para CRUD y búsquedas de profesores.
+ */
 @RestController
 @RequestMapping("/api/profesores")
 public class ProfesorController {
-    @Autowired
-    private ProfesorService profesorService;
 
+    private static final Logger logger = LoggerFactory.getLogger(ProfesorController.class);
+    private final ProfesorService profesorService;
+
+    /**
+     * Constructor que utiliza inyección de dependencias para inicializar el servicio de profesores.
+     *
+     * @param profesorService El servicio de profesores.
+     */
+    public ProfesorController(ProfesorService profesorService) {
+        this.profesorService = profesorService;
+    }
+
+    /**
+     * Crea un nuevo profesor.
+     *
+     * @param profesor El objeto Profesor a crear.
+     * @return ResponseEntity con el estado 201 Created.
+     */
     @PostMapping("/insertar")
-    public void insertar(@RequestBody Profesor profesor) throws NoDataException, GlobalException {
-        profesorService.insertarProfesor(profesor);
+    public ResponseEntity<Void> insertar(@RequestBody Profesor profesor) {
+        logger.debug("Creando profesor con cédula: {}", profesor.getCedula());
+        try {
+            profesorService.insertar(profesor);
+            logger.info("Profesor creado exitosamente: cédula {}", profesor.getCedula());
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        } catch (GlobalException | NoDataException e) {
+            logger.error("Error al crear profesor: {}", e.getMessage(), e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
+    /**
+     * Actualiza un profesor existente.
+     *
+     * @param profesor El objeto Profesor con los datos actualizados.
+     * @return ResponseEntity con el estado 200 OK.
+     */
     @PutMapping("/modificar")
-    public void modificar(@RequestBody Profesor profesor) throws NoDataException, GlobalException {
-        profesorService.modificarProfesor(profesor);
+    public ResponseEntity<Void> modificar(@RequestBody Profesor profesor) {
+        logger.debug("Actualizando profesor con id: {}", profesor.getIdProfesor());
+        try {
+            profesorService.modificar(profesor);
+            logger.info("Profesor actualizado exitosamente: id {}", profesor.getIdProfesor());
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (GlobalException | NoDataException e) {
+            logger.error("Error al actualizar profesor: {}", e.getMessage(), e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
+
+    /**
+     * Elimina un profesor por su ID.
+     *
+     * @param id El ID del profesor a eliminar.
+     * @return ResponseEntity con el estado 204 No Content.
+     */
     @DeleteMapping("/eliminar/{id}")
-    public void eliminar(@PathVariable("id") Long id) throws NoDataException, GlobalException {
-        profesorService.eliminarProfesor(id);
+    public ResponseEntity<Void> eliminar(@PathVariable("id") Long id) {
+        logger.debug("Eliminando profesor con id: {}", id);
+        try {
+            profesorService.eliminar(id);
+            logger.info("Profesor eliminado exitosamente: id {}", id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (GlobalException | NoDataException e) {
+            logger.error("Error al eliminar profesor: {}", e.getMessage(), e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
+    /**
+     * Elimina un profesor por su cédula.
+     *
+     * @param cedula La cédula del profesor a eliminar.
+     * @return ResponseEntity con el estado 204 No Content.
+     */
+    @DeleteMapping("/eliminarPorCedula")
+    public ResponseEntity<Void> eliminarPorCedula(@RequestParam("cedula") String cedula) {
+        logger.debug("Eliminando profesor por cédula: {}", cedula);
+        try {
+            profesorService.eliminarPorCedula(cedula);
+            logger.info("Profesor eliminado exitosamente por cédula: {}", cedula);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (GlobalException | NoDataException e) {
+            logger.error("Error al eliminar profesor por cédula: {}", e.getMessage(), e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Lista todos los profesores registrados.
+     *
+     * @return ResponseEntity con la lista de profesores y estado 200 OK.
+     */
     @GetMapping("/listar")
-    public List<Profesor> listar() throws NoDataException, GlobalException {
-        return profesorService.listarProfesores();
+    public ResponseEntity<List<Profesor>> listar() {
+        logger.debug("Listando todos los profesores");
+        try {
+            List<Profesor> profesores = profesorService.listar();
+            logger.info("Listado de profesores obtenido: total {}", profesores.size());
+            return new ResponseEntity<>(profesores, HttpStatus.OK);
+        } catch (GlobalException | NoDataException e) {
+            logger.error("Error al listar profesores: {}", e.getMessage(), e);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
+    /**
+     * Busca un profesor por su cédula.
+     *
+     * @param cedula La cédula del profesor.
+     * @return ResponseEntity con el profesor encontrado y estado 200 OK.
+     */
     @GetMapping("/buscarPorCedula")
-    public Profesor buscarPorCedula(@RequestParam String cedula) throws NoDataException, GlobalException {
-        return profesorService.buscarProfesorPorCedula(cedula);
-    }
-    @GetMapping("/buscarPorNombre")
-    public Profesor buscarPorNombre(@RequestParam String nombre) throws NoDataException, GlobalException {
-        return profesorService.buscarProfesorPorNombre(nombre);
+    public ResponseEntity<Profesor> buscarPorCedula(@RequestParam("cedula") String cedula) {
+        logger.debug("Buscando profesor por cédula: {}", cedula);
+        try {
+            Profesor profesor = profesorService.buscarPorCedula(cedula);
+            if (profesor == null) {
+                logger.info("No se encontró profesor con cédula: {}", cedula);
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+            logger.info("Profesor encontrado: cédula {}", cedula);
+            return new ResponseEntity<>(profesor, HttpStatus.OK);
+        } catch (GlobalException e) {
+            logger.error("Error al buscar profesor por cédula: {}", e.getMessage(), e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
+    /**
+     * Busca un profesor por su nombre.
+     *
+     * @param nombre El nombre del profesor.
+     * @return ResponseEntity con el profesor encontrado y estado 200 OK.
+     */
+    @GetMapping("/buscarPorNombre")
+    public ResponseEntity<Profesor> buscarPorNombre(@RequestParam("nombre") String nombre) {
+        logger.debug("Buscando profesor por nombre: {}", nombre);
+        try {
+            Profesor profesor = profesorService.buscarPorNombre(nombre);
+            if (profesor == null) {
+                logger.info("No se encontró profesor con nombre: {}", nombre);
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+            logger.info("Profesor encontrado: nombre {}", nombre);
+            return new ResponseEntity<>(profesor, HttpStatus.OK);
+        } catch (GlobalException e) {
+            logger.error("Error al buscar profesor por nombre: {}", e.getMessage(), e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

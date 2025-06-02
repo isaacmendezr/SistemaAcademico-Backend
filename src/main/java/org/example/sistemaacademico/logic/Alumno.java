@@ -1,8 +1,18 @@
 package org.example.sistemaacademico.logic;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
+/**
+ * Entidad que representa un alumno.
+ * Utiliza Lombok para generar getters, setters, constructores, toString, equals y hashCode.
+ */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Alumno {
     private Long idAlumno;
     private String cedula;
@@ -11,61 +21,4 @@ public class Alumno {
     private String email;
     private LocalDate fechaNacimiento;
     private Long pkCarrera;
-
-    public Alumno(Long idAlumno, String cedula, String nombre, String telefono, String email, LocalDate fechaNacimiento, Long pkCarrera) {
-        this.idAlumno = idAlumno;
-        this.cedula = cedula;
-        this.nombre = nombre;
-        this.telefono = telefono;
-        this.email = email;
-        this.fechaNacimiento = fechaNacimiento;
-        this.pkCarrera = pkCarrera;
-    }
-
-    public Long getIdAlumno() {
-        return idAlumno;
-    }
-    public void setIdAlumno(Long idAlumno) {
-        this.idAlumno = idAlumno;
-    }
-
-    public String getCedula() {
-        return cedula;
-    }
-
-    public void setCedula(String cedula) {
-        this.cedula = cedula;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-    public String getTelefono() {
-        return telefono;
-    }
-    public void setTelefono(String telefono) {
-        this.telefono = telefono;
-    }
-    public String getEmail() {
-        return email;
-    }
-    public void setEmail(String email) {
-        this.email = email;
-    }
-    public LocalDate getFechaNacimiento() {
-        return fechaNacimiento;
-    }
-    public void setFechaNacimiento(LocalDate fechaNacimiento) {
-        this.fechaNacimiento = fechaNacimiento;
-    }
-    public Long getPkCarrera() {
-        return pkCarrera;
-    }
-    public void setPkCarrera(Long pkCarrera) {
-        this.pkCarrera = pkCarrera;
-    }
 }

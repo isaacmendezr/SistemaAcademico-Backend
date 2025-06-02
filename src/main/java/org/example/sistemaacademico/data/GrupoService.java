@@ -2,295 +2,321 @@ package org.example.sistemaacademico.data;
 
 import org.example.sistemaacademico.database.GlobalException;
 import org.example.sistemaacademico.database.NoDataException;
-import org.example.sistemaacademico.database.Servicio;
 import org.example.sistemaacademico.logic.Grupo;
 import org.example.sistemaacademico.logic.dto.GrupoDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.CallableStatement;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import javax.sql.DataSource;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Servicio para gestionar operaciones relacionadas con Grupos en la base de datos.
+ * Implementa operaciones CRUD y búsquedas, asegurando manejo adecuado de excepciones y cierre de recursos.
+ */
 @Service
 public class GrupoService {
-    private static final String insertarGrupo = "{call insertarGrupo (?,?,?,?)}";
-    private static final String modificarGrupo= "{call modificarGrupo(?,?,?,?,?)}";
-    private static final String eliminarGrupo = "{call eliminarGrupo(?)}";
-    private static final String listarGrupos = "{?=call listarGrupos()}";
-    private static final String buscarGruposPorCarreraCurso = "{?= call buscarGruposPorCarreraCurso(?,?)}";
-    private static final String buscarGruposPorCursoCicloCarrera = "{?= call buscarGruposPorCursoCicloCarrera(?,?,?)}";
-    private Servicio servicio;
 
-    public GrupoService() throws ClassNotFoundException, SQLException {
-        this.servicio = Servicio.getInstancia();
+    private static final Logger logger = LoggerFactory.getLogger(GrupoService.class);
+
+    // Consultas SQL para procedimientos almacenados
+    private static final String INSERTAR_GRUPO = "{call insertarGrupo(?,?,?,?)}";
+    private static final String MODIFICAR_GRUPO = "{call modificarGrupo(?,?,?,?,?)}";
+    private static final String ELIMINAR_GRUPO = "{call eliminarGrupo(?)}";
+    private static final String LISTAR_GRUPOS = "{?=call listarGrupos()}";
+    private static final String BUSCAR_GRUPOS_POR_CARRERA_CURSO = "{?=call buscarGruposPorCarreraCurso(?,?)}";
+    private static final String BUSCAR_GRUPOS_POR_CURSO_CICLO_CARRERA = "{?=call buscarGruposPorCursoCicloCarrera(?,?,?)}";
+    private static final String BUSCAR_GRUPOS_POR_PROFESOR = "{?=call buscarGruposPorProfesor(?)}";
+
+    private final DataSource dataSource;
+
+    /**
+     * Constructor que utiliza inyección de dependencias para inicializar el DataSource.
+     *
+     * @param dataSource El DataSource gestionado por Spring Boot.
+     */
+    @Autowired
+    public GrupoService(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
+
+    /**
+     * Inserta un nuevo grupo en la base de datos.
+     *
+     * @param grupo El objeto Grupo a insertar.
+     * @throws GlobalException Si ocurre un error relacionado con la base de datos, como una llave duplicada o sentencia inválida.
+     * @throws NoDataException Si la inserción no se realiza.
+     */
     public void insertarGrupo(Grupo grupo) throws GlobalException, NoDataException {
-        try {
-            this.servicio.conectar();
-        } catch (ClassNotFoundException var13) {
-            throw new GlobalException("No se ha localizado el driver");
-        } catch (SQLException var14) {
-            throw new NoDataException("La base de datos no se encuentra disponible");
-        }
-
-        CallableStatement pstmt = null;
-
-        try {
-            pstmt = this.servicio.conexion.prepareCall(insertarGrupo);
+        logger.debug("Insertando grupo: carrera-curso {}, número {}, profesor {}",
+                grupo.getIdCarreraCurso(), grupo.getNumeroGrupo(), grupo.getIdProfesor());
+        try (Connection conn = dataSource.getConnection();
+             CallableStatement pstmt = conn.prepareCall(INSERTAR_GRUPO)) {
             pstmt.setLong(1, grupo.getIdCarreraCurso());
             pstmt.setLong(2, grupo.getNumeroGrupo());
             pstmt.setString(3, grupo.getHorario());
-            pstmt.setLong(4,grupo.getIdProfesor());
-
+            pstmt.setLong(4, grupo.getIdProfesor());
             boolean resultado = pstmt.execute();
             if (resultado) {
-                throw new NoDataException("No se realizo la inserci�n");
+                throw new NoDataException("No se realizó la inserción del grupo");
             }
-        } catch (SQLException var15) {
-            var15.printStackTrace();
-            throw new GlobalException("Llave duplicada");
-        } finally {
-            try {
-                if (pstmt != null) {
-                    pstmt.close();
-                }
-
-                this.servicio.desconectar();
-            } catch (SQLException var12) {
-                throw new GlobalException("Estatutos invalidos o nulos");
-            }
+            logger.info("Grupo insertado exitosamente: carrera-curso {}, número {}, profesor {}",
+                    grupo.getIdCarreraCurso(), grupo.getNumeroGrupo(), grupo.getIdProfesor());
+        } catch (SQLException e) {
+            logger.error("Error al insertar grupo: {}", e.getMessage(), e);
+            handleSQLException(e, "Error al insertar grupo: llave duplicada o sentencia inválida");
         }
-
     }
+
+    /**
+     * Modifica un grupo existente en la base de datos.
+     *
+     * @param grupo El objeto Grupo con los datos actualizados.
+     * @throws GlobalException Si ocurre un error relacionado con la base de datos, como una sentencia inválida.
+     * @throws NoDataException Si la actualización no se realiza.
+     */
     public void modificarGrupo(Grupo grupo) throws GlobalException, NoDataException {
-        try {
-            this.servicio.conectar();
-        } catch (ClassNotFoundException var13) {
-            throw new GlobalException("No se ha localizado el driver");
-        } catch (SQLException var14) {
-            throw new NoDataException("La base de datos no se encuentra disponible");
-        }
-
-        CallableStatement pstmt = null;
-
-        try {
-            pstmt = this.servicio.conexion.prepareCall(modificarGrupo);
+        logger.debug("Modificando grupo: id {}, carrera-curso {}, número {}, profesor {}",
+                grupo.getIdGrupo(), grupo.getIdCarreraCurso(), grupo.getNumeroGrupo(), grupo.getIdProfesor());
+        try (Connection conn = dataSource.getConnection();
+             CallableStatement pstmt = conn.prepareCall(MODIFICAR_GRUPO)) {
             pstmt.setLong(1, grupo.getIdGrupo());
             pstmt.setLong(2, grupo.getIdCarreraCurso());
             pstmt.setLong(3, grupo.getNumeroGrupo());
             pstmt.setString(4, grupo.getHorario());
             pstmt.setLong(5, grupo.getIdProfesor());
-
             int resultado = pstmt.executeUpdate();
             if (resultado == 0) {
-                throw new NoDataException("No se realizo la actualizaci�n");
+                throw new NoDataException("No se realizó la actualización del grupo");
             }
-
-            //System.out.println("\nModificaci�n Satisfactoria!");
-        } catch (SQLException var15) {
-            throw new GlobalException("Sentencia no valida");
-        } finally {
-            try {
-                if (pstmt != null) {
-                    pstmt.close();
-                }
-
-                this.servicio.desconectar();
-            } catch (SQLException var12) {
-                throw new GlobalException("Estatutos invalidos o nulos");
-            }
+            logger.info("Grupo modificado exitosamente: id {}", grupo.getIdGrupo());
+        } catch (SQLException e) {
+            logger.error("Error al modificar grupo: {}", e.getMessage(), e);
+            handleSQLException(e, "Error al modificar grupo: sentencia inválida");
         }
     }
-    public void eliminarGrupo(Long grupo) throws GlobalException, NoDataException {
-        try {
-            this.servicio.conectar();
-        } catch (ClassNotFoundException var13) {
-            throw new GlobalException("No se ha localizado el driver");
-        } catch (SQLException var14) {
-            throw new NoDataException("La base de datos no se encuentra disponible");
-        }
 
-        PreparedStatement pstmt = null;
-
-        try {
-            pstmt = this.servicio.conexion.prepareStatement(eliminarGrupo);
-            pstmt.setLong(1, grupo);
+    /**
+     * Elimina un grupo por su ID.
+     *
+     * @param idGrupo El ID del grupo a eliminar.
+     * @throws GlobalException Si hay dependencias (como matrículas asociadas) o errores en la base de datos.
+     * @throws NoDataException Si el grupo no existe o no se elimina.
+     */
+    public void eliminarGrupo(Long idGrupo) throws GlobalException, NoDataException {
+        logger.debug("Eliminando grupo: id {}", idGrupo);
+        try (Connection conn = dataSource.getConnection();
+             CallableStatement pstmt = conn.prepareCall(ELIMINAR_GRUPO)) {
+            pstmt.setLong(1, idGrupo);
             int resultado = pstmt.executeUpdate();
             if (resultado == 0) {
-                throw new NoDataException("No se realizo el borrado");
+                throw new NoDataException("No se realizó el borrado: el grupo no existe");
             }
-
-            //System.out.println("\nEliminaci�n Satisfactoria!");
-        } catch (SQLException var15) {
-            throw new GlobalException("Sentencia no valida");
-        } finally {
-            try {
-                if (pstmt != null) {
-                    pstmt.close();
-                }
-
-                this.servicio.desconectar();
-            } catch (SQLException var12) {
-                throw new GlobalException("Estatutos invalidos o nulos");
-            }
+            logger.info("Grupo eliminado exitosamente: id {}", idGrupo);
+        } catch (SQLException e) {
+            logger.error("Error al eliminar grupo: {}", e.getMessage(), e);
+            handleDeleteSQLException(e);
         }
-
     }
+
+    /**
+     * Lista todos los grupos registrados.
+     *
+     * @return Lista de objetos Grupo.
+     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
+     * @throws NoDataException Si no hay datos disponibles.
+     */
     public List<Grupo> listarGrupos() throws GlobalException, NoDataException {
-        try {
-            this.servicio.conectar();
-        } catch (ClassNotFoundException var14) {
-            throw new GlobalException("No se ha localizado el Driver");
-        } catch (SQLException var15) {
-            throw new NoDataException("La base de datos no se encuentra disponible");
-        }
-
-        ResultSet rs = null;
-        ArrayList<Grupo> coleccion = new ArrayList<>();
-        CallableStatement pstmt = null;
-
-        try {
-            pstmt = this.servicio.conexion.prepareCall(listarGrupos);
-            pstmt.registerOutParameter(1, -10);
+        logger.debug("Listando todos los grupos");
+        List<Grupo> grupos = new ArrayList<>();
+        try (Connection conn = dataSource.getConnection();
+             CallableStatement pstmt = conn.prepareCall(LISTAR_GRUPOS)) {
+            pstmt.registerOutParameter(1, Types.REF_CURSOR);
             pstmt.execute();
-            rs = (ResultSet)pstmt.getObject(1);
-
-            while(rs.next()) {
-                coleccion.add(new Grupo(
-                        rs.getLong("id_grupo"),
-                        rs.getLong("pk_carrera_curso"),
-                        rs.getLong("numero_grupo"),
-                        rs.getString("horario"),
-                        rs.getLong("pk_profesor")));
-            }
-        } catch (SQLException var16) {
-            var16.printStackTrace();
-            throw new GlobalException("Sentencia no valida");
-        } finally {
-            try {
-                if (rs != null) {
-                    rs.close();
+            try (ResultSet rs = (ResultSet) pstmt.getObject(1)) {
+                while (rs.next()) {
+                    grupos.add(mapResultToGrupo(rs));
                 }
-
-                if (pstmt != null) {
-                    pstmt.close();
-                }
-
-                this.servicio.desconectar();
-            } catch (SQLException var13) {
-                throw new GlobalException("Estatutos invalidos o nulos");
             }
+        } catch (SQLException e) {
+            logger.error("Error al listar grupos: {}", e.getMessage(), e);
+            throw new GlobalException("Error al listar grupos: " + e.getMessage());
         }
-
-        if (coleccion != null && coleccion.size() != 0) {
-            return coleccion;
-        } else {
-            throw new NoDataException("No hay datos");
+        if (grupos.isEmpty()) {
+            throw new NoDataException("No hay grupos registrados");
         }
+        logger.info("Listado de grupos obtenido exitosamente, total: {}", grupos.size());
+        return grupos;
     }
 
+    /**
+     * Busca grupos asociados a una carrera y curso específicos.
+     *
+     * @param idCarrera El ID de la carrera.
+     * @param idCurso El ID del curso.
+     * @return Lista de objetos GrupoDto con información del grupo y profesor.
+     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
+     * @throws NoDataException Si no hay grupos para la carrera y curso seleccionados.
+     */
     public List<GrupoDto> buscarGruposPorCarreraCurso(Long idCarrera, Long idCurso) throws GlobalException, NoDataException {
-        try {
-            this.servicio.conectar();
-        } catch (ClassNotFoundException | SQLException e) {
-            throw new GlobalException("No se ha localizado el driver o base de datos no disponible");
-        }
-
-        CallableStatement cs = null;
-        ResultSet rs = null;
-        List<GrupoDto> listaGrupos = new ArrayList<>();
-
-        try {
-            cs = this.servicio.conexion.prepareCall(buscarGruposPorCarreraCurso);
-            cs.registerOutParameter(1, -10);
-            cs.setLong(2, idCarrera);
-            cs.setLong(3, idCurso);
-            cs.execute();
-
-            rs = (ResultSet) cs.getObject(1);
-
-            while (rs.next()) {
-                GrupoDto grupo = new GrupoDto(
-                        rs.getLong("id_grupo"),
-                        rs.getLong("pk_carrera_curso"),
-                        rs.getLong("numero_grupo"),
-                        rs.getString("horario"),
-                        rs.getLong("pk_profesor"),
-                        rs.getString("nombre_profesor")
-                );
-                listaGrupos.add(grupo);
+        logger.debug("Buscando grupos por carrera {} y curso: {}", idCarrera, idCurso);
+        List<GrupoDto> grupos = new ArrayList<>();
+        try (Connection conn = dataSource.getConnection();
+             CallableStatement pstmt = conn.prepareCall(BUSCAR_GRUPOS_POR_CARRERA_CURSO)) {
+            pstmt.registerOutParameter(1, Types.REF_CURSOR);
+            pstmt.setLong(2, idCarrera);
+            pstmt.setLong(3, idCurso);
+            pstmt.execute();
+            try (ResultSet rs = (ResultSet) pstmt.getObject(1)) {
+                while (rs.next()) {
+                    grupos.add(mapResultToGrupoDto(rs));
+                }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
-            throw new GlobalException("Error en sentencia SQL");
-        } finally {
-            try {
-                if (rs != null) rs.close();
-                if (cs != null) cs.close();
-                this.servicio.desconectar();
-            } catch (SQLException e) {
-                throw new GlobalException("Error cerrando recursos");
-            }
+            logger.error("Error al buscar grupos por carrera y curso: {}", e.getMessage(), e);
+            throw new GlobalException("Error al buscar grupos por carrera y curso: " + e.getMessage());
         }
-
-        if (listaGrupos.isEmpty()) {
-            throw new NoDataException("No hay datos");
+        if (grupos.isEmpty()) {
+            throw new NoDataException("No hay grupos para la carrera y curso indicados");
         }
-
-        return listaGrupos;
+        logger.info("Grupos encontrados para la carrera {} y curso {}: {}", idCarrera, idCurso, grupos.size());
+        return grupos;
     }
-    public List<GrupoDto> buscarGruposPorCursoCicloCarrera(Long curso, Long ciclo, Long carrera) throws GlobalException, NoDataException {
-        try {
-            this.servicio.conectar();
-        } catch (ClassNotFoundException | SQLException e) {
-            throw new GlobalException("No se ha localizado el driver o base de datos no disponible");
-        }
 
-        CallableStatement cs = null;
-        ResultSet rs = null;
-        List<GrupoDto> listaGrupos = new ArrayList<>();
-
-        try {
-            cs = this.servicio.conexion.prepareCall(buscarGruposPorCursoCicloCarrera);
-            cs.registerOutParameter(1, -10);
-            cs.setLong(2, curso);
-            cs.setLong(3, ciclo);
-            cs.setLong(4, carrera);
-            cs.execute();
-
-            rs = (ResultSet) cs.getObject(1);
-
-            while (rs.next()) {
-                GrupoDto grupo = new GrupoDto(
-                        rs.getLong("id_grupo"),
-                        rs.getLong("pk_carrera_curso"),
-                        rs.getLong("numero_grupo"),
-                        rs.getString("horario"),
-                        rs.getLong("id_profesor"),
-                        rs.getString("nombre_profesor")
-                );
-                listaGrupos.add(grupo);
+    /**
+     * Busca grupos asociados a un curso, ciclo y carrera específicos.
+     *
+     * @param idCurso El curso del curso.
+     * @param idCiclo El ID del ciclo.
+     * @param idCarrera El ID de la carrera.
+     * @return Lista de objetos GrupoDto con información del grupo y profesor.
+     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
+     * @throws NoDataException Si no hay grupos para el curso, ciclo y carrera seleccionados.
+     */
+    public List<GrupoDto> buscarGruposPorCursoCicloCarrera(Long idCurso, Long idCiclo, Long idCarrera) throws GlobalException, NoDataException {
+        logger.debug("Buscando grupos por curso {}, ciclo {}, y carrera {}", idCurso, idCiclo, idCarrera);
+        List<GrupoDto> grupos = new ArrayList<>();
+        try (Connection conn = dataSource.getConnection();
+             CallableStatement pstmt = conn.prepareCall(BUSCAR_GRUPOS_POR_CURSO_CICLO_CARRERA)) {
+            pstmt.registerOutParameter(1, Types.REF_CURSOR);
+            pstmt.setLong(2, idCurso);
+            pstmt.setLong(3, idCiclo);
+            pstmt.setLong(4, idCarrera);
+            pstmt.execute();
+            try (ResultSet rs = (ResultSet) pstmt.getObject(1)) {
+                while (rs.next()) {
+                    grupos.add(mapResultToGrupoDto(rs));
+                }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
-            throw new GlobalException("Error en sentencia SQL");
-        } finally {
-            try {
-                if (rs != null) rs.close();
-                if (cs != null) cs.close();
-                this.servicio.desconectar();
-            } catch (SQLException e) {
-                throw new GlobalException("Error cerrando recursos");
+            logger.error("Error al buscar grupos por curso, ciclo y carrera: {}", e.getMessage(), e);
+            throw new GlobalException("Error al buscar grupos por curso, ciclo y carrera: " + e.getMessage());
+        }
+        if (grupos.isEmpty()) {
+            throw new NoDataException("No hay grupos para el curso, ciclo y carrera indicados");
+        }
+        logger.info("Grupos encontrados para curso {}, ciclo {}, carrera {}: {}", idCurso, idCiclo, idCarrera, grupos.size());
+        return grupos;
+    }
+
+    /**
+     * Busca grupos asignados a un profesor por su cédula.
+     *
+     * @param cedula La cédula del profesor.
+     * @return Lista de objetos GrupoDto con información del grupo y profesor.
+     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
+     * @throws NoDataException Si no hay grupos asignados al profesor.
+     */
+    public List<GrupoDto> buscarGruposPorProfesor(String cedula) throws GlobalException, NoDataException {
+        logger.debug("Buscando grupos por profesor con cédula: {}", cedula);
+        List<GrupoDto> grupos = new ArrayList<>();
+        try (Connection conn = dataSource.getConnection();
+             CallableStatement pstmt = conn.prepareCall(BUSCAR_GRUPOS_POR_PROFESOR)) {
+            pstmt.registerOutParameter(1, Types.REF_CURSOR);
+            pstmt.setString(2, cedula);
+            pstmt.execute();
+            try (ResultSet rs = (ResultSet) pstmt.getObject(1)) {
+                while (rs.next()) {
+                    grupos.add(mapResultToGrupoDto(rs));
+                }
             }
+        } catch (SQLException e) {
+            logger.error("Error al buscar grupos por profesor: {}", e.getMessage(), e);
+            throw new GlobalException("Error al buscar grupos por profesor: " + e.getMessage());
         }
-
-        if (listaGrupos.isEmpty()) {
-            throw new NoDataException("No hay datos");
+        if (grupos.isEmpty()) {
+            throw new NoDataException("No hay grupos asignados al profesor con cédula: " + cedula);
         }
+        logger.info("Grupos encontrados para profesor con cédula {}: {}", cedula, grupos.size());
+        return grupos;
+    }
 
-        return listaGrupos;
+    // Métodos utilitarios privados
+
+    /**
+     * Mapea un ResultSet a un objeto Grupo.
+     *
+     * @param rs El ResultSet con los datos del grupo.
+     * @return Un objeto Grupo mapeado.
+     * @throws SQLException Si ocurre un error al leer los datos.
+     */
+    private Grupo mapResultToGrupo(ResultSet rs) throws SQLException {
+        return new Grupo(
+                rs.getLong("id_grupo"),
+                rs.getLong("pk_carrera_curso"),
+                rs.getLong("numero_grupo"),
+                rs.getString("horario"),
+                rs.getLong("pk_profesor")
+        );
+    }
+
+    /**
+     * Mapea un ResultSet a un objeto GrupoDto.
+     *
+     * @param rs El ResultSet con los datos del grupo.
+     * @return Un objeto GrupoDto mapeado.
+     * @throws SQLException Si ocurre un error al leer los datos.
+     */
+    private GrupoDto mapResultToGrupoDto(ResultSet rs) throws SQLException {
+        return new GrupoDto(
+                rs.getLong("id_grupo"),
+                rs.getLong("pk_carrera_curso"),
+                rs.getLong("numero_grupo"),
+                rs.getString("horario"),
+                rs.getLong("pk_profesor"),
+                rs.getString("nombre_profesor")
+        );
+    }
+
+    /**
+     * Maneja excepciones SQL genéricas y lanza GlobalException con un mensaje específico.
+     *
+     * @param e       La excepción SQL capturada.
+     * @param message El mensaje base para la excepción.
+     * @throws GlobalException Si ocurre un error en la base de datos, como una sentencia SQL inválida o una llave duplicada.
+     */
+    private void handleSQLException(SQLException e, String message) throws GlobalException {
+        throw new GlobalException(message + ": " + e.getMessage());
+    }
+
+    /**
+     * Maneja excepciones SQL específicas para operaciones de eliminación, mapeando códigos de error de triggers.
+     *
+     * @param e La excepción SQL capturada.
+     * @throws GlobalException Si el grupo no puede ser eliminado debido a matrículas asociadas o errores genéricos de base de datos.
+     */
+    private void handleDeleteSQLException(SQLException e) throws GlobalException {
+        int errorCode = e.getErrorCode();
+        String errorMessage;
+        if (errorCode == -20036) {
+            errorMessage = "No se puede eliminar el grupo: tiene matrículas asociadas.";
+        } else {
+            errorMessage = "Error al eliminar grupo: " + e.getMessage();
+        }
+        throw new GlobalException(errorMessage);
     }
 }

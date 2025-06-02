@@ -2,276 +2,234 @@ package org.example.sistemaacademico.data;
 
 import org.example.sistemaacademico.database.GlobalException;
 import org.example.sistemaacademico.database.NoDataException;
-import org.example.sistemaacademico.database.Servicio;
 import org.example.sistemaacademico.logic.Usuario;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.CallableStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import javax.sql.DataSource;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Servicio para gestionar operaciones relacionadas con Usuarios en la base de datos.
+ * Implementa operaciones CRUD, búsquedas y autenticación, asegurando manejo adecuado de excepciones y cierre de recursos.
+ */
 @Service
 public class UsuarioService {
-    private static final String insertarUsuario = "{call insertarUsuario (?,?,?)}";
-    private static final String modificarUsuario = "{call modificarUsuario (?,?,?,?)}";
-    private static final String eliminarUsuario = "{call eliminarUsuario(?)}";
-    private static final String listarUsuarios = "{?=call listarUsuarios()}";
-    private static final String buscarUsuarioPorCedula = "{?=call buscarUsuarioPorCedula(?)}";
-    private static final String loginUsuario = "{call loginUsuario(?, ?, ?)}";
-    private Servicio servicio;
 
-    public UsuarioService() throws ClassNotFoundException, SQLException {
-        this.servicio = org.example.sistemaacademico.database.Servicio.getInstancia();
+    private static final Logger logger = LoggerFactory.getLogger(UsuarioService.class);
+
+    // Consultas SQL para procedimientos almacenados
+    private static final String INSERTAR_USUARIO = "{call insertarUsuario(?,?,?)}";
+    private static final String MODIFICAR_USUARIO = "{call modificarUsuario(?,?,?,?)}";
+    private static final String ELIMINAR_USUARIO = "{call eliminarUsuario(?)}";
+    private static final String LISTAR_USUARIOS = "{?=call listarUsuarios()}";
+    private static final String BUSCAR_POR_CEDULA = "{?=call buscarUsuarioPorCedula(?)}";
+    private static final String LOGIN_USUARIO = "{call loginUsuario(?,?,?)}";
+
+    private final DataSource dataSource;
+
+    /**
+     * Constructor que utiliza inyección de dependencias para inicializar el DataSource.
+     *
+     * @param dataSource El DataSource gestionado por Spring Boot.
+     */
+    @Autowired
+    public UsuarioService(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
-    public void insertarUsuario(Usuario usuario) throws GlobalException, NoDataException {
-        try {
-            this.servicio.conectar();
-        } catch (ClassNotFoundException var5) {
-            throw new GlobalException("No se ha localizado el Driver");
-        } catch (SQLException var6) {
-            throw new NoDataException("La base de datos no se encuentra disponible");
-        }
-
-        CallableStatement pstmt = null;
-
-        try {
-            pstmt = this.servicio.conexion.prepareCall(insertarUsuario);
+    /**
+     * Inserta un nuevo usuario en la base de datos.
+     *
+     * @param usuario El objeto Usuario a insertar.
+     * @throws GlobalException Si ocurre un error relacionado con la base de datos, como una cédula duplicada o sentencia inválida.
+     * @throws NoDataException Si la inserción no se realiza.
+     */
+    public void insertar(Usuario usuario) throws GlobalException, NoDataException {
+        logger.debug("Insertando usuario: cedula {}, tipo {}", usuario.getCedula(), usuario.getTipo());
+        try (Connection conn = dataSource.getConnection();
+             CallableStatement pstmt = conn.prepareCall(INSERTAR_USUARIO)) {
             pstmt.setString(1, usuario.getCedula());
             pstmt.setString(2, usuario.getClave());
             pstmt.setString(3, usuario.getTipo());
-            boolean var4 = pstmt.execute();
-        } catch (SQLException var7) {
-            var7.printStackTrace();
-            throw new GlobalException("Sentencia no valida");
-        } finally {
-            try {
-                if (pstmt != null) {
-                    pstmt.close();
-                }
-
-                this.servicio.desconectar();
-            } catch (SQLException var4) {
-                throw new GlobalException("Estatutos invalidos o nulos");
-            }
+            pstmt.executeUpdate();
+            logger.info("Usuario insertado exitosamente: cedula {}", usuario.getCedula());
+        } catch (SQLException e) {
+            logger.error("Error al insertar usuario: {}", e.getMessage(), e);
+            handleSQLException(e, "Error al insertar usuario");
         }
     }
 
-    public void modificarUsuario(Usuario usuario) throws GlobalException, NoDataException {
-        try {
-            this.servicio.conectar();
-        } catch (ClassNotFoundException var5) {
-            throw new GlobalException("No se ha localizado el Driver");
-        } catch (SQLException var6) {
-            throw new NoDataException("La base de datos no se encuentra disponible");
-        }
-
-        CallableStatement pstmt = null;
-
-        try {
-            pstmt = this.servicio.conexion.prepareCall(modificarUsuario);
+    /**
+     * Modifica un usuario existente en la base de datos.
+     *
+     * @param usuario El objeto Usuario con los datos actualizados.
+     * @throws GlobalException Si ocurre un error relacionado con la base de datos, como una sentencia inválida.
+     * @throws NoDataException Si la actualización no se realiza.
+     */
+    public void modificar(Usuario usuario) throws GlobalException, NoDataException {
+        logger.debug("Modificando usuario: id {}, cedula {}, tipo {}",
+                usuario.getIdUsuario(), usuario.getCedula(), usuario.getTipo());
+        try (Connection conn = dataSource.getConnection();
+             CallableStatement pstmt = conn.prepareCall(MODIFICAR_USUARIO)) {
             pstmt.setLong(1, usuario.getIdUsuario());
             pstmt.setString(2, usuario.getCedula());
-            pstmt.setString(3, usuario.getClave()); // clave incluida
+            pstmt.setString(3, usuario.getClave());
             pstmt.setString(4, usuario.getTipo());
+            int resultado = pstmt.executeUpdate();
+            if (resultado == 0) {
+                throw new NoDataException("No se realizó la actualización del usuario");
+            }
+            logger.info("Usuario modificado exitosamente: id {}", usuario.getIdUsuario());
+        } catch (SQLException e) {
+            logger.error("Error al modificar usuario: {}", e.getMessage(), e);
+            handleSQLException(e, "Error al modificar usuario");
+        }
+    }
+
+    /**
+     * Elimina un usuario por su ID.
+     *
+     * @param idUsuario El ID del usuario a eliminar.
+     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
+     * @throws NoDataException Si el usuario no existe o no se elimina.
+     */
+    public void eliminar(Long idUsuario) throws GlobalException, NoDataException {
+        logger.debug("Eliminando usuario: id {}", idUsuario);
+        try (Connection conn = dataSource.getConnection();
+             CallableStatement pstmt = conn.prepareCall(ELIMINAR_USUARIO)) {
+            pstmt.setLong(1, idUsuario);
+            int resultado = pstmt.executeUpdate();
+            if (resultado == 0) {
+                throw new NoDataException("No se realizó el borrado: el usuario no existe");
+            }
+            logger.info("Usuario eliminado exitosamente: id {}", idUsuario);
+        } catch (SQLException e) {
+            logger.error("Error al eliminar usuario: {}", e.getMessage(), e);
+            handleSQLException(e, "Error al eliminar usuario");
+        }
+    }
+
+    /**
+     * Lista todos los usuarios registrados.
+     *
+     * @return Lista de objetos Usuario.
+     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
+     * @throws NoDataException Si no hay usuarios registrados.
+     */
+    public List<Usuario> listar() throws GlobalException, NoDataException {
+        logger.debug("Listando todos los usuarios");
+        List<Usuario> usuarios = new ArrayList<>();
+        try (Connection conn = dataSource.getConnection();
+             CallableStatement pstmt = conn.prepareCall(LISTAR_USUARIOS)) {
+            pstmt.registerOutParameter(1, Types.REF_CURSOR);
             pstmt.execute();
-        } catch (SQLException var7) {
-            var7.printStackTrace();
-            throw new GlobalException("Sentencia no valida");
-        } finally {
-            try {
-                if (pstmt != null) {
-                    pstmt.close();
+            try (ResultSet rs = (ResultSet) pstmt.getObject(1)) {
+                while (rs.next()) {
+                    usuarios.add(mapResultSetToUsuario(rs));
                 }
-                this.servicio.desconectar();
-            } catch (SQLException var4) {
-                throw new GlobalException("Estatutos invalidos o nulos");
             }
+        } catch (SQLException e) {
+            logger.error("Error al listar usuarios: {}", e.getMessage(), e);
+            handleSQLException(e, "Error al listar usuarios");
         }
+        if (usuarios.isEmpty()) {
+            throw new NoDataException("No hay usuarios registrados");
+        }
+        logger.info("Listado de usuarios obtenido exitosamente, total: {}", usuarios.size());
+        return usuarios;
     }
 
-    public void eliminarUsuario(Long usuario) throws GlobalException, NoDataException {
-        try {
-            this.servicio.conectar();
-        } catch (ClassNotFoundException var5) {
-            throw new GlobalException("No se ha localizado el Driver");
-        } catch (SQLException var6) {
-            throw new NoDataException("La base de datos no se encuentra disponible");
-        }
-
-        CallableStatement pstmt = null;
-
-        try {
-            pstmt = this.servicio.conexion.prepareCall(eliminarUsuario);
-            pstmt.setLong(1, usuario);
-            boolean var4 = pstmt.execute();
-        } catch (SQLException var7) {
-            var7.printStackTrace();
-            throw new GlobalException("Sentencia no valida");
-        } finally {
-            try {
-                if (pstmt != null) {
-                    pstmt.close();
-                }
-
-                this.servicio.desconectar();
-            } catch (SQLException var4) {
-                throw new GlobalException("Estatutos invalidos o nulos");
-            }
-        }
-    }
-
-    public List<Usuario> listarUsuarios() throws GlobalException, NoDataException {
-        try {
-            this.servicio.conectar();
-        } catch (ClassNotFoundException var14) {
-            throw new GlobalException("No se ha localizado el Driver");
-        } catch (SQLException var15) {
-            throw new NoDataException("La base de datos no se encuentra disponible");
-        }
-
-        ResultSet rs = null;
-        ArrayList coleccion = new ArrayList();
-        CallableStatement pstmt = null;
-
-        try {
-            pstmt = this.servicio.conexion.prepareCall(listarUsuarios);
-            pstmt.registerOutParameter(1, -10);
-            pstmt.execute();
-            rs = (ResultSet) pstmt.getObject(1);
-
-            while (rs.next()) {
-                coleccion.add(new Usuario(
-                        rs.getLong("id_usuario"),
-                        rs.getString("cedula"),
-                        rs.getString("tipo")));
-            }
-        } catch (SQLException var16) {
-            var16.printStackTrace();
-            throw new GlobalException("Sentencia no valida");
-        } finally {
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-
-                if (pstmt != null) {
-                    pstmt.close();
-                }
-
-                this.servicio.desconectar();
-            } catch (SQLException var13) {
-                throw new GlobalException("Estatutos invalidos o nulos");
-            }
-        }
-
-        if (coleccion != null && coleccion.size() != 0) {
-            return coleccion;
-        } else {
-            throw new NoDataException("No hay datos");
-        }
-    }
-
-    public Usuario buscarUsuarioPorCedula(String cedula) throws GlobalException, NoDataException {
-        try {
-            this.servicio.conectar();
-        } catch (ClassNotFoundException var5) {
-            throw new GlobalException("No se ha localizado el Driver");
-        } catch (SQLException var6) {
-            throw new NoDataException("La base de datos no se encuentra disponible");
-        }
-
-        ResultSet rs = null;
-        Usuario usuario = null;
-        CallableStatement pstmt = null;
-
-        try {
-            pstmt = this.servicio.conexion.prepareCall(buscarUsuarioPorCedula);
-            pstmt.registerOutParameter(1, -10);
+    /**
+     * Busca un usuario por su cédula.
+     *
+     * @param cedula La cédula del usuario.
+     * @return El objeto Usuario encontrado.
+     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
+     * @throws NoDataException Si no se encuentra un usuario con la cédula especificada.
+     */
+    public Usuario buscarPorCedula(String cedula) throws GlobalException, NoDataException {
+        logger.debug("Buscando usuario por cédula: {}", cedula);
+        try (Connection conn = dataSource.getConnection();
+             CallableStatement pstmt = conn.prepareCall(BUSCAR_POR_CEDULA)) {
+            pstmt.registerOutParameter(1, Types.REF_CURSOR);
             pstmt.setString(2, cedula);
             pstmt.execute();
-            rs = (ResultSet) pstmt.getObject(1);
-            if (rs.next()) {
-                usuario = new Usuario(
-                        rs.getLong("id_usuario"),
-                        rs.getString("cedula"),
-                        rs.getString("tipo"));
-            }
-        } catch (SQLException var7) {
-            var7.printStackTrace();
-            throw new GlobalException("Sentencia no valida");
-        } finally {
-            try {
-                if (rs != null) {
-                    rs.close();
+            try (ResultSet rs = (ResultSet) pstmt.getObject(1)) {
+                if (rs.next()) {
+                    Usuario usuario = mapResultSetToUsuario(rs);
+                    logger.info("Usuario encontrado por cédula: {}", cedula);
+                    return usuario;
                 }
-
-                if (pstmt != null) {
-                    pstmt.close();
-                }
-
-                this.servicio.desconectar();
-            } catch (SQLException var4) {
-                throw new GlobalException("Estatutos invalidos o nulos");
             }
+        } catch (SQLException e) {
+            logger.error("Error al buscar usuario por cédula: {}", e.getMessage(), e);
+            handleSQLException(e, "Error al buscar usuario por cédula");
         }
-
-        if (usuario != null) {
-            return usuario;
-        } else {
-            throw new NoDataException("No hay datos");
-        }
+        throw new NoDataException("No se encontró un usuario con cédula: " + cedula);
     }
 
-    public Usuario loginUsuario(String cedula, String clave) throws GlobalException, NoDataException {
-        try {
-            this.servicio.conectar();
-        } catch (ClassNotFoundException e) {
-            throw new GlobalException("No se ha localizado el Driver");
-        } catch (SQLException e) {
-            throw new NoDataException("La base de datos no se encuentra disponible");
-        }
-
-        ResultSet rs = null;
-        CallableStatement pstmt = null;
-        Usuario usuario = null;
-
-        try {
-            pstmt = this.servicio.conexion.prepareCall(loginUsuario);
+    /**
+     * Autentica un usuario mediante su cédula y clave.
+     *
+     * @param cedula La cédula del usuario.
+     * @param clave La clave del usuario.
+     * @return El objeto Usuario autenticado.
+     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
+     * @throws NoDataException Si las credenciales son inválidas o el usuario no se encuentra.
+     */
+    public Usuario login(String cedula, String clave) throws GlobalException, NoDataException {
+        logger.debug("Autenticando usuario con cédula: {}", cedula);
+        try (Connection conn = dataSource.getConnection();
+             CallableStatement pstmt = conn.prepareCall(LOGIN_USUARIO)) {
             pstmt.setString(1, cedula);
             pstmt.setString(2, clave);
-            pstmt.registerOutParameter(3, -10);
-
+            pstmt.registerOutParameter(3, Types.REF_CURSOR);
             pstmt.execute();
-
-            rs = (ResultSet) pstmt.getObject(3);
-            if (rs.next()) {
-                usuario = new Usuario(
-                        rs.getLong("id_usuario"),
-                        rs.getString("cedula"),
-                        rs.getString("tipo")
-                );
+            try (ResultSet rs = (ResultSet) pstmt.getObject(3)) {
+                if (rs.next()) {
+                    Usuario usuario = mapResultSetToUsuario(rs);
+                    logger.info("Usuario autenticado exitosamente: cedula {}", cedula);
+                    return usuario;
+                }
             }
-            System.out.println("Usuario: " + usuario);
         } catch (SQLException e) {
-            e.printStackTrace();
-            throw new GlobalException("Sentencia no válida");
-        } finally {
-            try {
-                if (rs != null) rs.close();
-                if (pstmt != null) pstmt.close();
-                this.servicio.desconectar();
-            } catch (SQLException e) {
-                throw new GlobalException("Estatutos inválidos o nulos");
-            }
+            logger.error("Error al autenticar usuario: {}", e.getMessage(), e);
+            handleSQLException(e, "Error al autenticar usuario");
         }
+        throw new NoDataException("Credenciales inválidas o usuario no encontrado");
+    }
 
-        if (usuario == null) {
-            throw new NoDataException("Credenciales inválidas o usuario no encontrado");
-        }
+    // Métodos utilitarios privados
 
-        return usuario;
+    /**
+     * Mapea un ResultSet a un objeto Usuario.
+     *
+     * @param rs El ResultSet con los datos del usuario.
+     * @return Un objeto Usuario mapeado.
+     * @throws SQLException Si ocurre un error al leer los datos.
+     */
+    private Usuario mapResultSetToUsuario(ResultSet rs) throws SQLException {
+        return new Usuario(
+                rs.getLong("id_usuario"),
+                rs.getString("cedula"),
+                rs.getString("tipo")
+        );
+    }
+
+    /**
+     * Maneja excepciones SQL genéricas y lanza GlobalException con un mensaje específico.
+     * Usado para operaciones como insertar, modificar, eliminar, listar, buscar y autenticar.
+     *
+     * @param e       La excepción SQL capturada.
+     * @param message El mensaje base para la excepción, que describe la operación fallida.
+     * @throws GlobalException Si ocurre un error en la base de datos, como una sentencia SQL inválida.
+     */
+    private void handleSQLException(SQLException e, String message) throws GlobalException {
+        throw new GlobalException(message + ": " + e.getMessage());
     }
 }
