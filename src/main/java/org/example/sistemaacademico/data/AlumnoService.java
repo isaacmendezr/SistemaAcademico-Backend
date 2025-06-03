@@ -213,6 +213,48 @@ public class AlumnoService {
     }
 
     // Métodos utilitarios
+    public void verificarEliminar(Long idAlumno) throws GlobalException, NoDataException {
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(
+                     "SELECT COUNT(*) FROM Matricula WHERE pk_alumno = ? " +
+                             "UNION ALL " +
+                             "SELECT COUNT(*) FROM Usuario WHERE cedula = (SELECT cedula FROM Alumno WHERE id_alumno = ?) AND tipo = 'Alumno'")) {
+            pstmt.setLong(1, idAlumno);
+            pstmt.setLong(2, idAlumno);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next() && rs.getInt(1) > 0) {
+                    throw new GlobalException("No se puede eliminar el alumno: tiene matrículas asociadas.");
+                }
+                if (rs.next() && rs.getInt(1) > 0) {
+                    throw new GlobalException("No se puede eliminar el alumno: existe un usuario asociado.");
+                }
+            }
+        } catch (SQLException e) {
+            throw new GlobalException("Error al verificar eliminación de alumno: " + e.getMessage());
+        }
+    }
+
+    public void verificarEliminarPorCedula(String cedula) throws GlobalException, NoDataException {
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(
+                     "SELECT COUNT(*) FROM Matricula m JOIN Alumno a ON m.pk_alumno = a.id_alumno WHERE a.cedula = ? " +
+                             "UNION ALL " +
+                             "SELECT COUNT(*) FROM Usuario WHERE cedula = ? AND tipo = 'Alumno'")) {
+            pstmt.setString(1, cedula);
+            pstmt.setString(2, cedula);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next() && rs.getInt(1) > 0) {
+                    throw new GlobalException("No se puede eliminar el alumno: tiene matrículas asociadas.");
+                }
+                if (rs.next() && rs.getInt(1) > 0) {
+                    throw new GlobalException("No se puede eliminar el alumno: existe un usuario asociado.");
+                }
+            }
+        } catch (SQLException e) {
+            throw new GlobalException("Error al verificar eliminación de alumno por cédula: " + e.getMessage());
+        }
+    }
+
     private void setAlumnoParameters(CallableStatement pstmt, Alumno alumno, boolean isUpdate) throws SQLException {
         int startIndex = isUpdate ? 2 : 1;
         pstmt.setString(startIndex, alumno.getCedula());
@@ -251,9 +293,10 @@ public class AlumnoService {
 
 
     private void handleDeleteSQLException(SQLException e, String message) throws GlobalException {
-        int errorCode = e.getErrorCode();
+        int errorCode = Math.abs(e.getErrorCode());
         String errorMessage = switch (errorCode) {
-            case -20011 -> "No se puede eliminar el alumno: tiene matrículas asociadas.";
+            case 20009 -> "No se puede eliminar el alumno: existe un usuario asociado.";
+            case 20011 -> "No se puede eliminar el alumno: tiene matrículas asociadas.";
             default -> message + ": " + e.getMessage();
         };
         throw new GlobalException(errorMessage);

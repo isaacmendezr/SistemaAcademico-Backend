@@ -41,17 +41,7 @@ public class AlumnoController {
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable("id") Long id) {
         logger.debug("Eliminando alumno con id: {}", id);
-
-        Alumno alumno = alumnoService.buscarAlumnoPorId(id);
-        if (alumnoService.tieneUsuarioAsociado(alumno.getCedula())) {
-            logger.warn("No se puede eliminar alumno con id {}: tiene usuario asociado", id);
-            throw new RuntimeException("No se puede eliminar: el alumno tiene usuario asociado.");
-        }
-        if (alumnoService.tieneMatriculasAsociadas(id)) {
-            logger.warn("No se puede eliminar alumno con id {}: tiene matrículas asociadas", id);
-            throw new RuntimeException("No se puede eliminar: el alumno tiene matrículas asociadas.");
-        }
-
+        alumnoService.verificarEliminar(id); // Nueva verificación
         alumnoService.eliminarAlumno(id);
         logger.info("Alumno eliminado exitosamente: id {}", id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -60,21 +50,7 @@ public class AlumnoController {
     @DeleteMapping("/eliminarPorCedula")
     public ResponseEntity<Void> eliminarPorCedula(@RequestParam("cedula") String cedula) {
         logger.debug("Eliminando alumno con cédula: {}", cedula);
-
-        Alumno alumno = alumnoService.buscarAlumnoPorCedula(cedula);
-        if (alumno == null) {
-            logger.warn("No se encontró alumno con cédula: {}", cedula);
-            throw new NoDataException("No se encontró alumno con cédula: " + cedula);
-        }
-        if (alumnoService.tieneUsuarioAsociado(cedula)) {
-            logger.warn("No se puede eliminar alumno con cédula {}: tiene usuario asociado", cedula);
-            throw new RuntimeException("No se puede eliminar: el alumno tiene usuario asociado.");
-        }
-        if (alumnoService.tieneMatriculasAsociadas(alumno.getIdAlumno())) {
-            logger.warn("No se puede eliminar alumno con cédula {}: tiene matrículas asociadas", cedula);
-            throw new RuntimeException("No se puede eliminar: el alumno tiene matrículas asociadas.");
-        }
-
+        alumnoService.verificarEliminarPorCedula(cedula); // Nueva verificación
         alumnoService.eliminarAlumnoPorCedula(cedula);
         logger.info("Alumno eliminado exitosamente: cédula {}", cedula);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

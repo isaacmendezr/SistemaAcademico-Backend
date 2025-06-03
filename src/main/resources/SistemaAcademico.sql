@@ -187,10 +187,6 @@ BEGIN EXECUTE IMMEDIATE 'DROP TRIGGER trg_prevent_duplicate_matricula'; EXCEPTIO
 /
 BEGIN EXECUTE IMMEDIATE 'DROP TRIGGER trg_restrict_matricula_carrera'; EXCEPTION WHEN OTHERS THEN NULL; END;
 /
-BEGIN EXECUTE IMMEDIATE 'DROP TRIGGER trg_prevent_delete_alumno_matricula'; EXCEPTION WHEN OTHERS THEN NULL; END;
-/
-BEGIN EXECUTE IMMEDIATE 'DROP TRIGGER trg_prevent_delete_profesor_grupo'; EXCEPTION WHEN OTHERS THEN NULL; END;
-/
 BEGIN EXECUTE IMMEDIATE 'DROP TRIGGER trg_validate_matricula_nota'; EXCEPTION WHEN OTHERS THEN NULL; END;
 /
 /*BEGIN EXECUTE IMMEDIATE 'DROP TRIGGER trg_ensure_single_active_ciclo'; EXCEPTION WHEN OTHERS THEN NULL; END;
@@ -1312,10 +1308,12 @@ BEGIN
     SELECT COUNT(*) INTO v_count_usuario FROM Usuario WHERE cedula = :OLD.cedula AND tipo = 'Alumno';
     SELECT COUNT(*) INTO v_count_matricula FROM Matricula WHERE pk_alumno = :OLD.id_alumno;
 
+    IF v_count_usuario > 0 THEN
+        RAISE_APPLICATION_ERROR(-20009, 'No se puede eliminar el alumno: existe un usuario asociado.');
+    END IF;
     IF v_count_matricula > 0 THEN
         RAISE_APPLICATION_ERROR(-20011, 'No se puede eliminar el alumno: tiene matrículas asociadas.');
     END IF;
-    -- Allow deletion if no matriculas, even if a user exists (application should delete Usuario first)
 END;
 /
 
@@ -1329,10 +1327,12 @@ BEGIN
     SELECT COUNT(*) INTO v_count_usuario FROM Usuario WHERE cedula = :OLD.cedula AND tipo = 'Profesor';
     SELECT COUNT(*) INTO v_count_grupo FROM Grupo WHERE pk_profesor = :OLD.id_profesor;
 
+    IF v_count_usuario > 0 THEN
+        RAISE_APPLICATION_ERROR(-20010, 'No se puede eliminar el profesor: existe un usuario asociado.');
+    END IF;
     IF v_count_grupo > 0 THEN
         RAISE_APPLICATION_ERROR(-20030, 'No se puede eliminar el profesor: tiene grupos asignados.');
     END IF;
-    -- Allow deletion if no groups, even if a user exists
 END;
 /
 
@@ -1488,34 +1488,6 @@ BEGIN
 
     IF v_alumno_carrera != v_curso_carrera THEN
         RAISE_APPLICATION_ERROR(-20040, 'El alumno solo puede matricular cursos de su carrera.');
-    END IF;
-END;
-/
-
--- Evita la eliminación de un Alumno con matrículas asociadas
-CREATE OR REPLACE TRIGGER trg_prevent_delete_alumno_matricula
-    BEFORE DELETE ON Alumno
-    FOR EACH ROW
-DECLARE
-    v_count NUMBER;
-BEGIN
-    SELECT COUNT(*) INTO v_count FROM Matricula WHERE pk_alumno = :OLD.id_alumno;
-    IF v_count > 0 THEN
-        RAISE_APPLICATION_ERROR(-20011, 'No se puede eliminar el alumno: tiene matrículas asociadas.');
-    END IF;
-END;
-/
-
--- Evita la eliminación de un Profesor con grupos asociados
-CREATE OR REPLACE TRIGGER trg_prevent_delete_profesor_grupo
-    BEFORE DELETE ON Profesor
-    FOR EACH ROW
-DECLARE
-    v_count NUMBER;
-BEGIN
-    SELECT COUNT(*) INTO v_count FROM Grupo WHERE pk_profesor = :OLD.id_profesor;
-    IF v_count > 0 THEN
-        RAISE_APPLICATION_ERROR(-20030, 'No se puede eliminar el profesor: tiene grupos asignados.');
     END IF;
 END;
 /

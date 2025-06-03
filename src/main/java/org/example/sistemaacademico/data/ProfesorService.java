@@ -199,6 +199,7 @@ public class ProfesorService {
     private void handleSQLException(SQLException e, String message) throws GlobalException {
         int errorCode = Math.abs(e.getErrorCode());
         String errorMessage = switch (errorCode) {
+            case 20010 -> "No se puede eliminar el profesor: existe un usuario asociado.";
             case 20024 -> "El nombre del profesor no puede estar vacío.";
             case 20025 -> "El correo del profesor no tiene un formato válido.";
             case 20030 -> "No se puede eliminar el profesor: tiene grupos asignados.";
