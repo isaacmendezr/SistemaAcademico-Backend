@@ -112,6 +112,8 @@ BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION buscarGruposPorCarreraCurso'; EXCEPTION W
 /
 BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION buscarGruposPorCursoCicloCarrera'; EXCEPTION WHEN OTHERS THEN NULL; END;
 /
+BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION buscarGruposPorProfesorCicloActivo'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
 BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION buscarGruposPorProfesor'; EXCEPTION WHEN OTHERS THEN NULL; END;
 /
 
@@ -992,6 +994,36 @@ BEGIN
         WHERE cc.pk_carrera = p_id_carrera
           AND cc.pk_curso = p_id_curso
           AND cc.pk_ciclo = p_id_ciclo;
+    RETURN grupos_cursor;
+END;
+/
+
+-- Buscar grupos por cédula de profesor en ciclo activo
+CREATE OR REPLACE FUNCTION buscarGruposPorProfesorCicloActivo(
+    p_cedula_profesor IN Profesor.cedula%TYPE
+) RETURN Types.ref_cursor AS
+    grupos_cursor Types.ref_cursor;
+BEGIN
+    OPEN grupos_cursor FOR
+        SELECT
+            g.id_grupo,
+            g.numero_grupo,
+            g.horario,
+            cu.codigo AS codigo_curso,
+            cu.nombre AS nombre_curso,
+            ca.codigo AS codigo_carrera,
+            ca.nombre AS nombre_carrera,
+            ci.anio,
+            ci.numero AS numero_ciclo
+        FROM Grupo g
+                 JOIN Profesor p ON g.pk_profesor = p.id_profesor
+                 JOIN Carrera_Curso cc ON g.pk_carrera_curso = cc.id_carrera_curso
+                 JOIN Curso cu ON cc.pk_curso = cu.id_curso
+                 JOIN Carrera ca ON cc.pk_carrera = ca.id_carrera
+                 JOIN Ciclo ci ON cc.pk_ciclo = ci.id_ciclo
+        WHERE p.cedula = p_cedula_profesor
+          AND ci.estado = 'Activo';
+
     RETURN grupos_cursor;
 END;
 /

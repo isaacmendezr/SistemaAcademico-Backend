@@ -5,6 +5,7 @@ import org.example.sistemaacademico.database.GlobalException;
 import org.example.sistemaacademico.database.NoDataException;
 import org.example.sistemaacademico.logic.Grupo;
 import org.example.sistemaacademico.logic.dto.GrupoDto;
+import org.example.sistemaacademico.logic.dto.GrupoProfesorDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -125,6 +126,20 @@ public class GrupoController {
             return new ResponseEntity<>(grupos, HttpStatus.OK);
         } catch (GlobalException | NoDataException e) {
             logger.error("Error al buscar grupos por profesor: {}", e.getMessage(), e);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/buscarGruposPorProfesorEnCicloActivo/{cedula}")
+    public ResponseEntity<List<GrupoProfesorDto>> buscarGruposPorProfesorEnCicloActivo(
+            @PathVariable String cedula) {
+        logger.debug("Buscando grupos por profesor con cédula {} en ciclo activo", cedula);
+        try {
+            List<GrupoProfesorDto> grupos = grupoService.buscarGruposPorProfesorCicloActivo(cedula);
+            logger.info("Grupos encontrados para profesor con cédula {} en ciclo activo: {}", cedula, grupos.size());
+            return new ResponseEntity<>(grupos, HttpStatus.OK);
+        } catch (GlobalException | NoDataException e) {
+            logger.error("Error al buscar grupos por profesor en ciclo activo: {}", e.getMessage(), e);
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }

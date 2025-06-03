@@ -4,6 +4,7 @@ import org.example.sistemaacademico.database.GlobalException;
 import org.example.sistemaacademico.database.NoDataException;
 import org.example.sistemaacademico.logic.Grupo;
 import org.example.sistemaacademico.logic.dto.GrupoDto;
+import org.example.sistemaacademico.logic.dto.GrupoProfesorDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,7 @@ public class GrupoService {
     private static final String BUSCAR_GRUPOS_POR_CARRERA_CURSO = "{?=call buscarGruposPorCarreraCurso(?,?)}";
     private static final String BUSCAR_GRUPOS_POR_CURSO_CICLO_CARRERA = "{?=call buscarGruposPorCursoCicloCarrera(?,?,?)}";
     private static final String BUSCAR_GRUPOS_POR_PROFESOR = "{?=call buscarGruposPorProfesor(?)}";
+    private static final String BUSCAR_GRUPOS_POR_PROFESOR_CICLO_ACTIVO = "{?=call buscarGruposPorProfesorCicloActivo(?)}";
 
     private final DataSource dataSource;
 
@@ -158,6 +160,37 @@ public class GrupoService {
         }
         if (grupos.isEmpty()) {
             throw new NoDataException("No hay grupos asignados al profesor con cédula: " + cedula);
+        }
+        return grupos;
+    }
+
+    public List<GrupoProfesorDto> buscarGruposPorProfesorCicloActivo(String cedula) throws GlobalException, NoDataException {
+        List<GrupoProfesorDto> grupos = new ArrayList<>();
+        try (Connection conn = dataSource.getConnection();
+             CallableStatement pstmt = conn.prepareCall(BUSCAR_GRUPOS_POR_PROFESOR_CICLO_ACTIVO)) {
+            pstmt.registerOutParameter(1, Types.REF_CURSOR);
+            pstmt.setString(2, cedula);
+            pstmt.execute();
+            try (ResultSet rs = (ResultSet) pstmt.getObject(1)) {
+                while (rs.next()) {
+                    grupos.add(new GrupoProfesorDto(
+                            rs.getLong("id_grupo"),
+                            rs.getLong("numero_grupo"),
+                            rs.getString("horario"),
+                            rs.getString("codigo_curso"),
+                            rs.getString("nombre_curso"),
+                            rs.getString("codigo_carrera"),
+                            rs.getString("nombre_carrera"),
+                            rs.getLong("anio"),
+                            rs.getLong("numero_ciclo")
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            throw new GlobalException("Error al buscar grupos por profesor en ciclo activo: " + e.getMessage());
+        }
+        if (grupos.isEmpty()) {
+            throw new NoDataException("No hay grupos asignados al profesor con cédula " + cedula + " en el ciclo activo");
         }
         return grupos;
     }
