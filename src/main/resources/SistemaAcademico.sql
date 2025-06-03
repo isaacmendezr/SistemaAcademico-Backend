@@ -1268,12 +1268,7 @@ DECLARE
 BEGIN
     SELECT COUNT(*) INTO v_count FROM Carrera_Curso WHERE pk_curso = :OLD.id_curso;
     IF v_count > 0 THEN
-        RAISE_APPLICATION_ERROR(-20003, 'No se puede eliminar el curso: asociado a una carrera.');
-    END IF;
-
-    SELECT COUNT(*) INTO v_count FROM Grupo g JOIN Carrera_Curso cc ON g.pk_carrera_curso = cc.id_carrera_curso WHERE cc.pk_curso = :OLD.id_curso;
-    IF v_count > 0 THEN
-        RAISE_APPLICATION_ERROR(-20004, 'No se puede eliminar el curso: tiene grupos asociados.');
+        RAISE_APPLICATION_ERROR(-20003, 'No se puede eliminar el curso: asociado a una carrera o tiene grupos.');
     END IF;
 END;
 /
@@ -1311,12 +1306,16 @@ CREATE OR REPLACE TRIGGER trg_prevent_delete_alumno
     BEFORE DELETE ON Alumno
     FOR EACH ROW
 DECLARE
-    v_count NUMBER;
+    v_count_usuario NUMBER;
+    v_count_matricula NUMBER;
 BEGIN
-    SELECT COUNT(*) INTO v_count FROM Usuario WHERE cedula = :OLD.cedula AND tipo = 'Alumno';
-    IF v_count > 0 THEN
-        RAISE_APPLICATION_ERROR(-20009, 'No se puede eliminar el alumno: existe un usuario asociado.');
+    SELECT COUNT(*) INTO v_count_usuario FROM Usuario WHERE cedula = :OLD.cedula AND tipo = 'Alumno';
+    SELECT COUNT(*) INTO v_count_matricula FROM Matricula WHERE pk_alumno = :OLD.id_alumno;
+
+    IF v_count_matricula > 0 THEN
+        RAISE_APPLICATION_ERROR(-20011, 'No se puede eliminar el alumno: tiene matrículas asociadas.');
     END IF;
+    -- Allow deletion if no matriculas, even if a user exists (application should delete Usuario first)
 END;
 /
 
@@ -1324,12 +1323,16 @@ CREATE OR REPLACE TRIGGER trg_prevent_delete_profesor
     BEFORE DELETE ON Profesor
     FOR EACH ROW
 DECLARE
-    v_count NUMBER;
+    v_count_usuario NUMBER;
+    v_count_grupo NUMBER;
 BEGIN
-    SELECT COUNT(*) INTO v_count FROM Usuario WHERE cedula = :OLD.cedula AND tipo = 'Profesor';
-    IF v_count > 0 THEN
-        RAISE_APPLICATION_ERROR(-20010, 'No se puede eliminar el profesor: existe un usuario asociado.');
+    SELECT COUNT(*) INTO v_count_usuario FROM Usuario WHERE cedula = :OLD.cedula AND tipo = 'Profesor';
+    SELECT COUNT(*) INTO v_count_grupo FROM Grupo WHERE pk_profesor = :OLD.id_profesor;
+
+    IF v_count_grupo > 0 THEN
+        RAISE_APPLICATION_ERROR(-20030, 'No se puede eliminar el profesor: tiene grupos asignados.');
     END IF;
+    -- Allow deletion if no groups, even if a user exists
 END;
 /
 
@@ -1338,6 +1341,9 @@ CREATE OR REPLACE TRIGGER trg_validar_ciclo_fecha
     BEFORE INSERT OR UPDATE ON Ciclo
     FOR EACH ROW
 BEGIN
+    IF :NEW.fecha_inicio IS NULL OR :NEW.fecha_fin IS NULL THEN
+        RAISE_APPLICATION_ERROR(-20041, 'Las fechas de inicio y fin no pueden ser nulas.');
+    END IF;
     IF :NEW.fecha_inicio >= :NEW.fecha_fin THEN
         RAISE_APPLICATION_ERROR(-20020, 'La fecha de inicio debe ser anterior a la fecha de fin.');
     END IF;
@@ -1356,16 +1362,16 @@ BEGIN
         RAISE_APPLICATION_ERROR(-20022, 'El correo del alumno no tiene un formato válido.');
     END IF;
 
-    IF :NEW.fecha_nacimiento > SYSDATE THEN
-        RAISE_APPLICATION_ERROR(-20023, 'La fecha de nacimiento no puede ser futura.');
+    IF :NEW.fecha_nacimiento IS NULL OR :NEW.fecha_nacimiento > SYSDATE THEN
+        RAISE_APPLICATION_ERROR(-20023, 'La fecha de nacimiento debe ser válida y no futura.');
     END IF;
 
-    IF :NEW.cedula IS NOT NULL AND NOT REGEXP_LIKE(:NEW.cedula, '^[0-9]{9}$') THEN
-        RAISE_APPLICATION_ERROR(-20036, 'La cédula del alumno debe tener 9 dígitos numéricos.');
+    IF :NEW.cedula IS NULL OR NOT REGEXP_LIKE(:NEW.cedula, '^[0-9]{9}$') THEN
+        RAISE_APPLICATION_ERROR(-20036, 'La cédula del alumno debe ser de 9 dígitos numéricos.');
     END IF;
 
-    IF :NEW.telefono IS NOT NULL AND NOT REGEXP_LIKE(:NEW.telefono, '^[0-9]{8}$') THEN
-        RAISE_APPLICATION_ERROR(-20037, 'El teléfono del alumno debe tener 8 dígitos numéricos.');
+    IF :NEW.telefono IS NULL OR NOT REGEXP_LIKE(:NEW.telefono, '^[0-9]{8}$') THEN
+        RAISE_APPLICATION_ERROR(-20037, 'El teléfono debe ser de 8 dígitos numéricos.');
     END IF;
 END;
 /
@@ -1382,12 +1388,12 @@ BEGIN
         RAISE_APPLICATION_ERROR(-20025, 'El correo del profesor no tiene un formato válido.');
     END IF;
 
-    IF :NEW.cedula IS NOT NULL AND NOT REGEXP_LIKE(:NEW.cedula, '^[0-9]{9}$') THEN
-        RAISE_APPLICATION_ERROR(-20038, 'La cédula del profesor debe tener 9 dígitos numéricos.');
+    IF :NEW.cedula IS NULL OR NOT REGEXP_LIKE(:NEW.cedula, '^[0-9]{9}$') THEN
+        RAISE_APPLICATION_ERROR(-20038, 'La cédula del profesor debe ser de 9 dígitos numéricos.');
     END IF;
 
-    IF :NEW.telefono IS NOT NULL AND NOT REGEXP_LIKE(:NEW.telefono, '^[0-9]{8}$') THEN
-        RAISE_APPLICATION_ERROR(-20039, 'El teléfono del profesor debe tener 8 dígitos numéricos.');
+    IF :NEW.telefono IS NULL OR NOT REGEXP_LIKE(:NEW.telefono, '^[0-9]{8}$') THEN
+        RAISE_APPLICATION_ERROR(-20039, 'El teléfono del profesor debe ser de 8 dígitos numéricos.');
     END IF;
 END;
 /
