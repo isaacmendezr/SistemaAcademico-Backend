@@ -78,4 +78,14 @@ public class CarreraCursoController {
         logger.info("Cursos encontrados para carrera: {} y ciclo: {}: {}", idCarrera, idCiclo, cursos.size());
         return new ResponseEntity<>(cursos, HttpStatus.OK);
     }
+
+    @GetMapping("/tiene-grupos")
+    public ResponseEntity<Boolean> tieneGruposAsociados(
+            @RequestParam("idCarrera") Long idCarrera,
+            @RequestParam("idCurso") Long idCurso) {
+        logger.debug("Verificando grupos asociados para carrera: {} y curso: {}", idCarrera, idCurso);
+        boolean tieneGrupos = carreraCursoService.tieneGruposAsociados(idCarrera, idCurso);
+        logger.info("Resultado de verificación de grupos asociados para carrera: {} y curso: {}: {}", idCarrera, idCurso, tieneGrupos);
+        return new ResponseEntity<>(tieneGrupos, HttpStatus.OK);
+    }
 }
