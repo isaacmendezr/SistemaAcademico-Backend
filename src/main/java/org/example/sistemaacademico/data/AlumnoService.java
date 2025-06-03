@@ -18,7 +18,6 @@ public class AlumnoService {
 
     private static final Logger logger = LoggerFactory.getLogger(AlumnoService.class);
 
-    // Consultas SQL para procedimientos almacenados
     private static final String INSERTAR_ALUMNO = "{call insertarAlumno(?,?,?,?,?,?)}";
     private static final String MODIFICAR_ALUMNO = "{call modificarAlumno(?,?,?,?,?,?,?)}";
     private static final String ELIMINAR_ALUMNO = "{call eliminarAlumno(?)}";
@@ -36,7 +35,6 @@ public class AlumnoService {
     }
 
     public void insertarAlumno(Alumno alumno) throws GlobalException, NoDataException {
-        logger.debug("Insertando alumno: {}", alumno.getCedula());
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(INSERTAR_ALUMNO)) {
             setAlumnoParameters(pstmt, alumno, false);
@@ -44,7 +42,6 @@ public class AlumnoService {
             if (resultado) {
                 throw new NoDataException("No se realizó la inserción");
             }
-            logger.info("Alumno insertado exitosamente: {}", alumno.getCedula());
         } catch (SQLException e) {
             logger.error("Error al insertar alumno: {}", e.getMessage(), e);
             handleSQLException(e, "Error al insertar alumno: llave duplicada o sentencia inválida");
@@ -52,7 +49,6 @@ public class AlumnoService {
     }
 
     public void modificarAlumno(Alumno alumno) throws GlobalException, NoDataException {
-        logger.debug("Modificando alumno: {}", alumno.getCedula());
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(MODIFICAR_ALUMNO)) {
             pstmt.setLong(1, alumno.getIdAlumno());
@@ -61,7 +57,6 @@ public class AlumnoService {
             if (resultado == 0) {
                 throw new NoDataException("No se realizó la actualización");
             }
-            logger.info("Alumno modificado exitosamente: {}", alumno.getCedula());
         } catch (SQLException e) {
             logger.error("Error al modificar alumno: {}", e.getMessage(), e);
             handleSQLException(e, "Error al modificar alumno: sentencia no válida");
@@ -69,7 +64,6 @@ public class AlumnoService {
     }
 
     public void eliminarAlumno(Long idAlumno) throws GlobalException, NoDataException {
-        logger.debug("Eliminando alumno con ID: {}", idAlumno);
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(ELIMINAR_ALUMNO)) {
             pstmt.setLong(1, idAlumno);
@@ -77,7 +71,6 @@ public class AlumnoService {
             if (resultado == 0) {
                 throw new NoDataException("No se realizó el borrado: el alumno no existe");
             }
-            logger.info("Alumno eliminado exitosamente: {}", idAlumno);
         } catch (SQLException e) {
             logger.error("Error al eliminar alumno: {}", e.getMessage(), e);
             handleDeleteSQLException(e, "Error al eliminar alumno");
@@ -85,12 +78,10 @@ public class AlumnoService {
     }
 
     public void eliminarAlumnoPorCedula(String cedula) throws GlobalException {
-        logger.debug("Eliminando alumno con cédula: {}", cedula);
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(ELIMINAR_ALUMNO_POR_CEDULA)) {
             pstmt.setString(1, cedula);
             pstmt.executeUpdate();
-            logger.info("Alumno eliminado exitosamente por cédula: {}", cedula);
         } catch (SQLException e) {
             logger.error("Error al eliminar alumno por cédula: {}", e.getMessage(), e);
             handleDeleteSQLException(e, "Error al eliminar alumno por cédula");
@@ -98,7 +89,6 @@ public class AlumnoService {
     }
 
     public List<Alumno> listarAlumnos() throws GlobalException, NoDataException {
-        logger.debug("Listando todos los alumnos");
         List<Alumno> alumnos = new ArrayList<>();
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(LISTAR_ALUMNOS)) {
@@ -116,12 +106,10 @@ public class AlumnoService {
         if (alumnos.isEmpty()) {
             throw new NoDataException("No hay alumnos registrados");
         }
-        logger.info("Listado de alumnos obtenido exitosamente, total: {}", alumnos.size());
         return alumnos;
     }
 
     public Alumno buscarAlumnoPorCedula(String cedula) throws GlobalException {
-        logger.debug("Buscando alumno por cédula: {}", cedula);
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(BUSCAR_POR_CEDULA)) {
             pstmt.registerOutParameter(1, Types.REF_CURSOR);
@@ -129,21 +117,17 @@ public class AlumnoService {
             pstmt.execute();
             try (ResultSet rs = (ResultSet) pstmt.getObject(1)) {
                 if (rs.next()) {
-                    Alumno alumno = mapResultSetToAlumno(rs);
-                    logger.info("Alumno encontrado por cédula: {}", cedula);
-                    return alumno;
+                    return mapResultSetToAlumno(rs);
                 }
             }
         } catch (SQLException e) {
             logger.error("Error al buscar alumno por cédula: {}", e.getMessage(), e);
             throw new GlobalException("Error al buscar alumno por cédula: " + e.getMessage());
         }
-        logger.info("No se encontró alumno con cédula: {}", cedula);
         return null;
     }
 
     public Alumno buscarAlumnoPorNombre(String nombre) throws GlobalException {
-        logger.debug("Buscando alumno por nombre: {}", nombre);
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(BUSCAR_POR_NOMBRE)) {
             pstmt.registerOutParameter(1, Types.REF_CURSOR);
@@ -151,21 +135,17 @@ public class AlumnoService {
             pstmt.execute();
             try (ResultSet rs = (ResultSet) pstmt.getObject(1)) {
                 if (rs.next()) {
-                    Alumno alumno = mapResultSetToAlumno(rs);
-                    logger.info("Alumno encontrado por nombre: {}", nombre);
-                    return alumno;
+                    return mapResultSetToAlumno(rs);
                 }
             }
         } catch (SQLException e) {
             logger.error("Error al buscar alumno por nombre: {}", e.getMessage(), e);
             throw new GlobalException("Error al buscar alumno por nombre: " + e.getMessage());
         }
-        logger.info("No se encontró alumno con nombre: {}", nombre);
         return null;
     }
 
     public List<Alumno> buscarAlumnosPorCarrera(Long carrera) throws GlobalException, NoDataException {
-        logger.debug("Buscando alumnos por carrera: {}", carrera);
         List<Alumno> alumnos = new ArrayList<>();
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(BUSCAR_ALUMNOS_POR_CARRERA)) {
@@ -184,11 +164,10 @@ public class AlumnoService {
         if (alumnos.isEmpty()) {
             throw new NoDataException("No hay alumnos asociados a esta carrera");
         }
-        logger.info("Alumnos encontrados para carrera {}: {}", carrera, alumnos.size());
         return alumnos;
     }
 
-    // Métodos utilitarios privados
+    // Métodos utilitarios
     private void setAlumnoParameters(CallableStatement pstmt, Alumno alumno, boolean isUpdate) throws SQLException {
         int startIndex = isUpdate ? 2 : 1;
         pstmt.setString(startIndex, alumno.getCedula());

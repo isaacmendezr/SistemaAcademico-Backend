@@ -12,10 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * Controlador REST para gestionar operaciones relacionadas con profesores.
- * Proporciona endpoints para CRUD y búsquedas de profesores.
- */
 @RestController
 @RequestMapping("/api/profesores")
 public class ProfesorController {

@@ -4,8 +4,6 @@ import org.example.sistemaacademico.database.GlobalException;
 import org.example.sistemaacademico.database.NoDataException;
 import org.example.sistemaacademico.logic.CarreraCurso;
 import org.example.sistemaacademico.logic.dto.CursoDto;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,9 +15,6 @@ import java.util.List;
 @Service
 public class CarreraCursoService {
 
-    private static final Logger logger = LoggerFactory.getLogger(CarreraCursoService.class);
-
-    // Consultas SQL para procedimientos almacenados
     private static final String INSERTAR_CURSO_A_CARRERA = "{call insertarCursoACarrera(?,?,?)}";
     private static final String ELIMINAR_CURSO_DE_CARRERA = "{call eliminarCursoDeCarrera(?,?)}";
     private static final String MODIFICAR_ORDEN_CURSO_CARRERA = "{call modificarOrdenCursoCarrera(?,?,?)}";
@@ -34,8 +29,6 @@ public class CarreraCursoService {
     }
 
     public void insertar(CarreraCurso carreraCurso) throws GlobalException, NoDataException {
-        logger.debug("Insertando relación Carrera-Curso: carrera {}, curso {}, ciclo {}",
-                carreraCurso.getPkCarrera(), carreraCurso.getPkCurso(), carreraCurso.getPkCiclo());
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(INSERTAR_CURSO_A_CARRERA)) {
             pstmt.setLong(1, carreraCurso.getPkCarrera());
@@ -45,16 +38,12 @@ public class CarreraCursoService {
             if (resultado) {
                 throw new NoDataException("No se realizó la inserción de la relación Carrera-Curso");
             }
-            logger.info("Relación Carrera-Curso insertada exitosamente: carrera {}, curso {}, ciclo {}",
-                    carreraCurso.getPkCarrera(), carreraCurso.getPkCurso(), carreraCurso.getPkCiclo());
         } catch (SQLException e) {
-            logger.error("Error al insertar relación Carrera-Curso: {}", e.getMessage(), e);
-            handleSQLException(e, "Error al insertar relación Carrera-Curso: llave duplicada o sentencia inválida");
+            throw new GlobalException("Error al insertar relación Carrera-Curso: llave duplicada o sentencia inválida: " + e.getMessage());
         }
     }
 
     public void eliminar(Long idCarrera, Long idCurso) throws GlobalException, NoDataException {
-        logger.debug("Eliminando relación Carrera-Curso: carrera {}, curso {}", idCarrera, idCurso);
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(ELIMINAR_CURSO_DE_CARRERA)) {
             pstmt.setLong(1, idCarrera);
@@ -63,16 +52,12 @@ public class CarreraCursoService {
             if (resultado == 0) {
                 throw new NoDataException("No se realizó el borrado: la relación Carrera-Curso no existe");
             }
-            logger.info("Relación Carrera-Curso eliminada exitosamente: carrera {}, curso {}", idCarrera, idCurso);
         } catch (SQLException e) {
-            logger.error("Error al eliminar relación Carrera-Curso: {}", e.getMessage(), e);
             handleDeleteSQLException(e);
         }
     }
 
     public void modificar(CarreraCurso carreraCurso) throws GlobalException, NoDataException {
-        logger.debug("Modificando relación Carrera-Curso: carrera {}, curso {}, nuevo ciclo {}",
-                carreraCurso.getPkCarrera(), carreraCurso.getPkCurso(), carreraCurso.getPkCiclo());
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(MODIFICAR_ORDEN_CURSO_CARRERA)) {
             pstmt.setLong(1, carreraCurso.getPkCarrera());
@@ -82,16 +67,12 @@ public class CarreraCursoService {
             if (resultado == 0) {
                 throw new NoDataException("No se realizó la actualización de la relación Carrera-Curso");
             }
-            logger.info("Relación Carrera-Curso modificada exitosamente: carrera {}, curso {}, ciclo {}",
-                    carreraCurso.getPkCarrera(), carreraCurso.getPkCurso(), carreraCurso.getPkCiclo());
         } catch (SQLException e) {
-            logger.error("Error al modificar relación Carrera-Curso: {}", e.getMessage(), e);
-            handleSQLException(e, "Error al modificar relación Carrera-Curso: sentencia inválida");
+            throw new GlobalException("Error al modificar relación Carrera-Curso: sentencia inválida: " + e.getMessage());
         }
     }
 
     public List<CursoDto> buscarCursosPorCarreraYCiclo(Long idCarrera, Long idCiclo) throws GlobalException, NoDataException {
-        logger.debug("Buscando cursos por carrera {} y ciclo: {}", idCarrera, idCiclo);
         List<CursoDto> cursos = new ArrayList<>();
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(BUSCAR_CURSOS_POR_CARRERA_Y_CICLO)) {
@@ -105,18 +86,15 @@ public class CarreraCursoService {
                 }
             }
         } catch (SQLException e) {
-            logger.error("Error al buscar cursos por carrera y ciclo: {}", e.getMessage(), e);
             throw new GlobalException("Error al buscar cursos por carrera y ciclo: " + e.getMessage());
         }
         if (cursos.isEmpty()) {
             throw new NoDataException("No hay cursos asociados a esta carrera y ciclo");
         }
-        logger.info("Cursos encontrados para carrera {} y ciclo {}: {}", idCarrera, idCiclo, cursos.size());
         return cursos;
     }
 
     public List<CarreraCurso> listar() throws GlobalException, NoDataException {
-        logger.debug("Listando todas las relaciones Carrera-Curso");
         List<CarreraCurso> lista = new ArrayList<>();
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(LISTAR_CARRERA_CURSO)) {
@@ -128,17 +106,14 @@ public class CarreraCursoService {
                 }
             }
         } catch (SQLException e) {
-            logger.error("Error al listar relaciones Carrera-Curso: {}", e.getMessage(), e);
             throw new GlobalException("Error al listar relaciones Carrera-Curso: " + e.getMessage());
         }
         if (lista.isEmpty()) {
             throw new NoDataException("No hay relaciones Carrera-Curso registradas");
         }
-        logger.info("Listado de relaciones Carrera-Curso obtenido exitosamente, total: {}", lista.size());
         return lista;
     }
 
-    // Métodos utilitarios privados
     private CarreraCurso mapResultSetToCarreraCurso(ResultSet rs) throws SQLException {
         return new CarreraCurso(
                 rs.getLong("id_carrera_curso"),
@@ -156,14 +131,10 @@ public class CarreraCursoService {
                 rs.getLong("creditos"),
                 rs.getLong("horas_semanales"),
                 rs.getLong("id_carrera_curso"),
-                null, // anio (not provided by buscarCursosPorCarreraYCiclo)
-                null, // numero (not provided by buscarCursosPorCarreraYCiclo)
-                null  // idCiclo (not provided by buscarCursosPorCarreraYCiclo)
+                null,
+                null,
+                null
         );
-    }
-
-    private void handleSQLException(SQLException e, String message) throws GlobalException {
-        throw new GlobalException(message + ": " + e.getMessage());
     }
 
     private void handleDeleteSQLException(SQLException e) throws GlobalException {

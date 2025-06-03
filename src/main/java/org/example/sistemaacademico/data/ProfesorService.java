@@ -3,8 +3,6 @@ package org.example.sistemaacademico.data;
 import org.example.sistemaacademico.database.GlobalException;
 import org.example.sistemaacademico.database.NoDataException;
 import org.example.sistemaacademico.logic.Profesor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,9 +14,6 @@ import java.util.List;
 @Service
 public class ProfesorService {
 
-    private static final Logger logger = LoggerFactory.getLogger(ProfesorService.class);
-
-    // Consultas SQL para procedimientos almacenados
     private static final String INSERTAR_PROFESOR = "{call insertarProfesor(?,?,?,?)}";
     private static final String MODIFICAR_PROFESOR = "{call modificarProfesor(?,?,?,?,?)}";
     private static final String ELIMINAR_PROFESOR = "{call eliminarProfesor(?)}";
@@ -35,7 +30,6 @@ public class ProfesorService {
     }
 
     public void insertar(Profesor profesor) throws GlobalException, NoDataException {
-        logger.debug("Insertando profesor: cedula {}, nombre {}", profesor.getCedula(), profesor.getNombre());
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(INSERTAR_PROFESOR)) {
             pstmt.setString(1, profesor.getCedula());
@@ -43,16 +37,12 @@ public class ProfesorService {
             pstmt.setString(3, profesor.getTelefono());
             pstmt.setString(4, profesor.getEmail());
             pstmt.executeUpdate();
-            logger.info("Profesor insertado exitosamente: cedula {}", profesor.getCedula());
         } catch (SQLException e) {
-            logger.error("Error al insertar profesor: {}", e.getMessage(), e);
             handleSQLExceptionInsert(e);
         }
     }
 
     public void modificar(Profesor profesor) throws GlobalException, NoDataException {
-        logger.debug("Modificando profesor: id {}, cedula {}, nombre {}",
-                profesor.getIdProfesor(), profesor.getCedula(), profesor.getNombre());
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(MODIFICAR_PROFESOR)) {
             pstmt.setLong(1, profesor.getIdProfesor());
@@ -64,15 +54,12 @@ public class ProfesorService {
             if (resultado == 0) {
                 throw new NoDataException("No se realizó la actualización del profesor");
             }
-            logger.info("Profesor modificado exitosamente: id {}", profesor.getIdProfesor());
         } catch (SQLException e) {
-            logger.error("Error al modificar profesor: {}", e.getMessage(), e);
             handleSQLException(e, "Error al modificar profesor");
         }
     }
 
     public void eliminar(Long idProfesor) throws GlobalException, NoDataException {
-        logger.debug("Eliminando profesor: id {}", idProfesor);
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(ELIMINAR_PROFESOR)) {
             pstmt.setLong(1, idProfesor);
@@ -80,15 +67,12 @@ public class ProfesorService {
             if (resultado == 0) {
                 throw new NoDataException("No se realizó el borrado: el profesor no existe");
             }
-            logger.info("Profesor eliminado exitosamente: id {}", idProfesor);
         } catch (SQLException e) {
-            logger.error("Error al eliminar profesor: {}", e.getMessage(), e);
             handleDeleteSQLException(e);
         }
     }
 
     public void eliminarPorCedula(String cedula) throws GlobalException, NoDataException {
-        logger.debug("Eliminando profesor por cédula: {}", cedula);
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(ELIMINAR_PROFESOR_POR_CEDULA)) {
             pstmt.setString(1, cedula);
@@ -96,15 +80,12 @@ public class ProfesorService {
             if (resultado == 0) {
                 throw new NoDataException("No se realizó el borrado: el profesor con cédula " + cedula + " no existe");
             }
-            logger.info("Profesor eliminado exitosamente por cédula: {}", cedula);
         } catch (SQLException e) {
-            logger.error("Error al eliminar profesor por cédula: {}", e.getMessage(), e);
             handleDeleteSQLException(e);
         }
     }
 
     public List<Profesor> listar() throws GlobalException, NoDataException {
-        logger.debug("Listando todos los profesores");
         List<Profesor> profesores = new ArrayList<>();
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(LISTAR_PROFESORES)) {
@@ -116,18 +97,15 @@ public class ProfesorService {
                 }
             }
         } catch (SQLException e) {
-            logger.error("Error al listar profesores: {}", e.getMessage(), e);
             handleSQLException(e, "Error al listar profesores");
         }
         if (profesores.isEmpty()) {
             throw new NoDataException("No hay profesores registrados");
         }
-        logger.info("Listado de profesores obtenido exitosamente, total: {}", profesores.size());
         return profesores;
     }
 
     public Profesor buscarPorCedula(String cedula) throws GlobalException, NoDataException {
-        logger.debug("Buscando profesor por cédula: {}", cedula);
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(BUSCAR_POR_CEDULA)) {
             pstmt.registerOutParameter(1, Types.REF_CURSOR);
@@ -135,20 +113,16 @@ public class ProfesorService {
             pstmt.execute();
             try (ResultSet rs = (ResultSet) pstmt.getObject(1)) {
                 if (rs.next()) {
-                    Profesor profesor = mapResultSetToProfesor(rs);
-                    logger.info("Profesor encontrado por cédula: {}", cedula);
-                    return profesor;
+                    return mapResultSetToProfesor(rs);
                 }
             }
         } catch (SQLException e) {
-            logger.error("Error al buscar profesor por cédula: {}", e.getMessage(), e);
             handleSQLException(e, "Error al buscar profesor por cédula");
         }
         throw new NoDataException("No se encontró un profesor con cédula: " + cedula);
     }
 
     public Profesor buscarPorNombre(String nombre) throws GlobalException, NoDataException {
-        logger.debug("Buscando profesor por nombre: {}", nombre);
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(BUSCAR_POR_NOMBRE)) {
             pstmt.registerOutParameter(1, Types.REF_CURSOR);
@@ -156,19 +130,17 @@ public class ProfesorService {
             pstmt.execute();
             try (ResultSet rs = (ResultSet) pstmt.getObject(1)) {
                 if (rs.next()) {
-                    Profesor profesor = mapResultSetToProfesor(rs);
-                    logger.info("Profesor encontrado por nombre: {}", nombre);
-                    return profesor;
+                    return mapResultSetToProfesor(rs);
                 }
             }
         } catch (SQLException e) {
-            logger.error("Error al buscar profesor por nombre: {}", e.getMessage(), e);
             handleSQLException(e, "Error al buscar profesor por nombre");
         }
         throw new NoDataException("No se encontró un profesor con nombre: " + nombre);
     }
 
-    // Métodos utilitarios privados
+    // ========== Métodos utilitarios ==========
+
     private Profesor mapResultSetToProfesor(ResultSet rs) throws SQLException {
         return new Profesor(
                 rs.getLong("id_profesor"),
