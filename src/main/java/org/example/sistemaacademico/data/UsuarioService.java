@@ -3,6 +3,8 @@ package org.example.sistemaacademico.data;
 import org.example.sistemaacademico.database.GlobalException;
 import org.example.sistemaacademico.database.NoDataException;
 import org.example.sistemaacademico.logic.Usuario;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,9 +16,12 @@ import java.util.List;
 @Service
 public class UsuarioService {
 
+    private static final Logger logger = LoggerFactory.getLogger(UsuarioService.class);
     private static final String INSERTAR_USUARIO = "{call insertarUsuario(?,?,?)}";
     private static final String MODIFICAR_USUARIO = "{call modificarUsuario(?,?,?,?)}";
     private static final String ELIMINAR_USUARIO = "{call eliminarUsuario(?)}";
+    private static final String ELIMINAR_ALUMNO_POR_CEDULA = "{call eliminarAlumnoPorCedula(?)}";
+    private static final String ELIMINAR_PROFESOR_POR_CEDULA = "{call eliminarProfesorPorCedula(?)}";
     private static final String LISTAR_USUARIOS = "{?=call listarUsuarios()}";
     private static final String BUSCAR_POR_CEDULA = "{?=call buscarUsuarioPorCedula(?)}";
     private static final String LOGIN_USUARIO = "{call loginUsuario(?,?,?)}";
@@ -59,7 +64,7 @@ public class UsuarioService {
         }
     }
 
-    public void eliminar(Long idUsuario) throws GlobalException, NoDataException {
+    /*public void eliminar(Long idUsuario) throws GlobalException, NoDataException {
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(ELIMINAR_USUARIO)) {
             pstmt.setLong(1, idUsuario);
@@ -69,6 +74,85 @@ public class UsuarioService {
             }
         } catch (SQLException e) {
             handleSQLException(e, "Error al eliminar usuario");
+        }
+    }*/
+
+    public void eliminarUsuarioYEntidadAsociada(Long idUsuario) throws GlobalException, NoDataException {
+        Connection conn = null;
+        try {
+            conn = dataSource.getConnection();
+            conn.setAutoCommit(false);
+
+            try (PreparedStatement pstmt = conn.prepareStatement("SELECT id_usuario, cedula, tipo FROM Usuario WHERE id_usuario = ?")) {
+                pstmt.setLong(1, idUsuario);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (!rs.next()) {
+                        throw new NoDataException("Usuario no encontrado con id: " + idUsuario);
+                    }
+                    String cedula = rs.getString("cedula");
+                    String tipo = rs.getString("tipo");
+
+                    if ("Alumno".equals(tipo)) {
+                        try (PreparedStatement checkStmt = conn.prepareStatement("SELECT COUNT(*) FROM Matricula WHERE pk_alumno = (SELECT id_alumno FROM Alumno WHERE cedula = ?)")) {
+                            checkStmt.setString(1, cedula);
+                            try (ResultSet checkRs = checkStmt.executeQuery()) {
+                                if (checkRs.next() && checkRs.getInt(1) > 0) {
+                                    throw new GlobalException("No se puede eliminar: el alumno tiene matrículas asociadas.");
+                                }
+                            }
+                        }
+                    } else if ("Profesor".equals(tipo)) {
+                        try (PreparedStatement checkStmt = conn.prepareStatement("SELECT COUNT(*) FROM Grupo WHERE pk_profesor = (SELECT id_profesor FROM Profesor WHERE cedula = ?)")) {
+                            checkStmt.setString(1, cedula);
+                            try (ResultSet checkRs = checkStmt.executeQuery()) {
+                                if (checkRs.next() && checkRs.getInt(1) > 0) {
+                                    throw new GlobalException("No se puede eliminar: el profesor tiene grupos asignados.");
+                                }
+                            }
+                        }
+                    }
+
+                    try (CallableStatement deleteUserStmt = conn.prepareCall(ELIMINAR_USUARIO)) {
+                        deleteUserStmt.setLong(1, idUsuario);
+                        int rowsAffected = deleteUserStmt.executeUpdate();
+                        if (rowsAffected == 0) {
+                            throw new NoDataException("No se realizó el borrado: el usuario no existe");
+                        }
+                    }
+
+                    if ("Alumno".equals(tipo)) {
+                        try (CallableStatement deleteAlumnoStmt = conn.prepareCall(ELIMINAR_ALUMNO_POR_CEDULA)) {
+                            deleteAlumnoStmt.setString(1, cedula);
+                            deleteAlumnoStmt.executeUpdate();
+                        }
+                    } else if ("Profesor".equals(tipo)) {
+                        try (CallableStatement deleteProfesorStmt = conn.prepareCall(ELIMINAR_PROFESOR_POR_CEDULA)) {
+                            deleteProfesorStmt.setString(1, cedula);
+                            deleteProfesorStmt.executeUpdate();
+                        }
+                    }
+
+                    conn.commit();
+                }
+            }
+        } catch (SQLException e) {
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (SQLException rollbackEx) {
+                    logger.error("Error during rollback: {}", rollbackEx.getMessage(), rollbackEx);
+                }
+            }
+            handleSQLException(e, "Error al eliminar usuario y entidad asociada");
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (SQLException closeEx) {
+                    logger.error("Error closing connection: {}", closeEx.getMessage(), closeEx);
+                }
+            }
         }
     }
 
@@ -156,8 +240,8 @@ public class UsuarioService {
         int errorCode = Math.abs(e.getErrorCode());
         String errorMessage = switch (errorCode) {
             case 20028 -> "Ya existe un usuario con esta cédula.";
-            case 20033 -> "No existe un alumno con esta cédula para asignar como usuario.";
-            case 20034 -> "No existe un profesor con esta cédula para asignar como usuario.";
+            case 20011 -> "No se puede eliminar el alumno: tiene matrículas asociadas.";
+            case 20030 -> "No se puede eliminar el profesor: tiene grupos asignados.";
             default -> message + ": " + e.getMessage();
         };
         throw new GlobalException(errorMessage);

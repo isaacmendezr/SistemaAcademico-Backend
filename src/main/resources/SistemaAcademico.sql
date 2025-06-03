@@ -1193,7 +1193,7 @@ CREATE OR REPLACE PROCEDURE eliminarUsuario(id_usuarioin IN Usuario.id_usuario%T
 AS
 BEGIN
     DELETE FROM Usuario WHERE id_usuario = id_usuarioin;
-    COMMIT;
+    --COMMIT;
 END;
 /
 

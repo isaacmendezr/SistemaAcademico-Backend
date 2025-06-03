@@ -227,9 +227,9 @@ public class CarreraService {
     }
 
     private void handleSQLException(SQLException e, String message) throws GlobalException {
-        int errorCode = e.getErrorCode();
+        int errorCode = Math.abs(e.getErrorCode());
         String errorMessage = switch (errorCode) {
-            case -20026 -> "Ya existe una asociación de ese curso en esa carrera y ciclo.";
+            case 20026 -> "Ya existe una asociación de ese curso en esa carrera y ciclo.";
             case 1 -> "Código de carrera duplicado.";
             default -> message + ": " + e.getMessage();
         };
@@ -237,11 +237,11 @@ public class CarreraService {
     }
 
     private void handleDeleteSQLException(SQLException e, String message) throws GlobalException {
-        int errorCode = e.getErrorCode();
+        int errorCode = Math.abs(e.getErrorCode());
         String errorMessage = switch (errorCode) {
-            case -20001 -> "No se puede eliminar la carrera: tiene cursos asociados.";
-            case -20002 -> "No se puede eliminar la carrera: tiene alumnos inscritos.";
-            case -20035 -> "No se puede eliminar la relación carrera-curso: tiene grupos asociados.";
+            case 20001 -> "No se puede eliminar la carrera: tiene cursos asociados.";
+            case 20002 -> "No se puede eliminar la carrera: tiene alumnos inscritos.";
+            case 20035 -> "No se puede eliminar la relación carrera-curso: tiene grupos asociados.";
             default -> message + ": " + e.getMessage();
         };
         throw new GlobalException(errorMessage);

@@ -253,7 +253,6 @@ public class AlumnoService {
     private void handleDeleteSQLException(SQLException e, String message) throws GlobalException {
         int errorCode = e.getErrorCode();
         String errorMessage = switch (errorCode) {
-            case -20009 -> "No se puede eliminar el alumno: existe un usuario asociado.";
             case -20011 -> "No se puede eliminar el alumno: tiene matrículas asociadas.";
             default -> message + ": " + e.getMessage();
         };

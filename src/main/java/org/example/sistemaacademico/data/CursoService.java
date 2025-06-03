@@ -246,8 +246,7 @@ public class CursoService {
     private void handleSQLException(SQLException e, String message) throws GlobalException {
         int errorCode = Math.abs(e.getErrorCode());
         String errorMessage = switch (errorCode) {
-            case 20003 -> "No se puede eliminar el curso: está asociado a una carrera.";
-            case 20004 -> "No se puede eliminar el curso: tiene grupos asociados.";
+            case 20003 -> "No se puede eliminar el curso: está asociado a una carrera o tiene grupos.";
             default -> message + ": " + e.getMessage();
         };
         throw new GlobalException(errorMessage);

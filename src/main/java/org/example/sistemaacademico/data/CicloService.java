@@ -176,7 +176,7 @@ public class CicloService {
         String errorMessage = switch (errorCode) {
             case 20005 -> "No se puede eliminar el ciclo: tiene cursos asociados.";
             case 20020 -> "La fecha de inicio debe ser anterior a la fecha de fin.";
-            case 20032 -> "Ya existe un ciclo activo. Desactive el ciclo actual primero.";
+            case 20041 -> "Las fechas de inicio y fin no pueden ser nulas.";
             default -> message + ": " + e.getMessage();
         };
         throw new GlobalException(errorMessage);
