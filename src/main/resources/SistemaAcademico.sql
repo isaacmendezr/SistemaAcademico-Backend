@@ -1658,24 +1658,19 @@ INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES 
 INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (10, 1, 'Jueves 10:00-12:00', 6);
 INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (11, 1, 'Viernes 9:00-11:00', 7);
 INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (12, 1, 'Lunes 13:00-15:00', 7);
+INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (3, 2, 'Viernes 13:00-15:00', 3);
 
 -- MATRICULAS
 INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (1, 1, 85);
-INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (2, 2, 90);
+INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (2, 1, 81);
 INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (3, 3, 78);
 INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (4, 3, 88);
-INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (5, 4, 92);
-INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (6, 4, 74);
-INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (2, 1, 81);
-INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (1, 2, 87);
-INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (7, 5, 80);
-INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (8, 5, 85);
+INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (7, 5, 78);
 INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (9, 7, 88);
 INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (10, 7, 90);
 INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (11, 9, 82);
 INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (12, 9, 87);
-INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (7, 6, 78);
-INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (9, 8, 91);
+INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (1, 1, 87);
 
 -- USUARIOS
 INSERT INTO Usuario (cedula, clave, tipo) VALUES ('100100100', 'admin123', 'Administrador');
@@ -1689,6 +1684,14 @@ INSERT INTO Usuario (cedula, clave, tipo) VALUES ('600600600', 'prof789', 'Profe
 INSERT INTO Usuario (cedula, clave, tipo) VALUES ('777777777', 'alumno4', 'Alumno');
 INSERT INTO Usuario (cedula, clave, tipo) VALUES ('999999999', 'alumno5', 'Alumno');
 INSERT INTO Usuario (cedula, clave, tipo) VALUES ('121212121', 'alumno6', 'Alumno');
+INSERT INTO Usuario (cedula, clave, tipo) VALUES ('222222222', 'alumnoX', 'Alumno');
+INSERT INTO Usuario (cedula, clave, tipo) VALUES ('444444444', 'alumnoX', 'Alumno');
+INSERT INTO Usuario (cedula, clave, tipo) VALUES ('101010101', 'alumnoX', 'Alumno');
+INSERT INTO Usuario (cedula, clave, tipo) VALUES ('131313131', 'alumnoX', 'Alumno');
+INSERT INTO Usuario (cedula, clave, tipo) VALUES ('400400400', 'profX', 'Profesor');
+INSERT INTO Usuario (cedula, clave, tipo) VALUES ('666666666', 'alumnoX', 'Alumno');
+INSERT INTO Usuario (cedula, clave, tipo) VALUES ('888888888', 'alumnoX', 'Alumno');
+INSERT INTO Usuario (cedula, clave, tipo) VALUES ('700700700', 'profX', 'Profesor');
 
 COMMIT;
 
