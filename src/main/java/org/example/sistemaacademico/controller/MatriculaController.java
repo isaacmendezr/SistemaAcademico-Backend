@@ -31,9 +31,12 @@ public class MatriculaController {
             matriculaService.insertarMatricula(matricula);
             logger.info("Matrícula creada exitosamente para alumno: {}, grupo: {}", matricula.getPkAlumno(), matricula.getPkGrupo());
             return new ResponseEntity<>(HttpStatus.CREATED);
-        } catch (GlobalException | NoDataException e) {
-            logger.error("Error al crear matrícula: {}", e.getMessage(), e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (GlobalException e) {
+            logger.error("Error al crear matrícula: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (NoDataException e) {
+            logger.error("Error al crear matrícula: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -44,9 +47,12 @@ public class MatriculaController {
             matriculaService.modificarMatricula(matricula);
             logger.info("Matrícula actualizada exitosamente: id {}", matricula.getIdMatricula());
             return new ResponseEntity<>(HttpStatus.OK);
-        } catch (GlobalException | NoDataException e) {
-            logger.error("Error al actualizar matrícula: {}", e.getMessage(), e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (GlobalException e) {
+            logger.error("Error al actualizar matrícula: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (NoDataException e) {
+            logger.error("Error al actualizar matrícula: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -54,12 +60,16 @@ public class MatriculaController {
     public ResponseEntity<Void> eliminar(@PathVariable("id") Long id) {
         logger.debug("Eliminando matrícula con id: {}", id);
         try {
+            matriculaService.verificarEliminar(id); // Verificación proactiva
             matriculaService.eliminarMatricula(id);
             logger.info("Matrícula eliminada exitosamente: id {}", id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (GlobalException | NoDataException e) {
-            logger.error("Error al eliminar matrícula: {}", e.getMessage(), e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (GlobalException e) {
+            logger.error("Error al eliminar matrícula: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (NoDataException e) {
+            logger.error("Error al eliminar matrícula: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 

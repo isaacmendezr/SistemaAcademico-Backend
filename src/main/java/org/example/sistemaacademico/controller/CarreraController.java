@@ -30,8 +30,11 @@ public class CarreraController {
             carreraService.insertarCarrera(carrera);
             logger.info("Carrera creada exitosamente: código {}", carrera.getCodigo());
             return new ResponseEntity<>(HttpStatus.CREATED);
-        } catch (GlobalException | NoDataException e) {
-            logger.error("Error al crear carrera: {}", e.getMessage(), e);
+        } catch (GlobalException e) {
+            logger.error("Error al crear carrera: {}", e.getMessage());
+            if (e.getMessage().contains("duplicada")) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -43,9 +46,15 @@ public class CarreraController {
             carreraService.modificarCarrera(carrera);
             logger.info("Carrera actualizada exitosamente: id {}", carrera.getIdCarrera());
             return new ResponseEntity<>(HttpStatus.OK);
-        } catch (GlobalException | NoDataException e) {
-            logger.error("Error al actualizar carrera: {}", e.getMessage(), e);
+        } catch (GlobalException e) {
+            logger.error("Error al actualizar carrera: {}", e.getMessage());
+            if (e.getMessage().contains("duplicada")) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (NoDataException e) {
+            logger.error("Error al actualizar carrera: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -53,12 +62,27 @@ public class CarreraController {
     public ResponseEntity<Void> eliminar(@PathVariable("id") Long id) {
         logger.debug("Eliminando carrera con id: {}", id);
         try {
+            // Verificar dependencias proactivamente
+            if (carreraService.tieneCursosAsociados(id)) {
+                logger.warn("No se puede eliminar carrera con id {}: tiene cursos asociados", id);
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            if (carreraService.tieneAlumnosAsociados(id)) {
+                logger.warn("No se puede eliminar carrera con id {}: tiene alumnos asociados", id);
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
             carreraService.eliminarCarrera(id);
             logger.info("Carrera eliminada exitosamente: id {}", id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (GlobalException | NoDataException e) {
-            logger.error("Error al eliminar carrera: {}", e.getMessage(), e);
+        } catch (GlobalException e) {
+            logger.error("Error al eliminar carrera: {}", e.getMessage());
+            if (e.getMessage().contains("cursos asociados") || e.getMessage().contains("alumnos inscritos")) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (NoDataException e) {
+            logger.error("Error al eliminar carrera: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -119,9 +143,15 @@ public class CarreraController {
             carreraService.insertarCursoACarrera(idCarrera, idCurso, idCiclo);
             logger.info("Curso {} insertado en carrera {} con ciclo: {}", idCurso, idCarrera, idCiclo);
             return new ResponseEntity<>(HttpStatus.CREATED);
-        } catch (GlobalException | NoDataException e) {
-            logger.error("Error al insertar curso en carrera: {}", e.getMessage(), e);
+        } catch (GlobalException e) {
+            logger.error("Error al insertar curso en carrera: {}", e.getMessage());
+            if (e.getMessage().contains("asociación existente")) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (NoDataException e) {
+            logger.error("Error al insertar curso en carrera: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -131,12 +161,23 @@ public class CarreraController {
             @PathVariable("idCurso") Long idCurso) {
         logger.debug("Eliminando curso {} de carrera: {}", idCurso, idCarrera);
         try {
+            // Verificar dependencias proactivamente
+            if (carreraService.tieneGruposAsociados(idCarrera, idCurso)) {
+                logger.warn("No se puede eliminar curso {} de carrera {}: tiene grupos asociados", idCurso, idCarrera);
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
             carreraService.eliminarCursoDeCarrera(idCarrera, idCurso);
             logger.info("Curso {} eliminado de carrera: {}", idCurso, idCarrera);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (GlobalException | NoDataException e) {
-            logger.error("Error al eliminar curso de carrera: {}", e.getMessage(), e);
+        } catch (GlobalException e) {
+            logger.error("Error al eliminar curso de carrera: {}", e.getMessage());
+            if (e.getMessage().contains("grupos asociados")) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (NoDataException e) {
+            logger.error("Error al eliminar curso de carrera: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -150,9 +191,15 @@ public class CarreraController {
             carreraService.modificarOrdenCursoCarrera(idCarrera, idCurso, nuevoIdCiclo);
             logger.info("Ciclo de curso {} en carrera {} modificado: nuevo ciclo {}", idCurso, idCarrera, nuevoIdCiclo);
             return new ResponseEntity<>(HttpStatus.OK);
-        } catch (GlobalException | NoDataException e) {
-            logger.error("Error al modificar ciclo de curso en carrera: {}", e.getMessage(), e);
+        } catch (GlobalException e) {
+            logger.error("Error al modificar ciclo de curso en carrera: {}", e.getMessage());
+            if (e.getMessage().contains("asociación existente")) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (NoDataException e) {
+            logger.error("Error al modificar ciclo de curso en carrera: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 }

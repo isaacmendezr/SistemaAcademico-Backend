@@ -3,6 +3,8 @@ package org.example.sistemaacademico.data;
 import org.example.sistemaacademico.database.GlobalException;
 import org.example.sistemaacademico.database.NoDataException;
 import org.example.sistemaacademico.logic.Carrera;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +15,8 @@ import java.util.List;
 
 @Service
 public class CarreraService {
+
+    private static final Logger logger = LoggerFactory.getLogger(CarreraService.class);
 
     // Consultas SQL para procedimientos almacenados
     private static final String INSERTAR_CARRERA = "{call insertarCarrera(?,?,?)}";
@@ -27,9 +31,16 @@ public class CarreraService {
 
     private final DataSource dataSource;
 
+    private final AlumnoService alumnoService;
+    private final CarreraCursoService carreraCursoService;
+    private final GrupoService grupoService;
+
     @Autowired
-    public CarreraService(DataSource dataSource) {
+    public CarreraService(DataSource dataSource, AlumnoService alumnoService, CarreraCursoService carreraCursoService, GrupoService grupoService) {
         this.dataSource = dataSource;
+        this.alumnoService = alumnoService;
+        this.carreraCursoService = carreraCursoService;
+        this.grupoService = grupoService;
     }
 
     public void insertarCarrera(Carrera carrera) throws GlobalException, NoDataException {
@@ -38,12 +49,13 @@ public class CarreraService {
             pstmt.setString(1, carrera.getCodigo());
             pstmt.setString(2, carrera.getNombre());
             pstmt.setString(3, carrera.getTitulo());
-            boolean resultado = pstmt.execute();
-            if (resultado) {
+            int filasAfectadas = pstmt.executeUpdate();
+            if (filasAfectadas == 0) {
                 throw new NoDataException("No se realizó la inserción");
             }
         } catch (SQLException e) {
-            handleSQLException(e, "Error al insertar carrera: llave duplicada o sentencia inválida");
+            logger.error("Error al insertar carrera: {}", e.getMessage(), e);
+            handleSQLException(e, "Error al insertar carrera");
         }
     }
 
@@ -54,12 +66,13 @@ public class CarreraService {
             pstmt.setString(2, carrera.getCodigo());
             pstmt.setString(3, carrera.getNombre());
             pstmt.setString(4, carrera.getTitulo());
-            int resultado = pstmt.executeUpdate();
-            if (resultado == 0) {
+            int filasAfectadas = pstmt.executeUpdate();
+            if (filasAfectadas == 0) {
                 throw new NoDataException("No se realizó la actualización");
             }
         } catch (SQLException e) {
-            handleSQLException(e, "Error al modificar carrera: sentencia no válida");
+            logger.error("Error al modificar carrera: {}", e.getMessage(), e);
+            handleSQLException(e, "Error al modificar carrera");
         }
     }
 
@@ -67,11 +80,12 @@ public class CarreraService {
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(ELIMINAR_CARRERA)) {
             pstmt.setLong(1, idCarrera);
-            int resultado = pstmt.executeUpdate();
-            if (resultado == 0) {
+            int filasAfectadas = pstmt.executeUpdate();
+            if (filasAfectadas == 0) {
                 throw new NoDataException("No se realizó el borrado: la carrera no existe");
             }
         } catch (SQLException e) {
+            logger.error("Error al eliminar carrera: {}", e.getMessage(), e);
             handleDeleteSQLException(e, "Error al eliminar carrera");
         }
     }
@@ -136,12 +150,13 @@ public class CarreraService {
             pstmt.setLong(1, carreraId);
             pstmt.setLong(2, cursoId);
             pstmt.setLong(3, cicloId);
-            boolean resultado = pstmt.execute();
-            if (resultado) {
+            int filasAfectadas = pstmt.executeUpdate();
+            if (filasAfectadas == 0) {
                 throw new NoDataException("No se realizó la inserción");
             }
         } catch (SQLException e) {
-            handleSQLException(e, "Error al insertar curso en carrera: datos inválidos o duplicados");
+            logger.error("Error al insertar curso en carrera: {}", e.getMessage(), e);
+            handleSQLException(e, "Error al insertar curso en carrera");
         }
     }
 
@@ -165,12 +180,40 @@ public class CarreraService {
             pstmt.setLong(1, carreraId);
             pstmt.setLong(2, cursoId);
             pstmt.setLong(3, nuevoCicloId);
-            int resultado = pstmt.executeUpdate();
-            if (resultado == 0) {
+            int filasAfectadas = pstmt.executeUpdate();
+            if (filasAfectadas == 0) {
                 throw new NoDataException("No se realizó la actualización");
             }
         } catch (SQLException e) {
-            handleSQLException(e, "Error al modificar ciclo de curso en carrera: datos inválidos");
+            logger.error("Error al modificar ciclo de curso en carrera: {}", e.getMessage(), e);
+            handleSQLException(e, "Error al modificar ciclo de curso en carrera");
+        }
+    }
+
+    public boolean tieneCursosAsociados(Long idCarrera) throws GlobalException {
+        try {
+            carreraCursoService.buscarCursosPorCarreraYCiclo(idCarrera, null);
+            return true;
+        } catch (NoDataException e) {
+            return false;
+        }
+    }
+
+    public boolean tieneAlumnosAsociados(Long idCarrera) throws GlobalException {
+        try {
+            alumnoService.buscarAlumnosPorCarrera(idCarrera);
+            return true;
+        } catch (NoDataException e) {
+            return false;
+        }
+    }
+
+    public boolean tieneGruposAsociados(Long idCarrera, Long idCurso) throws GlobalException {
+        try {
+            grupoService.buscarGruposPorCarreraCurso(idCarrera, idCurso);
+            return true;
+        } catch (NoDataException e) {
+            return false;
         }
     }
 
@@ -184,7 +227,13 @@ public class CarreraService {
     }
 
     private void handleSQLException(SQLException e, String message) throws GlobalException {
-        throw new GlobalException(message + ": " + e.getMessage());
+        int errorCode = e.getErrorCode();
+        String errorMessage = switch (errorCode) {
+            case -20026 -> "Ya existe una asociación de ese curso en esa carrera y ciclo.";
+            case 1 -> "Código de carrera duplicado.";
+            default -> message + ": " + e.getMessage();
+        };
+        throw new GlobalException(errorMessage);
     }
 
     private void handleDeleteSQLException(SQLException e, String message) throws GlobalException {
@@ -192,6 +241,7 @@ public class CarreraService {
         String errorMessage = switch (errorCode) {
             case -20001 -> "No se puede eliminar la carrera: tiene cursos asociados.";
             case -20002 -> "No se puede eliminar la carrera: tiene alumnos inscritos.";
+            case -20035 -> "No se puede eliminar la relación carrera-curso: tiene grupos asociados.";
             default -> message + ": " + e.getMessage();
         };
         throw new GlobalException(errorMessage);

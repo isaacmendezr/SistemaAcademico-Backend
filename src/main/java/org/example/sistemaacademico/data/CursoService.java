@@ -39,12 +39,9 @@ public class CursoService {
             pstmt.setString(2, curso.getNombre());
             pstmt.setLong(3, curso.getCreditos());
             pstmt.setLong(4, curso.getHorasSemanales());
-            boolean resultado = pstmt.execute();
-            if (resultado) {
-                throw new NoDataException("No se realizó la inserción");
-            }
+            pstmt.execute();
         } catch (SQLException e) {
-            throw new GlobalException("Error al insertar curso: llave duplicada o sentencia inválida: " + e.getMessage());
+            handleSQLException(e, "Error al insertar curso");
         }
     }
 
@@ -56,12 +53,9 @@ public class CursoService {
             pstmt.setString(3, curso.getNombre());
             pstmt.setLong(4, curso.getCreditos());
             pstmt.setLong(5, curso.getHorasSemanales());
-            int resultado = pstmt.executeUpdate();
-            if (resultado == 0) {
-                throw new NoDataException("No se realizó la actualización");
-            }
+            pstmt.execute();
         } catch (SQLException e) {
-            throw new GlobalException("Error al modificar curso: sentencia inválida: " + e.getMessage());
+            handleSQLException(e, "Error al modificar curso");
         }
     }
 
@@ -69,12 +63,9 @@ public class CursoService {
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(ELIMINAR_CURSO)) {
             pstmt.setLong(1, idCurso);
-            int resultado = pstmt.executeUpdate();
-            if (resultado == 0) {
-                throw new NoDataException("No se realizó el borrado: el curso no existe");
-            }
+            pstmt.execute();
         } catch (SQLException e) {
-            handleDeleteSQLException(e);
+            handleSQLException(e, "Error al eliminar curso");
         }
     }
 
@@ -197,6 +188,28 @@ public class CursoService {
     }
 
     // Utilitarios
+
+    public void verificarEliminar(Long idCurso) throws GlobalException, NoDataException {
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(
+                     "SELECT COUNT(*) FROM Carrera_Curso WHERE pk_curso = ? " +
+                             "UNION ALL " +
+                             "SELECT COUNT(*) FROM Grupo g JOIN Carrera_Curso cc ON g.pk_carrera_curso = cc.id_carrera_curso WHERE cc.pk_curso = ?")) {
+            pstmt.setLong(1, idCurso);
+            pstmt.setLong(2, idCurso);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next() && rs.getInt(1) > 0) {
+                    throw new GlobalException("No se puede eliminar el curso: está asociado a una carrera.");
+                }
+                if (rs.next() && rs.getInt(1) > 0) {
+                    throw new GlobalException("No se puede eliminar el curso: tiene grupos asociados.");
+                }
+            }
+        } catch (SQLException e) {
+            throw new GlobalException("Error al verificar eliminación de curso: " + e.getMessage());
+        }
+    }
+
     private Curso mapResultSetToCurso(ResultSet rs) throws SQLException {
         return new Curso(
                 rs.getLong("id_curso"),
@@ -221,12 +234,12 @@ public class CursoService {
         );
     }
 
-    private void handleDeleteSQLException(SQLException e) throws GlobalException {
-        int errorCode = e.getErrorCode();
+    private void handleSQLException(SQLException e, String message) throws GlobalException {
+        int errorCode = Math.abs(e.getErrorCode());
         String errorMessage = switch (errorCode) {
-            case -20003 -> "No se puede eliminar el curso: está asociado a una carrera.";
-            case -20004 -> "No se puede eliminar el curso: tiene matrículas asociadas.";
-            default -> "Error al eliminar curso: " + e.getMessage();
+            case 20003 -> "No se puede eliminar el curso: está asociado a una carrera.";
+            case 20004 -> "No se puede eliminar el curso: tiene grupos asociados.";
+            default -> message + ": " + e.getMessage();
         };
         throw new GlobalException(errorMessage);
     }

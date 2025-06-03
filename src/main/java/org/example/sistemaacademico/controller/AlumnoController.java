@@ -30,8 +30,13 @@ public class AlumnoController {
             alumnoService.insertarAlumno(alumno);
             logger.info("Alumno creado exitosamente: cédula {}", alumno.getCedula());
             return new ResponseEntity<>(HttpStatus.CREATED);
-        } catch (GlobalException | NoDataException e) {
-            logger.error("Error al crear alumno: {}", e.getMessage(), e);
+        } catch (GlobalException e) {
+            logger.error("Error al crear alumno: {}", e.getMessage());
+            if (e.getMessage().contains("nombre") || e.getMessage().contains("correo") ||
+                    e.getMessage().contains("fecha") || e.getMessage().contains("cédula") ||
+                    e.getMessage().contains("teléfono") || e.getMessage().contains("duplicada")) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -43,9 +48,17 @@ public class AlumnoController {
             alumnoService.modificarAlumno(alumno);
             logger.info("Alumno actualizado exitosamente: id {}", alumno.getIdAlumno());
             return new ResponseEntity<>(HttpStatus.OK);
-        } catch (GlobalException | NoDataException e) {
-            logger.error("Error al actualizar alumno: {}", e.getMessage(), e);
+        } catch (GlobalException e) {
+            logger.error("Error al actualizar alumno: {}", e.getMessage());
+            if (e.getMessage().contains("nombre") || e.getMessage().contains("correo") ||
+                    e.getMessage().contains("fecha") || e.getMessage().contains("cédula") ||
+                    e.getMessage().contains("teléfono") || e.getMessage().contains("duplicada")) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (NoDataException e) {
+            logger.error("Error al actualizar alumno: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -53,12 +66,28 @@ public class AlumnoController {
     public ResponseEntity<Void> eliminar(@PathVariable("id") Long id) {
         logger.debug("Eliminando alumno con id: {}", id);
         try {
+            // Verificar dependencias proactivamente
+            Alumno alumno = alumnoService.buscarAlumnoPorId(id);
+            if (alumnoService.tieneUsuarioAsociado(alumno.getCedula())) {
+                logger.warn("No se puede eliminar alumno con id {}: tiene usuario asociado", id);
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            if (alumnoService.tieneMatriculasAsociadas(id)) {
+                logger.warn("No se puede eliminar alumno con id {}: tiene matrículas asociadas", id);
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
             alumnoService.eliminarAlumno(id);
             logger.info("Alumno eliminado exitosamente: id {}", id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (GlobalException | NoDataException e) {
-            logger.error("Error al eliminar alumno: {}", e.getMessage(), e);
+        } catch (GlobalException e) {
+            logger.error("Error al eliminar alumno: {}", e.getMessage());
+            if (e.getMessage().contains("usuario asociado") || e.getMessage().contains("matrículas asociadas")) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (NoDataException e) {
+            logger.error("Error al eliminar alumno: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -66,12 +95,32 @@ public class AlumnoController {
     public ResponseEntity<Void> eliminarPorCedula(@RequestParam("cedula") String cedula) {
         logger.debug("Eliminando alumno con cédula: {}", cedula);
         try {
+            // Verificar dependencias proactivamente
+            Alumno alumno = alumnoService.buscarAlumnoPorCedula(cedula);
+            if (alumno == null) {
+                logger.warn("No se encontró alumno con cédula: {}", cedula);
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+            if (alumnoService.tieneUsuarioAsociado(cedula)) {
+                logger.warn("No se puede eliminar alumno con cédula {}: tiene usuario asociado", cedula);
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            if (alumnoService.tieneMatriculasAsociadas(alumno.getIdAlumno())) {
+                logger.warn("No se puede eliminar alumno con cédula {}: tiene matrículas asociadas", cedula);
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
             alumnoService.eliminarAlumnoPorCedula(cedula);
             logger.info("Alumno eliminado exitosamente: cédula {}", cedula);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (GlobalException e) {
-            logger.error("Error al eliminar alumno por cédula: {}", e.getMessage(), e);
+            logger.error("Error al eliminar alumno por cédula: {}", e.getMessage());
+            if (e.getMessage().contains("usuario asociado") || e.getMessage().contains("matrículas asociadas")) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (NoDataException e) {
+            logger.error("Error al eliminar alumno por cédula: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -100,7 +149,7 @@ public class AlumnoController {
             logger.info("Alumno encontrado: cédula {}", cedula);
             return new ResponseEntity<>(alumno, HttpStatus.OK);
         } catch (GlobalException e) {
-            logger.error("Error al buscar alumno por cédula: {}", e.getMessage(), e);
+            logger.error("Error al buscar alumno por cédula: {}", e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

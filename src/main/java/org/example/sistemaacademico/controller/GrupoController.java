@@ -33,9 +33,12 @@ public class GrupoController {
             logger.info("Grupo creado exitosamente para carrera-curso: {}, número: {}, profesor: {}",
                     grupo.getIdCarreraCurso(), grupo.getNumeroGrupo(), grupo.getIdProfesor());
             return new ResponseEntity<>(HttpStatus.CREATED);
-        } catch (GlobalException | NoDataException e) {
-            logger.error("Error al crear grupo: {}", e.getMessage(), e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (GlobalException e) {
+            logger.error("Error al crear grupo: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (NoDataException e) {
+            logger.error("Error al crear grupo: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -46,9 +49,12 @@ public class GrupoController {
             grupoService.modificarGrupo(grupo);
             logger.info("Grupo actualizado exitosamente: id {}", grupo.getIdGrupo());
             return new ResponseEntity<>(HttpStatus.OK);
-        } catch (GlobalException | NoDataException e) {
-            logger.error("Error al actualizar grupo: {}", e.getMessage(), e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (GlobalException e) {
+            logger.error("Error al actualizar grupo: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (NoDataException e) {
+            logger.error("Error al actualizar grupo: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -56,12 +62,16 @@ public class GrupoController {
     public ResponseEntity<Void> eliminar(@PathVariable("id") Long id) {
         logger.debug("Eliminando grupo con id: {}", id);
         try {
+            grupoService.verificarEliminar(id); // Verificación proactiva
             grupoService.eliminarGrupo(id);
             logger.info("Grupo eliminado exitosamente: id {}", id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (GlobalException | NoDataException e) {
-            logger.error("Error al eliminar grupo: {}", e.getMessage(), e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (GlobalException e) {
+            logger.error("Error al eliminar grupo: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (NoDataException e) {
+            logger.error("Error al eliminar grupo: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 

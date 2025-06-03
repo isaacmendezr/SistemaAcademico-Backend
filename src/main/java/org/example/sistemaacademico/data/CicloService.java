@@ -37,12 +37,9 @@ public class CicloService {
             pstmt.setDate(3, Date.valueOf(ciclo.getFechaInicio()));
             pstmt.setDate(4, Date.valueOf(ciclo.getFechaFin()));
             pstmt.setString(5, ciclo.getEstado());
-            boolean resultado = pstmt.execute();
-            if (resultado) {
-                throw new NoDataException("No se realizó la inserción");
-            }
+            pstmt.execute();
         } catch (SQLException e) {
-            throw new GlobalException("Error al insertar ciclo: llave duplicada o sentencia inválida: " + e.getMessage());
+            handleSQLException(e, "Error al insertar ciclo");
         }
     }
 
@@ -55,12 +52,9 @@ public class CicloService {
             pstmt.setDate(4, Date.valueOf(ciclo.getFechaInicio()));
             pstmt.setDate(5, Date.valueOf(ciclo.getFechaFin()));
             pstmt.setString(6, ciclo.getEstado());
-            int resultado = pstmt.executeUpdate();
-            if (resultado == 0) {
-                throw new NoDataException("No se realizó la actualización");
-            }
+            pstmt.execute();
         } catch (SQLException e) {
-            throw new GlobalException("Error al modificar ciclo: sentencia inválida: " + e.getMessage());
+            handleSQLException(e, "Error al modificar ciclo");
         }
     }
 
@@ -68,12 +62,9 @@ public class CicloService {
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(ELIMINAR_CICLO)) {
             pstmt.setLong(1, idCiclo);
-            int resultado = pstmt.executeUpdate();
-            if (resultado == 0) {
-                throw new NoDataException("No se realizó el borrado: el ciclo no existe");
-            }
+            pstmt.execute();
         } catch (SQLException e) {
-            handleDeleteSQLException(e);
+            handleSQLException(e, "Error al eliminar ciclo");
         }
     }
 
@@ -135,16 +126,28 @@ public class CicloService {
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(ACTIVAR_CICLO)) {
             pstmt.setLong(1, idCiclo);
-            int resultado = pstmt.executeUpdate();
-            if (resultado == 0) {
-                throw new NoDataException("No se realizó la activación: el ciclo no existe");
-            }
+            pstmt.execute();
         } catch (SQLException e) {
-            throw new GlobalException("Error al activar ciclo: sentencia inválida: " + e.getMessage());
+            handleSQLException(e, "Error al activar ciclo");
         }
     }
 
     // Métodos utilitarios
+
+    public void verificarEliminar(Long idCiclo) throws GlobalException, NoDataException {
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement("SELECT COUNT(*) FROM Carrera_Curso WHERE pk_ciclo = ?")) {
+            pstmt.setLong(1, idCiclo);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next() && rs.getInt(1) > 0) {
+                    throw new GlobalException("No se puede eliminar el ciclo: tiene cursos asociados.");
+                }
+            }
+        } catch (SQLException e) {
+            throw new GlobalException("Error al verificar eliminación de ciclo: " + e.getMessage());
+        }
+    }
+
     private Ciclo mapResultSetToCiclo(ResultSet rs) throws SQLException {
         return new Ciclo(
                 rs.getLong("id_ciclo"),
@@ -156,12 +159,13 @@ public class CicloService {
         );
     }
 
-    private void handleDeleteSQLException(SQLException e) throws GlobalException {
-        int errorCode = e.getErrorCode();
+    private void handleSQLException(SQLException e, String message) throws GlobalException {
+        int errorCode = Math.abs(e.getErrorCode());
         String errorMessage = switch (errorCode) {
-            case -20005 -> "No se puede eliminar el ciclo: tiene cursos asociados.";
-            case -20006 -> "No se puede eliminar el ciclo: tiene matrículas asociadas.";
-            default -> "Error al eliminar ciclo: " + e.getMessage();
+            case 20005 -> "No se puede eliminar el ciclo: tiene cursos asociados.";
+            case 20020 -> "La fecha de inicio debe ser anterior a la fecha de fin.";
+            case 20032 -> "Ya existe un ciclo activo. Desactive el ciclo actual primero.";
+            default -> message + ": " + e.getMessage();
         };
         throw new GlobalException(errorMessage);
     }

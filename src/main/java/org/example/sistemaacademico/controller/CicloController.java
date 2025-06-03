@@ -30,9 +30,12 @@ public class CicloController {
             cicloService.insertarCiclo(ciclo);
             logger.info("Ciclo creado exitosamente: año {}, número {}", ciclo.getAnio(), ciclo.getNumero());
             return new ResponseEntity<>(HttpStatus.CREATED);
-        } catch (GlobalException | NoDataException e) {
-            logger.error("Error al crear ciclo: {}", e.getMessage(), e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (GlobalException e) {
+            logger.error("Error al crear ciclo: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (NoDataException e) {
+            logger.error("Error al crear ciclo: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -43,9 +46,12 @@ public class CicloController {
             cicloService.modificarCiclo(ciclo);
             logger.info("Ciclo actualizado exitosamente: id {}", ciclo.getIdCiclo());
             return new ResponseEntity<>(HttpStatus.OK);
-        } catch (GlobalException | NoDataException e) {
-            logger.error("Error al actualizar ciclo: {}", e.getMessage(), e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (GlobalException e) {
+            logger.error("Error al actualizar ciclo: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (NoDataException e) {
+            logger.error("Error al actualizar ciclo: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -53,12 +59,16 @@ public class CicloController {
     public ResponseEntity<Void> eliminar(@PathVariable("id") Long id) {
         logger.debug("Eliminando ciclo con id: {}", id);
         try {
+            cicloService.verificarEliminar(id); // Verificación proactiva
             cicloService.eliminarCiclo(id);
             logger.info("Ciclo eliminado exitosamente: id {}", id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (GlobalException | NoDataException e) {
-            logger.error("Error al eliminar ciclo: {}", e.getMessage(), e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (GlobalException e) {
+            logger.error("Error al eliminar ciclo: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (NoDataException e) {
+            logger.error("Error al eliminar ciclo: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -116,9 +126,12 @@ public class CicloController {
             cicloService.activarCiclo(id);
             logger.info("Ciclo activado exitosamente: id {}", id);
             return new ResponseEntity<>(HttpStatus.OK);
-        } catch (GlobalException | NoDataException e) {
-            logger.error("Error al activar ciclo: {}", e.getMessage(), e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (GlobalException e) {
+            logger.error("Error al activar ciclo: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (NoDataException e) {
+            logger.error("Error al activar ciclo: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 }

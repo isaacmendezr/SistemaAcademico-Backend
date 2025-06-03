@@ -33,12 +33,9 @@ public class MatriculaService {
              CallableStatement pstmt = conn.prepareCall(INSERTAR_MATRICULA)) {
             pstmt.setLong(1, matricula.getPkAlumno());
             pstmt.setLong(2, matricula.getPkGrupo());
-            boolean resultado = pstmt.execute();
-            if (resultado) {
-                throw new NoDataException("No se realizó la inserción de la matrícula");
-            }
+            pstmt.execute();
         } catch (SQLException e) {
-            handleSQLException(e, "Error al insertar matrícula: llave duplicada o sentencia inválida");
+            handleSQLException(e, "Error al insertar matrícula");
         }
     }
 
@@ -49,12 +46,9 @@ public class MatriculaService {
             pstmt.setLong(2, matricula.getPkAlumno());
             pstmt.setLong(3, matricula.getPkGrupo());
             pstmt.setLong(4, matricula.getNota());
-            int resultado = pstmt.executeUpdate();
-            if (resultado == 0) {
-                throw new NoDataException("No se realizó la actualización de la matrícula");
-            }
+            pstmt.execute();
         } catch (SQLException e) {
-            handleSQLException(e, "Error al modificar matrícula: sentencia inválida");
+            handleSQLException(e, "Error al modificar matrícula");
         }
     }
 
@@ -62,12 +56,9 @@ public class MatriculaService {
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(ELIMINAR_MATRICULA)) {
             pstmt.setLong(1, idMatricula);
-            int resultado = pstmt.executeUpdate();
-            if (resultado == 0) {
-                throw new NoDataException("No se realizó el borrado: la matrícula no existe");
-            }
+            pstmt.execute();
         } catch (SQLException e) {
-            handleSQLException(e, "Error al eliminar matrícula: sentencia inválida");
+            handleSQLException(e, "Error al eliminar matrícula");
         }
     }
 
@@ -116,6 +107,20 @@ public class MatriculaService {
 
     // Utilitarios
 
+    public void verificarEliminar(Long idMatricula) throws GlobalException, NoDataException {
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement("SELECT COUNT(*) FROM Matricula WHERE id_matricula = ?")) {
+            pstmt.setLong(1, idMatricula);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next() && rs.getInt(1) == 0) {
+                    throw new NoDataException("No se encontró matrícula con id: " + idMatricula);
+                }
+            }
+        } catch (SQLException e) {
+            throw new GlobalException("Error al verificar eliminación de matrícula: " + e.getMessage());
+        }
+    }
+
     private MatriculaAlumnoDto mapResultSetToMatriculaAlumnoDto(ResultSet rs) throws SQLException {
         return new MatriculaAlumnoDto(
                 rs.getLong("id_matricula"),
@@ -132,6 +137,13 @@ public class MatriculaService {
     }
 
     private void handleSQLException(SQLException e, String message) throws GlobalException {
-        throw new GlobalException(message + ": " + e.getMessage());
+        int errorCode = Math.abs(e.getErrorCode());
+        String errorMessage = switch (errorCode) {
+            case 20029 -> "El alumno ya está matriculado en otro grupo de este curso.";
+            case 20031 -> "La nota debe estar entre 0 y 100.";
+            case 20040 -> "El alumno solo puede matricular cursos de su carrera.";
+            default -> message + ": " + e.getMessage();
+        };
+        throw new GlobalException(errorMessage);
     }
 }

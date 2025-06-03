@@ -28,13 +28,13 @@ public class UsuarioService {
         this.dataSource = dataSource;
     }
 
-    public void insertar(Usuario usuario) throws GlobalException {
+    public void insertar(Usuario usuario) throws GlobalException, NoDataException {
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(INSERTAR_USUARIO)) {
             pstmt.setString(1, usuario.getCedula());
             pstmt.setString(2, usuario.getClave());
             pstmt.setString(3, usuario.getTipo());
-            pstmt.executeUpdate();
+            pstmt.execute();
         } catch (SQLException e) {
             handleSQLException(e, "Error al insertar usuario");
         }
@@ -60,10 +60,7 @@ public class UsuarioService {
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(ELIMINAR_USUARIO)) {
             pstmt.setLong(1, idUsuario);
-            int resultado = pstmt.executeUpdate();
-            if (resultado == 0) {
-                throw new NoDataException("No se realizó el borrado: el usuario no existe");
-            }
+            pstmt.execute();
         } catch (SQLException e) {
             handleSQLException(e, "Error al eliminar usuario");
         }
@@ -126,6 +123,21 @@ public class UsuarioService {
 
     // ========= Métodos utilitarios =========
 
+    public void verificarEliminar(Long idUsuario) throws GlobalException, NoDataException {
+        // Verificación proactiva: consultar si el usuario existe
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement("SELECT COUNT(*) FROM Usuario WHERE id_usuario = ?")) {
+            pstmt.setLong(1, idUsuario);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next() && rs.getInt(1) == 0) {
+                    throw new NoDataException("No se encontró usuario con id: " + idUsuario);
+                }
+            }
+        } catch (SQLException e) {
+            throw new GlobalException("Error al verificar usuario: " + e.getMessage());
+        }
+    }
+
     private Usuario mapResultSetToUsuario(ResultSet rs) throws SQLException {
         return new Usuario(
                 rs.getLong("id_usuario"),
@@ -135,6 +147,13 @@ public class UsuarioService {
     }
 
     private void handleSQLException(SQLException e, String message) throws GlobalException {
-        throw new GlobalException(message + ": " + e.getMessage());
+        int errorCode = Math.abs(e.getErrorCode());
+        String errorMessage = switch (errorCode) {
+            case 20028 -> "Ya existe un usuario con esta cédula.";
+            case 20033 -> "No existe un alumno con esta cédula para asignar como usuario.";
+            case 20034 -> "No existe un profesor con esta cédula para asignar como usuario.";
+            default -> message + ": " + e.getMessage();
+        };
+        throw new GlobalException(errorMessage);
     }
 }

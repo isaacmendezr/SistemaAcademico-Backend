@@ -31,9 +31,12 @@ public class CursoController {
             cursoService.insertarCurso(curso);
             logger.info("Curso creado exitosamente: código {}", curso.getCodigo());
             return new ResponseEntity<>(HttpStatus.CREATED);
-        } catch (GlobalException | NoDataException e) {
-            logger.error("Error al crear curso: {}", e.getMessage(), e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (GlobalException e) {
+            logger.error("Error al crear curso: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (NoDataException e) {
+            logger.error("Error al crear curso: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -44,9 +47,12 @@ public class CursoController {
             cursoService.modificarCurso(curso);
             logger.info("Curso actualizado exitosamente: id {}", curso.getIdCurso());
             return new ResponseEntity<>(HttpStatus.OK);
-        } catch (GlobalException | NoDataException e) {
-            logger.error("Error al actualizar curso: {}", e.getMessage(), e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (GlobalException e) {
+            logger.error("Error al actualizar curso: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (NoDataException e) {
+            logger.error("Error al actualizar curso: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -54,12 +60,16 @@ public class CursoController {
     public ResponseEntity<Void> eliminar(@PathVariable("id") Long id) {
         logger.debug("Eliminando curso con id: {}", id);
         try {
+            cursoService.verificarEliminar(id); // Verificación proactiva
             cursoService.eliminarCurso(id);
             logger.info("Curso eliminado exitosamente: id {}", id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (GlobalException | NoDataException e) {
-            logger.error("Error al eliminar curso: {}", e.getMessage(), e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (GlobalException e) {
+            logger.error("Error al eliminar curso: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (NoDataException e) {
+            logger.error("Error al eliminar curso: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 

@@ -37,12 +37,9 @@ public class GrupoService {
             pstmt.setLong(2, grupo.getNumeroGrupo());
             pstmt.setString(3, grupo.getHorario());
             pstmt.setLong(4, grupo.getIdProfesor());
-            boolean resultado = pstmt.execute();
-            if (resultado) {
-                throw new NoDataException("No se realizó la inserción del grupo");
-            }
+            pstmt.execute();
         } catch (SQLException e) {
-            throw new GlobalException("Error al insertar grupo: llave duplicada o sentencia inválida: " + e.getMessage());
+            handleSQLException(e, "Error al insertar grupo");
         }
     }
 
@@ -67,12 +64,9 @@ public class GrupoService {
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(ELIMINAR_GRUPO)) {
             pstmt.setLong(1, idGrupo);
-            int resultado = pstmt.executeUpdate();
-            if (resultado == 0) {
-                throw new NoDataException("No se realizó el borrado: el grupo no existe");
-            }
+            pstmt.execute();
         } catch (SQLException e) {
-            handleDeleteSQLException(e);
+            handleSQLException(e, "Error al eliminar grupo");
         }
     }
 
@@ -163,6 +157,20 @@ public class GrupoService {
     }
 
     // Utilitarios
+    public void verificarEliminar(Long idGrupo) throws GlobalException, NoDataException {
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement("SELECT COUNT(*) FROM Matricula WHERE pk_grupo = ?")) {
+            pstmt.setLong(1, idGrupo);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next() && rs.getInt(1) > 0) {
+                    throw new GlobalException("No se puede eliminar el grupo: tiene estudiantes matriculados.");
+                }
+            }
+        } catch (SQLException e) {
+            throw new GlobalException("Error al verificar eliminación de grupo: " + e.getMessage());
+        }
+    }
+
     private Grupo mapResultToGrupo(ResultSet rs) throws SQLException {
         return new Grupo(
                 rs.getLong("id_grupo"),
@@ -184,14 +192,13 @@ public class GrupoService {
         );
     }
 
-    private void handleDeleteSQLException(SQLException e) throws GlobalException {
-        int errorCode = e.getErrorCode();
-        String errorMessage;
-        if (errorCode == -20036) {
-            errorMessage = "No se puede eliminar el grupo: tiene matrículas asociadas.";
-        } else {
-            errorMessage = "Error al eliminar grupo: " + e.getMessage();
-        }
+    private void handleSQLException(SQLException e, String message) throws GlobalException {
+        int errorCode = Math.abs(e.getErrorCode());
+        String errorMessage = switch (errorCode) {
+            case 20006 -> "No se puede eliminar el grupo: tiene estudiantes matriculados.";
+            case 20027 -> "Ya existe un grupo con ese número para el mismo curso y ciclo.";
+            default -> message + ": " + e.getMessage();
+        };
         throw new GlobalException(errorMessage);
     }
 }

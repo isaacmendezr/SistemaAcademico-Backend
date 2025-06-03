@@ -33,9 +33,15 @@ public class CarreraCursoController {
             logger.info("Relación Carrera-Curso creada exitosamente: carrera {}, curso {}, ciclo {}",
                     carreraCurso.getPkCarrera(), carreraCurso.getPkCurso(), carreraCurso.getPkCiclo());
             return new ResponseEntity<>(HttpStatus.CREATED);
-        } catch (GlobalException | NoDataException e) {
-            logger.error("Error al crear relación Carrera-Curso: {}", e.getMessage(), e);
+        } catch (GlobalException e) {
+            logger.error("Error al crear relación Carrera-Curso: {}", e.getMessage());
+            if (e.getMessage().contains("asociación existente")) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (NoDataException e) {
+            logger.error("Error al crear relación Carrera-Curso: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -48,9 +54,15 @@ public class CarreraCursoController {
             logger.info("Relación Carrera-Curso actualizada exitosamente: carrera {}, curso {}, ciclo {}",
                     carreraCurso.getPkCarrera(), carreraCurso.getPkCurso(), carreraCurso.getPkCiclo());
             return new ResponseEntity<>(HttpStatus.OK);
-        } catch (GlobalException | NoDataException e) {
-            logger.error("Error al actualizar relación Carrera-Curso: {}", e.getMessage(), e);
+        } catch (GlobalException e) {
+            logger.error("Error al actualizar relación Carrera-Curso: {}", e.getMessage());
+            if (e.getMessage().contains("asociación existente")) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (NoDataException e) {
+            logger.error("Error al actualizar relación Carrera-Curso: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -58,12 +70,23 @@ public class CarreraCursoController {
     public ResponseEntity<Void> eliminar(@RequestParam("idCarrera") Long idCarrera, @RequestParam("idCurso") Long idCurso) {
         logger.debug("Eliminando relación Carrera-Curso: carrera {}, curso {}", idCarrera, idCurso);
         try {
+            // Verificar dependencias proactivamente
+            if (carreraCursoService.tieneGruposAsociados(idCarrera, idCurso)) {
+                logger.warn("No se puede eliminar relación Carrera-Curso: carrera {}, curso {}: tiene grupos asociados", idCarrera, idCurso);
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
             carreraCursoService.eliminar(idCarrera, idCurso);
             logger.info("Relación Carrera-Curso eliminada exitosamente: carrera {}, curso {}", idCarrera, idCurso);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (GlobalException | NoDataException e) {
-            logger.error("Error al eliminar relación Carrera-Curso: {}", e.getMessage(), e);
+        } catch (GlobalException e) {
+            logger.error("Error al eliminar relación Carrera-Curso: {}", e.getMessage());
+            if (e.getMessage().contains("grupos asociados")) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (NoDataException e) {
+            logger.error("Error al eliminar relación Carrera-Curso: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 

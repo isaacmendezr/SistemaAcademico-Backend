@@ -30,9 +30,12 @@ public class ProfesorController {
             profesorService.insertar(profesor);
             logger.info("Profesor creado exitosamente: cédula {}", profesor.getCedula());
             return new ResponseEntity<>(HttpStatus.CREATED);
-        } catch (GlobalException | NoDataException e) {
-            logger.error("Error al crear profesor: {}", e.getMessage(), e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (GlobalException e) {
+            logger.error("Error al crear profesor: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (NoDataException e) {
+            logger.error("Error al crear profesor: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -43,9 +46,12 @@ public class ProfesorController {
             profesorService.modificar(profesor);
             logger.info("Profesor actualizado exitosamente: id {}", profesor.getIdProfesor());
             return new ResponseEntity<>(HttpStatus.OK);
-        } catch (GlobalException | NoDataException e) {
-            logger.error("Error al actualizar profesor: {}", e.getMessage(), e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (GlobalException e) {
+            logger.error("Error al actualizar profesor: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (NoDataException e) {
+            logger.error("Error al actualizar profesor: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -53,12 +59,16 @@ public class ProfesorController {
     public ResponseEntity<Void> eliminar(@PathVariable("id") Long id) {
         logger.debug("Eliminando profesor con id: {}", id);
         try {
+            profesorService.verificarEliminar(id); // Verificación proactiva
             profesorService.eliminar(id);
             logger.info("Profesor eliminado exitosamente: id {}", id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (GlobalException | NoDataException e) {
-            logger.error("Error al eliminar profesor: {}", e.getMessage(), e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (GlobalException e) {
+            logger.error("Error al eliminar profesor: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (NoDataException e) {
+            logger.error("Error al eliminar profesor: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -66,12 +76,16 @@ public class ProfesorController {
     public ResponseEntity<Void> eliminarPorCedula(@RequestParam("cedula") String cedula) {
         logger.debug("Eliminando profesor por cédula: {}", cedula);
         try {
+            profesorService.verificarEliminarPorCedula(cedula); // Verificación proactiva
             profesorService.eliminarPorCedula(cedula);
             logger.info("Profesor eliminado exitosamente por cédula: {}", cedula);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (GlobalException | NoDataException e) {
-            logger.error("Error al eliminar profesor por cédula: {}", e.getMessage(), e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (GlobalException e) {
+            logger.error("Error al eliminar profesor por cédula: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (NoDataException e) {
+            logger.error("Error al eliminar profesor por cédula: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 

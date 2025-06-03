@@ -36,9 +36,9 @@ public class ProfesorService {
             pstmt.setString(2, profesor.getNombre());
             pstmt.setString(3, profesor.getTelefono());
             pstmt.setString(4, profesor.getEmail());
-            pstmt.executeUpdate();
+            pstmt.execute();
         } catch (SQLException e) {
-            handleSQLExceptionInsert(e);
+            handleSQLException(e, "Error al insertar profesor");
         }
     }
 
@@ -63,12 +63,9 @@ public class ProfesorService {
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(ELIMINAR_PROFESOR)) {
             pstmt.setLong(1, idProfesor);
-            int resultado = pstmt.executeUpdate();
-            if (resultado == 0) {
-                throw new NoDataException("No se realizó el borrado: el profesor no existe");
-            }
+            pstmt.execute();
         } catch (SQLException e) {
-            handleDeleteSQLException(e);
+            handleSQLException(e, "Error al eliminar profesor");
         }
     }
 
@@ -76,12 +73,9 @@ public class ProfesorService {
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(ELIMINAR_PROFESOR_POR_CEDULA)) {
             pstmt.setString(1, cedula);
-            int resultado = pstmt.executeUpdate();
-            if (resultado == 0) {
-                throw new NoDataException("No se realizó el borrado: el profesor con cédula " + cedula + " no existe");
-            }
+            pstmt.execute();
         } catch (SQLException e) {
-            handleDeleteSQLException(e);
+            handleSQLException(e, "Error al eliminar profesor por cédula");
         }
     }
 
@@ -141,6 +135,48 @@ public class ProfesorService {
 
     // ========== Métodos utilitarios ==========
 
+    public void verificarEliminar(Long idProfesor) throws GlobalException, NoDataException {
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(
+                     "SELECT COUNT(*) FROM Grupo WHERE pk_profesor = ? " +
+                             "UNION ALL " +
+                             "SELECT COUNT(*) FROM Usuario WHERE cedula = (SELECT cedula FROM Profesor WHERE id_profesor = ?) AND tipo = 'Profesor'")) {
+            pstmt.setLong(1, idProfesor);
+            pstmt.setLong(2, idProfesor);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next() && rs.getInt(1) > 0) {
+                    throw new GlobalException("No se puede eliminar el profesor: tiene grupos asignados.");
+                }
+                if (rs.next() && rs.getInt(1) > 0) {
+                    throw new GlobalException("No se puede eliminar el profesor: existe un usuario asociado.");
+                }
+            }
+        } catch (SQLException e) {
+            throw new GlobalException("Error al verificar eliminación de profesor: " + e.getMessage());
+        }
+    }
+
+    public void verificarEliminarPorCedula(String cedula) throws GlobalException, NoDataException {
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(
+                     "SELECT COUNT(*) FROM Grupo g JOIN Profesor p ON g.pk_profesor = p.id_profesor WHERE p.cedula = ? " +
+                             "UNION ALL " +
+                             "SELECT COUNT(*) FROM Usuario WHERE cedula = ? AND tipo = 'Profesor'")) {
+            pstmt.setString(1, cedula);
+            pstmt.setString(2, cedula);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next() && rs.getInt(1) > 0) {
+                    throw new GlobalException("No se puede eliminar el profesor: tiene grupos asignados.");
+                }
+                if (rs.next() && rs.getInt(1) > 0) {
+                    throw new GlobalException("No se puede eliminar el profesor: existe un usuario asociado.");
+                }
+            }
+        } catch (SQLException e) {
+            throw new GlobalException("Error al verificar eliminación de profesor por cédula: " + e.getMessage());
+        }
+    }
+
     private Profesor mapResultSetToProfesor(ResultSet rs) throws SQLException {
         return new Profesor(
                 rs.getLong("id_profesor"),
@@ -152,22 +188,16 @@ public class ProfesorService {
     }
 
     private void handleSQLException(SQLException e, String message) throws GlobalException {
-        throw new GlobalException(message + ": " + e.getMessage());
-    }
-
-    private void handleSQLExceptionInsert(SQLException e) throws GlobalException {
-        int errorCode = e.getErrorCode();
-        String errorMessage = errorCode == -20007 ?
-                "No se puede insertar el profesor: ya existe un profesor con esta cédula." :
-                "Error al insertar profesor: " + e.getMessage();
-        throw new GlobalException(errorMessage);
-    }
-
-    private void handleDeleteSQLException(SQLException e) throws GlobalException {
-        int errorCode = e.getErrorCode();
-        String errorMessage = errorCode == -20010 ?
-                "No se puede eliminar el profesor: tiene grupos asignados." :
-                "Error al eliminar profesor: " + e.getMessage();
+        int errorCode = Math.abs(e.getErrorCode());
+        String errorMessage = switch (errorCode) {
+            case 20010 -> "No se puede eliminar el profesor: existe un usuario asociado.";
+            case 20024 -> "El nombre del profesor no puede estar vacío.";
+            case 20025 -> "El correo del profesor no tiene un formato válido.";
+            case 20030 -> "No se puede eliminar el profesor: tiene grupos asignados.";
+            case 20038 -> "La cédula del profesor debe tener 9 dígitos numéricos.";
+            case 20039 -> "El teléfono del profesor debe tener 8 dígitos numéricos.";
+            default -> message + ": " + e.getMessage();
+        };
         throw new GlobalException(errorMessage);
     }
 }

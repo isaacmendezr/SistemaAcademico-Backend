@@ -30,9 +30,12 @@ public class UsuarioController {
             usuarioService.insertar(usuario);
             logger.info("Usuario creado exitosamente: cédula {}", usuario.getCedula());
             return new ResponseEntity<>(HttpStatus.CREATED);
-        } catch (GlobalException | NoDataException e) {
-            logger.error("Error al crear usuario: {}", e.getMessage(), e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (GlobalException e) {
+            logger.error("Error al crear usuario: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (NoDataException e) {
+            logger.error("Error al crear usuario: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -43,9 +46,12 @@ public class UsuarioController {
             usuarioService.modificar(usuario);
             logger.info("Usuario actualizado exitosamente: id {}", usuario.getIdUsuario());
             return new ResponseEntity<>(HttpStatus.OK);
-        } catch (GlobalException | NoDataException e) {
-            logger.error("Error al actualizar usuario: {}", e.getMessage(), e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (GlobalException e) {
+            logger.error("Error al actualizar usuario: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (NoDataException e) {
+            logger.error("Error al actualizar usuario: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -53,12 +59,16 @@ public class UsuarioController {
     public ResponseEntity<Void> eliminar(@PathVariable("id") Long id) {
         logger.debug("Eliminando usuario con id: {}", id);
         try {
+            usuarioService.verificarEliminar(id); // Verificación proactiva
             usuarioService.eliminar(id);
             logger.info("Usuario eliminado exitosamente: id {}", id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (GlobalException | NoDataException e) {
-            logger.error("Error al eliminar usuario: {}", e.getMessage(), e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (GlobalException e) {
+            logger.error("Error al eliminar usuario: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (NoDataException e) {
+            logger.error("Error al eliminar usuario: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -97,15 +107,14 @@ public class UsuarioController {
         logger.debug("Autenticando usuario con cédula: {}", cedula);
         try {
             Usuario usuario = usuarioService.login(cedula, clave);
-            if (usuario == null) {
-                logger.info("Credenciales inválidas para cédula: {}", cedula);
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
             logger.info("Usuario autenticado exitosamente: cédula {}", cedula);
             return new ResponseEntity<>(usuario, HttpStatus.OK);
         } catch (GlobalException e) {
-            logger.error("Error al autenticar usuario: {}", e.getMessage(), e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            logger.error("Error al autenticar usuario: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (NoDataException e) {
+            logger.info("Credenciales inválidas para cédula: {}", cedula);
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
     }
 }

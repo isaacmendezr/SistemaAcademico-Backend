@@ -23,28 +23,34 @@ public class AlumnoService {
     private static final String ELIMINAR_ALUMNO = "{call eliminarAlumno(?)}";
     private static final String ELIMINAR_ALUMNO_POR_CEDULA = "{call eliminarAlumnoPorCedula(?)}";
     private static final String LISTAR_ALUMNOS = "{?=call listarAlumnos()}";
+    private static final String BUSCAR_POR_ID = "{?=call buscarAlumnoPorId(?)}";
     private static final String BUSCAR_POR_CEDULA = "{?=call buscarAlumnoPorCedula(?)}";
     private static final String BUSCAR_POR_NOMBRE = "{?=call buscarAlumnoPorNombre(?)}";
     private static final String BUSCAR_ALUMNOS_POR_CARRERA = "{?=call buscarAlumnosPorCarrera(?)}";
 
     private final DataSource dataSource;
 
+    private final UsuarioService usuarioService;
+    private final MatriculaService matriculaService;
+
     @Autowired
-    public AlumnoService(DataSource dataSource) {
+    public AlumnoService(DataSource dataSource, UsuarioService usuarioService, MatriculaService matriculaService) {
         this.dataSource = dataSource;
+        this.usuarioService = usuarioService;
+        this.matriculaService = matriculaService;
     }
 
     public void insertarAlumno(Alumno alumno) throws GlobalException, NoDataException {
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(INSERTAR_ALUMNO)) {
             setAlumnoParameters(pstmt, alumno, false);
-            boolean resultado = pstmt.execute();
-            if (resultado) {
+            int filasAfectadas = pstmt.executeUpdate();
+            if (filasAfectadas == 0) {
                 throw new NoDataException("No se realizó la inserción");
             }
         } catch (SQLException e) {
             logger.error("Error al insertar alumno: {}", e.getMessage(), e);
-            handleSQLException(e, "Error al insertar alumno: llave duplicada o sentencia inválida");
+            handleSQLException(e, "Error al insertar alumno");
         }
     }
 
@@ -53,13 +59,13 @@ public class AlumnoService {
              CallableStatement pstmt = conn.prepareCall(MODIFICAR_ALUMNO)) {
             pstmt.setLong(1, alumno.getIdAlumno());
             setAlumnoParameters(pstmt, alumno, true);
-            int resultado = pstmt.executeUpdate();
-            if (resultado == 0) {
+            int filasAfectadas = pstmt.executeUpdate();
+            if (filasAfectadas == 0) {
                 throw new NoDataException("No se realizó la actualización");
             }
         } catch (SQLException e) {
             logger.error("Error al modificar alumno: {}", e.getMessage(), e);
-            handleSQLException(e, "Error al modificar alumno: sentencia no válida");
+            handleSQLException(e, "Error al modificar alumno");
         }
     }
 
@@ -67,8 +73,8 @@ public class AlumnoService {
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(ELIMINAR_ALUMNO)) {
             pstmt.setLong(1, idAlumno);
-            int resultado = pstmt.executeUpdate();
-            if (resultado == 0) {
+            int filasAfectadas = pstmt.executeUpdate();
+            if (filasAfectadas == 0) {
                 throw new NoDataException("No se realizó el borrado: el alumno no existe");
             }
         } catch (SQLException e) {
@@ -77,11 +83,14 @@ public class AlumnoService {
         }
     }
 
-    public void eliminarAlumnoPorCedula(String cedula) throws GlobalException {
+    public void eliminarAlumnoPorCedula(String cedula) throws GlobalException, NoDataException {
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(ELIMINAR_ALUMNO_POR_CEDULA)) {
             pstmt.setString(1, cedula);
-            pstmt.executeUpdate();
+            int filasAfectadas = pstmt.executeUpdate();
+            if (filasAfectadas == 0) {
+                throw new NoDataException("No se realizó el borrado: el alumno no existe");
+            }
         } catch (SQLException e) {
             logger.error("Error al eliminar alumno por cédula: {}", e.getMessage(), e);
             handleDeleteSQLException(e, "Error al eliminar alumno por cédula");
@@ -107,6 +116,24 @@ public class AlumnoService {
             throw new NoDataException("No hay alumnos registrados");
         }
         return alumnos;
+    }
+
+    public Alumno buscarAlumnoPorId(Long id) throws GlobalException, NoDataException {
+        try (Connection conn = dataSource.getConnection();
+             CallableStatement pstmt = conn.prepareCall(BUSCAR_POR_ID)) {
+            pstmt.registerOutParameter(1, Types.REF_CURSOR);
+            pstmt.setLong(2, id);
+            pstmt.execute();
+            try (ResultSet rs = (ResultSet) pstmt.getObject(1)) {
+                if (rs.next()) {
+                    return mapResultSetToAlumno(rs);
+                }
+            }
+        } catch (SQLException e) {
+            logger.error("Error al buscar alumno por id: {}", e.getMessage(), e);
+            throw new GlobalException("Error al buscar alumno por id: " + e.getMessage());
+        }
+        throw new NoDataException("No se encontró alumno con id: " + id);
     }
 
     public Alumno buscarAlumnoPorCedula(String cedula) throws GlobalException {
@@ -167,6 +194,24 @@ public class AlumnoService {
         return alumnos;
     }
 
+    public boolean tieneUsuarioAsociado(String cedula) throws GlobalException {
+        try {
+            usuarioService.buscarPorCedula(cedula);
+            return true;
+        } catch (NoDataException e) {
+            return false;
+        }
+    }
+
+    public boolean tieneMatriculasAsociadas(Long idAlumno) throws GlobalException {
+        try {
+            matriculaService.listarMatriculasPorAlumno(String.valueOf(idAlumno));
+            return true;
+        } catch (NoDataException e) {
+            return false;
+        }
+    }
+
     // Métodos utilitarios
     private void setAlumnoParameters(CallableStatement pstmt, Alumno alumno, boolean isUpdate) throws SQLException {
         int startIndex = isUpdate ? 2 : 1;
@@ -191,8 +236,19 @@ public class AlumnoService {
     }
 
     private void handleSQLException(SQLException e, String message) throws GlobalException {
-        throw new GlobalException(message + ": " + e.getMessage());
+        int errorCode = e.getErrorCode();
+        String errorMessage = switch (errorCode) {
+            case -20021 -> "El nombre del alumno no puede estar vacío.";
+            case -20022 -> "El correo del alumno no tiene un formato válido.";
+            case -20023 -> "La fecha de nacimiento no puede ser futura.";
+            case -20036 -> "La cédula del alumno debe tener 9 dígitos numéricos.";
+            case -20037 -> "El teléfono del alumno debe tener 8 dígitos numéricos.";
+            case 1 -> "Cédula o correo duplicados.";
+            default -> message + ": " + e.getMessage();
+        };
+        throw new GlobalException(errorMessage);
     }
+
 
     private void handleDeleteSQLException(SQLException e, String message) throws GlobalException {
         int errorCode = e.getErrorCode();
