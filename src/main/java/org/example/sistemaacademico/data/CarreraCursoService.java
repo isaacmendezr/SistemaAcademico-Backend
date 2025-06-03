@@ -14,10 +14,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Servicio para gestionar operaciones relacionadas con la relación Carrera-Curso en la base de datos.
- * Implementa operaciones CRUD y búsquedas, asegurando manejo adecuado de excepciones y cierre de recursos.
- */
 @Service
 public class CarreraCursoService {
 
@@ -32,23 +28,11 @@ public class CarreraCursoService {
 
     private final DataSource dataSource;
 
-    /**
-     * Constructor que utiliza inyección de dependencias para inicializar el DataSource.
-     *
-     * @param dataSource El DataSource gestionado por Spring Boot.
-     */
     @Autowired
     public CarreraCursoService(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
-    /**
-     * Inserta una nueva relación Carrera-Curso en la base de datos.
-     *
-     * @param carreraCurso El objeto CarreraCurso a insertar.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos, como una llave duplicada o sentencia inválida.
-     * @throws NoDataException Si la inserción no se realiza.
-     */
     public void insertar(CarreraCurso carreraCurso) throws GlobalException, NoDataException {
         logger.debug("Insertando relación Carrera-Curso: carrera {}, curso {}, ciclo {}",
                 carreraCurso.getPkCarrera(), carreraCurso.getPkCurso(), carreraCurso.getPkCiclo());
@@ -69,14 +53,6 @@ public class CarreraCursoService {
         }
     }
 
-    /**
-     * Elimina una relación Carrera-Curso por los IDs de carrera y curso.
-     *
-     * @param idCarrera ID de la carrera.
-     * @param idCurso ID del curso.
-     * @throws GlobalException Si hay dependencias (como grupos asociados) o errores en la base de datos.
-     * @throws NoDataException Si la relación no existe o no se elimina.
-     */
     public void eliminar(Long idCarrera, Long idCurso) throws GlobalException, NoDataException {
         logger.debug("Eliminando relación Carrera-Curso: carrera {}, curso {}", idCarrera, idCurso);
         try (Connection conn = dataSource.getConnection();
@@ -94,13 +70,6 @@ public class CarreraCursoService {
         }
     }
 
-    /**
-     * Modifica el ciclo de una relación Carrera-Curso existente.
-     *
-     * @param carreraCurso El objeto CarreraCurso con los datos actualizados.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos, como una sentencia inválida.
-     * @throws NoDataException Si la actualización no se realiza.
-     */
     public void modificar(CarreraCurso carreraCurso) throws GlobalException, NoDataException {
         logger.debug("Modificando relación Carrera-Curso: carrera {}, curso {}, nuevo ciclo {}",
                 carreraCurso.getPkCarrera(), carreraCurso.getPkCurso(), carreraCurso.getPkCiclo());
@@ -121,15 +90,6 @@ public class CarreraCursoService {
         }
     }
 
-    /**
-     * Busca cursos asociados a una carrera y ciclo específicos.
-     *
-     * @param idCarrera ID de la carrera.
-     * @param idCiclo ID del ciclo.
-     * @return Lista de objetos CursoDto con información de los cursos.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
-     * @throws NoDataException Si no hay cursos asociados a la carrera y ciclo.
-     */
     public List<CursoDto> buscarCursosPorCarreraYCiclo(Long idCarrera, Long idCiclo) throws GlobalException, NoDataException {
         logger.debug("Buscando cursos por carrera {} y ciclo: {}", idCarrera, idCiclo);
         List<CursoDto> cursos = new ArrayList<>();
@@ -155,13 +115,6 @@ public class CarreraCursoService {
         return cursos;
     }
 
-    /**
-     * Lista todas las relaciones Carrera-Curso registradas.
-     *
-     * @return Lista de objetos CarreraCurso.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
-     * @throws NoDataException Si no hay datos disponibles.
-     */
     public List<CarreraCurso> listar() throws GlobalException, NoDataException {
         logger.debug("Listando todas las relaciones Carrera-Curso");
         List<CarreraCurso> lista = new ArrayList<>();
@@ -186,14 +139,6 @@ public class CarreraCursoService {
     }
 
     // Métodos utilitarios privados
-
-    /**
-     * Mapea un ResultSet a un objeto CarreraCurso.
-     *
-     * @param rs El ResultSet con los datos de la relación Carrera-Curso.
-     * @return Un objeto CarreraCurso mapeado.
-     * @throws SQLException Si ocurre un error al leer los datos.
-     */
     private CarreraCurso mapResultSetToCarreraCurso(ResultSet rs) throws SQLException {
         return new CarreraCurso(
                 rs.getLong("id_carrera_curso"),
@@ -203,13 +148,6 @@ public class CarreraCursoService {
         );
     }
 
-    /**
-     * Mapea un ResultSet a un objeto CursoDto.
-     *
-     * @param rs El ResultSet con los datos del curso.
-     * @return Un objeto CursoDto mapeado.
-     * @throws SQLException Si ocurre un error al leer los datos.
-     */
     private CursoDto mapResultSetToCursoDto(ResultSet rs) throws SQLException {
         return new CursoDto(
                 rs.getLong("id_curso"),
@@ -224,23 +162,10 @@ public class CarreraCursoService {
         );
     }
 
-    /**
-     * Maneja excepciones SQL genéricas y lanza GlobalException con un mensaje específico.
-     *
-     * @param e       La excepción SQL capturada.
-     * @param message El mensaje base para la excepción.
-     * @throws GlobalException Si ocurre un error en la base de datos, como una sentencia SQL inválida o una llave duplicada.
-     */
     private void handleSQLException(SQLException e, String message) throws GlobalException {
         throw new GlobalException(message + ": " + e.getMessage());
     }
 
-    /**
-     * Maneja excepciones SQL específicas para operaciones de eliminación, mapeando códigos de error de triggers.
-     *
-     * @param e La excepción SQL capturada.
-     * @throws GlobalException Si la relación Carrera-Curso no puede ser eliminada debido a asociaciones con grupos o errores genéricos de base de datos.
-     */
     private void handleDeleteSQLException(SQLException e) throws GlobalException {
         int errorCode = e.getErrorCode();
         String errorMessage;

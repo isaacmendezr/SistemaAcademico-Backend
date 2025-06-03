@@ -13,10 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * Controlador REST para gestionar operaciones relacionadas con grupos.
- * Proporciona endpoints para CRUD y búsqueda de grupos por carrera, curso, ciclo y profesor.
- */
 @RestController
 @RequestMapping("/api/grupos")
 public class GrupoController {
@@ -24,21 +20,10 @@ public class GrupoController {
     private static final Logger logger = LoggerFactory.getLogger(GrupoController.class);
     private final GrupoService grupoService;
 
-    /**
-     * Constructor que utiliza inyección de dependencias para inicializar el servicio de grupos.
-     *
-     * @param grupoService El servicio de grupos.
-     */
     public GrupoController(GrupoService grupoService) {
         this.grupoService = grupoService;
     }
 
-    /**
-     * Crea un nuevo grupo.
-     *
-     * @param grupo El objeto Grupo a crear.
-     * @return ResponseEntity con el estado 201 Created.
-     */
     @PostMapping("/insertar")
     public ResponseEntity<Void> insertar(@RequestBody Grupo grupo) {
         logger.debug("Creando grupo para carrera-curso: {}, número: {}, profesor: {}",
@@ -54,12 +39,6 @@ public class GrupoController {
         }
     }
 
-    /**
-     * Actualiza un grupo existente.
-     *
-     * @param grupo El objeto Grupo con los datos actualizados.
-     * @return ResponseEntity con el estado 200 OK.
-     */
     @PutMapping("/modificar")
     public ResponseEntity<Void> modificar(@RequestBody Grupo grupo) {
         logger.debug("Actualizando grupo con id: {}", grupo.getIdGrupo());
@@ -73,12 +52,6 @@ public class GrupoController {
         }
     }
 
-    /**
-     * Elimina un grupo por su ID.
-     *
-     * @param id El ID del grupo a eliminar.
-     * @return ResponseEntity con el estado 204 No Content.
-     */
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable("id") Long id) {
         logger.debug("Eliminando grupo con id: {}", id);
@@ -92,11 +65,6 @@ public class GrupoController {
         }
     }
 
-    /**
-     * Lista todos los grupos registrados.
-     *
-     * @return ResponseEntity con la lista de grupos y estado 200 OK.
-     */
     @GetMapping("/listar")
     public ResponseEntity<List<Grupo>> listar() {
         logger.debug("Listando todos los grupos");
@@ -110,13 +78,6 @@ public class GrupoController {
         }
     }
 
-    /**
-     * Busca grupos asociados a una carrera y curso específicos.
-     *
-     * @param idCarrera El ID de la carrera.
-     * @param idCurso El ID del curso.
-     * @return ResponseEntity con la lista de grupos y estado 200 OK.
-     */
     @GetMapping("/buscarGruposPorCarreraCurso/{idCarrera}/{idCurso}")
     public ResponseEntity<List<GrupoDto>> buscarGruposPorCarreraCurso(
             @PathVariable("idCarrera") Long idCarrera, @PathVariable("idCurso") Long idCurso) {
@@ -131,14 +92,6 @@ public class GrupoController {
         }
     }
 
-    /**
-     * Busca grupos asociados a un curso, ciclo y carrera específicos.
-     *
-     * @param idCurso El ID del curso.
-     * @param idCiclo El ID del ciclo.
-     * @param idCarrera El ID de la carrera.
-     * @return ResponseEntity con la lista de grupos y estado 200 OK.
-     */
     @GetMapping("/buscarGruposPorCursoCicloCarrera/{idCurso}/{idCiclo}/{idCarrera}")
     public ResponseEntity<List<GrupoDto>> buscarGruposPorCursoCicloCarrera(
             @PathVariable("idCurso") Long idCurso, @PathVariable("idCiclo") Long idCiclo, @PathVariable("idCarrera") Long idCarrera) {
@@ -153,12 +106,6 @@ public class GrupoController {
         }
     }
 
-    /**
-     * Busca grupos asignados a un profesor por su cédula.
-     *
-     * @param cedula La cédula del profesor.
-     * @return ResponseEntity con la lista de grupos y estado 200 OK.
-     */
     @GetMapping("/buscarGruposPorProfesor")
     public ResponseEntity<List<GrupoDto>> buscarGruposPorProfesor(@RequestParam("cedula") String cedula) {
         logger.debug("Buscando grupos por profesor con cédula: {}", cedula);

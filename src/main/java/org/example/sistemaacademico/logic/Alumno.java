@@ -6,10 +6,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
-/**
- * Entidad que representa un alumno.
- * Utiliza Lombok para generar getters, setters, constructores, toString, equals y hashCode.
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

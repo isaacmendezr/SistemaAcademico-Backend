@@ -14,10 +14,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Servicio para gestionar operaciones relacionadas con Grupos en la base de datos.
- * Implementa operaciones CRUD y búsquedas, asegurando manejo adecuado de excepciones y cierre de recursos.
- */
 @Service
 public class GrupoService {
 
@@ -34,23 +30,11 @@ public class GrupoService {
 
     private final DataSource dataSource;
 
-    /**
-     * Constructor que utiliza inyección de dependencias para inicializar el DataSource.
-     *
-     * @param dataSource El DataSource gestionado por Spring Boot.
-     */
     @Autowired
     public GrupoService(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
-    /**
-     * Inserta un nuevo grupo en la base de datos.
-     *
-     * @param grupo El objeto Grupo a insertar.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos, como una llave duplicada o sentencia inválida.
-     * @throws NoDataException Si la inserción no se realiza.
-     */
     public void insertarGrupo(Grupo grupo) throws GlobalException, NoDataException {
         logger.debug("Insertando grupo: carrera-curso {}, número {}, profesor {}",
                 grupo.getIdCarreraCurso(), grupo.getNumeroGrupo(), grupo.getIdProfesor());
@@ -72,13 +56,6 @@ public class GrupoService {
         }
     }
 
-    /**
-     * Modifica un grupo existente en la base de datos.
-     *
-     * @param grupo El objeto Grupo con los datos actualizados.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos, como una sentencia inválida.
-     * @throws NoDataException Si la actualización no se realiza.
-     */
     public void modificarGrupo(Grupo grupo) throws GlobalException, NoDataException {
         logger.debug("Modificando grupo: id {}, carrera-curso {}, número {}, profesor {}",
                 grupo.getIdGrupo(), grupo.getIdCarreraCurso(), grupo.getNumeroGrupo(), grupo.getIdProfesor());
@@ -100,13 +77,6 @@ public class GrupoService {
         }
     }
 
-    /**
-     * Elimina un grupo por su ID.
-     *
-     * @param idGrupo El ID del grupo a eliminar.
-     * @throws GlobalException Si hay dependencias (como matrículas asociadas) o errores en la base de datos.
-     * @throws NoDataException Si el grupo no existe o no se elimina.
-     */
     public void eliminarGrupo(Long idGrupo) throws GlobalException, NoDataException {
         logger.debug("Eliminando grupo: id {}", idGrupo);
         try (Connection conn = dataSource.getConnection();
@@ -123,13 +93,6 @@ public class GrupoService {
         }
     }
 
-    /**
-     * Lista todos los grupos registrados.
-     *
-     * @return Lista de objetos Grupo.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
-     * @throws NoDataException Si no hay datos disponibles.
-     */
     public List<Grupo> listarGrupos() throws GlobalException, NoDataException {
         logger.debug("Listando todos los grupos");
         List<Grupo> grupos = new ArrayList<>();
@@ -153,15 +116,6 @@ public class GrupoService {
         return grupos;
     }
 
-    /**
-     * Busca grupos asociados a una carrera y curso específicos.
-     *
-     * @param idCarrera El ID de la carrera.
-     * @param idCurso El ID del curso.
-     * @return Lista de objetos GrupoDto con información del grupo y profesor.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
-     * @throws NoDataException Si no hay grupos para la carrera y curso seleccionados.
-     */
     public List<GrupoDto> buscarGruposPorCarreraCurso(Long idCarrera, Long idCurso) throws GlobalException, NoDataException {
         logger.debug("Buscando grupos por carrera {} y curso: {}", idCarrera, idCurso);
         List<GrupoDto> grupos = new ArrayList<>();
@@ -187,16 +141,6 @@ public class GrupoService {
         return grupos;
     }
 
-    /**
-     * Busca grupos asociados a un curso, ciclo y carrera específicos.
-     *
-     * @param idCurso El curso del curso.
-     * @param idCiclo El ID del ciclo.
-     * @param idCarrera El ID de la carrera.
-     * @return Lista de objetos GrupoDto con información del grupo y profesor.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
-     * @throws NoDataException Si no hay grupos para el curso, ciclo y carrera seleccionados.
-     */
     public List<GrupoDto> buscarGruposPorCursoCicloCarrera(Long idCurso, Long idCiclo, Long idCarrera) throws GlobalException, NoDataException {
         logger.debug("Buscando grupos por curso {}, ciclo {}, y carrera {}", idCurso, idCiclo, idCarrera);
         List<GrupoDto> grupos = new ArrayList<>();
@@ -223,14 +167,6 @@ public class GrupoService {
         return grupos;
     }
 
-    /**
-     * Busca grupos asignados a un profesor por su cédula.
-     *
-     * @param cedula La cédula del profesor.
-     * @return Lista de objetos GrupoDto con información del grupo y profesor.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
-     * @throws NoDataException Si no hay grupos asignados al profesor.
-     */
     public List<GrupoDto> buscarGruposPorProfesor(String cedula) throws GlobalException, NoDataException {
         logger.debug("Buscando grupos por profesor con cédula: {}", cedula);
         List<GrupoDto> grupos = new ArrayList<>();
@@ -256,14 +192,6 @@ public class GrupoService {
     }
 
     // Métodos utilitarios privados
-
-    /**
-     * Mapea un ResultSet a un objeto Grupo.
-     *
-     * @param rs El ResultSet con los datos del grupo.
-     * @return Un objeto Grupo mapeado.
-     * @throws SQLException Si ocurre un error al leer los datos.
-     */
     private Grupo mapResultToGrupo(ResultSet rs) throws SQLException {
         return new Grupo(
                 rs.getLong("id_grupo"),
@@ -274,13 +202,6 @@ public class GrupoService {
         );
     }
 
-    /**
-     * Mapea un ResultSet a un objeto GrupoDto.
-     *
-     * @param rs El ResultSet con los datos del grupo.
-     * @return Un objeto GrupoDto mapeado.
-     * @throws SQLException Si ocurre un error al leer los datos.
-     */
     private GrupoDto mapResultToGrupoDto(ResultSet rs) throws SQLException {
         return new GrupoDto(
                 rs.getLong("id_grupo"),
@@ -292,23 +213,10 @@ public class GrupoService {
         );
     }
 
-    /**
-     * Maneja excepciones SQL genéricas y lanza GlobalException con un mensaje específico.
-     *
-     * @param e       La excepción SQL capturada.
-     * @param message El mensaje base para la excepción.
-     * @throws GlobalException Si ocurre un error en la base de datos, como una sentencia SQL inválida o una llave duplicada.
-     */
     private void handleSQLException(SQLException e, String message) throws GlobalException {
         throw new GlobalException(message + ": " + e.getMessage());
     }
 
-    /**
-     * Maneja excepciones SQL específicas para operaciones de eliminación, mapeando códigos de error de triggers.
-     *
-     * @param e La excepción SQL capturada.
-     * @throws GlobalException Si el grupo no puede ser eliminado debido a matrículas asociadas o errores genéricos de base de datos.
-     */
     private void handleDeleteSQLException(SQLException e) throws GlobalException {
         int errorCode = e.getErrorCode();
         String errorMessage;

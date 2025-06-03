@@ -13,11 +13,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Servicio para gestionar operaciones relacionadas con Ciclos en la base de datos.
- * Implementa operaciones CRUD, activación y búsquedas, asegurando manejo adecuado de
- * excepciones y cierre de recursos.
- */
 @Service
 public class CicloService {
 
@@ -34,23 +29,11 @@ public class CicloService {
 
     private final DataSource dataSource;
 
-    /**
-     * Constructor que utiliza inyección de dependencias para inicializar el DataSource.
-     *
-     * @param dataSource El DataSource gestionado por Spring Boot.
-     */
     @Autowired
     public CicloService(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
-    /**
-     * Inserta un nuevo ciclo en la base de datos.
-     *
-     * @param ciclo El objeto Ciclo a insertar.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
-     * @throws NoDataException Si la inserción no se realiza.
-     */
     public void insertarCiclo(Ciclo ciclo) throws GlobalException, NoDataException {
         logger.debug("Insertando ciclo: año={}, número={}", ciclo.getAnio(), ciclo.getNumero());
         try (Connection conn = dataSource.getConnection();
@@ -71,13 +54,6 @@ public class CicloService {
         }
     }
 
-    /**
-     * Modifica un ciclo existente en la base de datos.
-     *
-     * @param ciclo El objeto Ciclo con los datos actualizados.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
-     * @throws NoDataException Si la actualización no se realiza.
-     */
     public void modificarCiclo(Ciclo ciclo) throws GlobalException, NoDataException {
         logger.debug("Modificando ciclo: id={}", ciclo.getIdCiclo());
         try (Connection conn = dataSource.getConnection();
@@ -99,13 +75,6 @@ public class CicloService {
         }
     }
 
-    /**
-     * Elimina un ciclo por su ID.
-     *
-     * @param idCiclo ID del ciclo a eliminar.
-     * @throws GlobalException Si hay dependencias o errores en la base de datos.
-     * @throws NoDataException Si el ciclo no existe o no se elimina.
-     */
     public void eliminarCiclo(Long idCiclo) throws GlobalException, NoDataException {
         logger.debug("Eliminando ciclo con ID: {}", idCiclo);
         try (Connection conn = dataSource.getConnection();
@@ -122,13 +91,6 @@ public class CicloService {
         }
     }
 
-    /**
-     * Lista todos los ciclos registrados.
-     *
-     * @return Lista de objetos Ciclo.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
-     * @throws NoDataException Si no hay datos disponibles.
-     */
     public List<Ciclo> listarCiclos() throws GlobalException, NoDataException {
         logger.debug("Listando todos los ciclos");
         List<Ciclo> ciclos = new ArrayList<>();
@@ -152,13 +114,6 @@ public class CicloService {
         return ciclos;
     }
 
-    /**
-     * Busca un ciclo por su año.
-     *
-     * @param anio Año del ciclo a buscar.
-     * @return El objeto Ciclo encontrado, o null si no existe.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
-     */
     public Ciclo buscarCicloPorAnio(Long anio) throws GlobalException {
         logger.debug("Buscando ciclo por año: {}", anio);
         try (Connection conn = dataSource.getConnection();
@@ -181,13 +136,6 @@ public class CicloService {
         return null;
     }
 
-    /**
-     * Busca un ciclo por su ID.
-     *
-     * @param id ID del ciclo a buscar.
-     * @return El objeto Ciclo encontrado, o null si no existe.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
-     */
     public Ciclo buscarCicloPorId(Long id) throws GlobalException {
         logger.debug("Buscando ciclo por ID: {}", id);
         try (Connection conn = dataSource.getConnection();
@@ -210,13 +158,6 @@ public class CicloService {
         return null;
     }
 
-    /**
-     * Activa un ciclo por su ID.
-     *
-     * @param idCiclo ID del ciclo a activar.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
-     * @throws NoDataException Si la activación no se realiza.
-     */
     public void activarCiclo(Long idCiclo) throws GlobalException, NoDataException {
         logger.debug("Activando ciclo con ID: {}", idCiclo);
         try (Connection conn = dataSource.getConnection();
@@ -234,14 +175,6 @@ public class CicloService {
     }
 
     // Métodos utilitarios privados
-
-    /**
-     * Mapea un ResultSet a un objeto Ciclo.
-     *
-     * @param rs El ResultSet con los datos del ciclo.
-     * @return Un objeto Ciclo mapeado.
-     * @throws SQLException Si ocurre un error al leer los datos.
-     */
     private Ciclo mapResultSetToCiclo(ResultSet rs) throws SQLException {
         return new Ciclo(
                 rs.getLong("id_ciclo"),
@@ -253,23 +186,10 @@ public class CicloService {
         );
     }
 
-    /**
-     * Maneja excepciones SQL genéricas y lanza GlobalException con un mensaje específico.
-     *
-     * @param e       La excepción SQL capturada.
-     * @param message El mensaje base para la excepción.
-     * @throws GlobalException Con el mensaje detallado del error.
-     */
     private void handleSQLException(SQLException e, String message) throws GlobalException {
         throw new GlobalException(message + ": " + e.getMessage());
     }
 
-    /**
-     * Maneja excepciones SQL específicas para operaciones de eliminación, mapeando códigos de error de triggers.
-     *
-     * @param e La excepción SQL capturada.
-     * @throws GlobalException Con el mensaje detallado del error, incluyendo mensajes de triggers.
-     */
     private void handleDeleteSQLException(SQLException e) throws GlobalException {
         int errorCode = e.getErrorCode();
         String errorMessage = switch (errorCode) {

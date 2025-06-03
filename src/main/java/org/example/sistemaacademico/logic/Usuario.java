@@ -4,12 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Entidad que representa un usuario.
- * Utiliza Lombok para generar getters, setters, constructores, toString, equals y hashCode.
- * Nota: Incluye un constructor con 3 parámetros (@Deprecated) por compatibilidad con código existente.
- * Se recomienda usar el constructor completo para inicializar todos los campos, incluyendo 'clave'.
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

@@ -13,10 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * Controlador REST para gestionar operaciones relacionadas con cursos.
- * Proporciona endpoints para CRUD y búsqueda de cursos por código, nombre, carrera y ciclo.
- */
 @RestController
 @RequestMapping("/api/cursos")
 public class CursoController {
@@ -24,21 +20,10 @@ public class CursoController {
     private static final Logger logger = LoggerFactory.getLogger(CursoController.class);
     private final CursoService cursoService;
 
-    /**
-     * Constructor que utiliza inyección de dependencias para inicializar el servicio de cursos.
-     *
-     * @param cursoService El servicio de cursos.
-     */
     public CursoController(CursoService cursoService) {
         this.cursoService = cursoService;
     }
 
-    /**
-     * Crea un nuevo curso.
-     *
-     * @param curso El objeto Curso a crear.
-     * @return ResponseEntity con el estado 201 Created.
-     */
     @PostMapping("/insertar")
     public ResponseEntity<Void> insertar(@RequestBody Curso curso) {
         logger.debug("Creando curso con código: {}", curso.getCodigo());
@@ -52,12 +37,6 @@ public class CursoController {
         }
     }
 
-    /**
-     * Actualiza un curso existente.
-     *
-     * @param curso El objeto Curso con los datos actualizados.
-     * @return ResponseEntity con el estado 200 OK.
-     */
     @PutMapping("/modificar")
     public ResponseEntity<Void> modificar(@RequestBody Curso curso) {
         logger.debug("Actualizando curso con id: {}", curso.getIdCurso());
@@ -71,12 +50,6 @@ public class CursoController {
         }
     }
 
-    /**
-     * Elimina un curso por su ID.
-     *
-     * @param id El ID del curso a eliminar.
-     * @return ResponseEntity con el estado 204 No Content.
-     */
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable("id") Long id) {
         logger.debug("Eliminando curso con id: {}", id);
@@ -90,11 +63,6 @@ public class CursoController {
         }
     }
 
-    /**
-     * Lista todos los cursos registrados.
-     *
-     * @return ResponseEntity con la lista de cursos y estado 200 OK.
-     */
     @GetMapping("/listar")
     public ResponseEntity<List<Curso>> listar() {
         logger.debug("Listando todos los cursos");
@@ -108,12 +76,6 @@ public class CursoController {
         }
     }
 
-    /**
-     * Busca un curso por su código.
-     *
-     * @param codigo El código del curso.
-     * @return ResponseEntity con el curso encontrado y estado 200 OK.
-     */
     @GetMapping("/buscarPorCodigo")
     public ResponseEntity<Curso> buscarPorCodigo(@RequestParam("codigo") String codigo) {
         logger.debug("Buscando curso por código: {}", codigo);
@@ -131,12 +93,6 @@ public class CursoController {
         }
     }
 
-    /**
-     * Busca un curso por su nombre.
-     *
-     * @param nombre El nombre del curso.
-     * @return ResponseEntity con el curso encontrado y estado 200 OK.
-     */
     @GetMapping("/buscarPorNombre")
     public ResponseEntity<Curso> buscarPorNombre(@RequestParam("nombre") String nombre) {
         logger.debug("Buscando curso por nombre: {}", nombre);
@@ -154,12 +110,6 @@ public class CursoController {
         }
     }
 
-    /**
-     * Busca cursos asociados a una carrera.
-     *
-     * @param idCarrera El ID de la carrera.
-     * @return ResponseEntity con la lista de cursos y estado 200 OK.
-     */
     @GetMapping("/buscarCursosPorCarrera")
     public ResponseEntity<List<CursoDto>> buscarCursosPorCarrera(@RequestParam("idCarrera") Long idCarrera) {
         logger.debug("Buscando cursos por carrera: {}", idCarrera);
@@ -173,13 +123,6 @@ public class CursoController {
         }
     }
 
-    /**
-     * Busca cursos asociados a una carrera y ciclo específicos.
-     *
-     * @param idCarrera El ID de la carrera.
-     * @param idCiclo El ID del ciclo.
-     * @return ResponseEntity con la lista de cursos y estado 200 OK.
-     */
     @GetMapping("/buscarCursosPorCarreraYCiclo/{idCarrera}/{idCiclo}")
     public ResponseEntity<List<CursoDto>> buscarCursosPorCarreraYCiclo(
             @PathVariable("idCarrera") Long idCarrera, @PathVariable("idCiclo") Long idCiclo) {
@@ -194,12 +137,6 @@ public class CursoController {
         }
     }
 
-    /**
-     * Busca cursos asociados a un ciclo específico.
-     *
-     * @param idCiclo El ID del ciclo.
-     * @return ResponseEntity con la lista de cursos y estado 200 OK.
-     */
     @GetMapping("/buscarCursosPorCiclo/{idCiclo}")
     public ResponseEntity<List<CursoDto>> buscarCursosPorCiclo(@PathVariable("idCiclo") Long idCiclo) {
         logger.debug("Buscando cursos por ciclo: {}", idCiclo);

@@ -12,10 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * Controlador REST para gestionar operaciones relacionadas con alumnos.
- * Proporciona endpoints para CRUD y búsqueda de alumnos por cédula, nombre y carrera.
- */
 @RestController
 @RequestMapping("/api/alumnos")
 public class AlumnoController {
@@ -23,21 +19,10 @@ public class AlumnoController {
     private static final Logger logger = LoggerFactory.getLogger(AlumnoController.class);
     private final AlumnoService alumnoService;
 
-    /**
-     * Constructor que utiliza inyección de dependencias para inicializar el servicio de alumnos.
-     *
-     * @param alumnoService El servicio de alumnos.
-     */
     public AlumnoController(AlumnoService alumnoService) {
         this.alumnoService = alumnoService;
     }
 
-    /**
-     * Crea un nuevo alumno.
-     *
-     * @param alumno El objeto Alumno a crear.
-     * @return ResponseEntity con el estado 201 Created.
-     */
     @PostMapping("/insertar")
     public ResponseEntity<Void> insertar(@RequestBody Alumno alumno) {
         logger.debug("Creando alumno con cédula: {}", alumno.getCedula());
@@ -51,12 +36,6 @@ public class AlumnoController {
         }
     }
 
-    /**
-     * Actualiza un alumno existente.
-     *
-     * @param alumno El objeto Alumno con los datos actualizados.
-     * @return ResponseEntity con el estado 200 OK.
-     */
     @PutMapping("/modificar")
     public ResponseEntity<Void> modificar(@RequestBody Alumno alumno) {
         logger.debug("Actualizando alumno con id: {}", alumno.getIdAlumno());
@@ -70,12 +49,6 @@ public class AlumnoController {
         }
     }
 
-    /**
-     * Elimina un alumno por su ID.
-     *
-     * @param id El ID del alumno a eliminar.
-     * @return ResponseEntity con el estado 204 No Content.
-     */
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable("id") Long id) {
         logger.debug("Eliminando alumno con id: {}", id);
@@ -89,12 +62,6 @@ public class AlumnoController {
         }
     }
 
-    /**
-     * Elimina un alumno por su cédula.
-     *
-     * @param cedula La cédula del alumno a eliminar.
-     * @return ResponseEntity con el estado 204 No Content.
-     */
     @DeleteMapping("/eliminarPorCedula")
     public ResponseEntity<Void> eliminarPorCedula(@RequestParam("cedula") String cedula) {
         logger.debug("Eliminando alumno con cédula: {}", cedula);
@@ -108,11 +75,6 @@ public class AlumnoController {
         }
     }
 
-    /**
-     * Lista todos los alumnos registrados.
-     *
-     * @return ResponseEntity con la lista de alumnos y estado 200 OK.
-     */
     @GetMapping("/listar")
     public ResponseEntity<List<Alumno>> listar() {
         logger.debug("Listando todos los alumnos");
@@ -126,12 +88,6 @@ public class AlumnoController {
         }
     }
 
-    /**
-     * Busca un alumno por su cédula.
-     *
-     * @param cedula La cédula del alumno.
-     * @return ResponseEntity con el alumno encontrado y estado 200 OK.
-     */
     @GetMapping("/buscarPorCedula")
     public ResponseEntity<Alumno> buscarPorCedula(@RequestParam("cedula") String cedula) {
         logger.debug("Buscando alumno por cédula: {}", cedula);
@@ -149,12 +105,6 @@ public class AlumnoController {
         }
     }
 
-    /**
-     * Busca un alumno por su nombre.
-     *
-     * @param nombre El nombre del alumno.
-     * @return ResponseEntity con el alumno encontrado y estado 200 OK.
-     */
     @GetMapping("/buscarPorNombre")
     public ResponseEntity<Alumno> buscarPorNombre(@RequestParam("nombre") String nombre) {
         logger.debug("Buscando alumno por nombre: {}", nombre);
@@ -172,12 +122,6 @@ public class AlumnoController {
         }
     }
 
-    /**
-     * Busca alumnos asociados a una carrera.
-     *
-     * @param idCarrera El ID de la carrera.
-     * @return ResponseEntity con la lista de alumnos y estado 200 OK.
-     */
     @GetMapping("/buscarPorCarrera")
     public ResponseEntity<List<Alumno>> buscarPorCarrera(@RequestParam("carrera") Long idCarrera) {
         logger.debug("Buscando alumnos por carrera: {}", idCarrera);

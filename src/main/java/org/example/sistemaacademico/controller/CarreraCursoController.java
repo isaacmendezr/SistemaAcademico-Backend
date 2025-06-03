@@ -13,10 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * Controlador REST para gestionar operaciones relacionadas con relaciones Carrera-Curso.
- * Proporciona endpoints para CRUD y búsqueda de cursos por carrera y ciclo.
- */
 @RestController
 @RequestMapping("/api/carrera-curso")
 public class CarreraCursoController {
@@ -24,21 +20,10 @@ public class CarreraCursoController {
     private static final Logger logger = LoggerFactory.getLogger(CarreraCursoController.class);
     private final CarreraCursoService carreraCursoService;
 
-    /**
-     * Constructor que utiliza inyección de dependencias para inicializar el servicio de Carrera-Curso.
-     *
-     * @param carreraCursoService El servicio de relaciones Carrera-Curso.
-     */
     public CarreraCursoController(CarreraCursoService carreraCursoService) {
         this.carreraCursoService = carreraCursoService;
     }
 
-    /**
-     * Crea una nueva relación Carrera-Curso.
-     *
-     * @param carreraCurso El objeto CarreraCurso a crear.
-     * @return ResponseEntity con el estado 201 Created.
-     */
     @PostMapping("/insertar")
     public ResponseEntity<Void> insertar(@RequestBody CarreraCurso carreraCurso) {
         logger.debug("Creando relación Carrera-Curso: carrera {}, curso {}, ciclo {}",
@@ -54,12 +39,6 @@ public class CarreraCursoController {
         }
     }
 
-    /**
-     * Actualiza una relación Carrera-Curso existente.
-     *
-     * @param carreraCurso El objeto CarreraCurso con los datos actualizados.
-     * @return ResponseEntity con el estado 200 OK.
-     */
     @PutMapping("/modificar")
     public ResponseEntity<Void> modificar(@RequestBody CarreraCurso carreraCurso) {
         logger.debug("Actualizando relación Carrera-Curso: carrera {}, curso {}, ciclo {}",
@@ -75,13 +54,6 @@ public class CarreraCursoController {
         }
     }
 
-    /**
-     * Elimina una relación Carrera-Curso por los IDs de carrera y curso.
-     *
-     * @param idCarrera El ID de la carrera.
-     * @param idCurso El ID del curso.
-     * @return ResponseEntity con el estado 204 No Content.
-     */
     @DeleteMapping("/eliminar")
     public ResponseEntity<Void> eliminar(@RequestParam("idCarrera") Long idCarrera, @RequestParam("idCurso") Long idCurso) {
         logger.debug("Eliminando relación Carrera-Curso: carrera {}, curso {}", idCarrera, idCurso);
@@ -95,11 +67,6 @@ public class CarreraCursoController {
         }
     }
 
-    /**
-     * Lista todas las relaciones Carrera-Curso registradas.
-     *
-     * @return ResponseEntity con la lista de relaciones y estado 200 OK.
-     */
     @GetMapping("/listar")
     public ResponseEntity<List<CarreraCurso>> listar() {
         logger.debug("Listando todas las relaciones Carrera-Curso");
@@ -113,13 +80,6 @@ public class CarreraCursoController {
         }
     }
 
-    /**
-     * Busca cursos asociados a una carrera y ciclo específicos.
-     *
-     * @param idCarrera El ID de la carrera.
-     * @param idCiclo El ID del ciclo.
-     * @return ResponseEntity con la lista de cursos y estado 200 OK.
-     */
     @GetMapping("/cursos")
     public ResponseEntity<List<CursoDto>> buscarCursosPorCarreraYCiclo(
             @RequestParam("idCarrera") Long idCarrera, @RequestParam("idCiclo") Long idCiclo) {

@@ -13,10 +13,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Servicio para gestionar operaciones relacionadas con Usuarios en la base de datos.
- * Implementa operaciones CRUD, búsquedas y autenticación, asegurando manejo adecuado de excepciones y cierre de recursos.
- */
 @Service
 public class UsuarioService {
 
@@ -32,23 +28,11 @@ public class UsuarioService {
 
     private final DataSource dataSource;
 
-    /**
-     * Constructor que utiliza inyección de dependencias para inicializar el DataSource.
-     *
-     * @param dataSource El DataSource gestionado por Spring Boot.
-     */
     @Autowired
     public UsuarioService(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
-    /**
-     * Inserta un nuevo usuario en la base de datos.
-     *
-     * @param usuario El objeto Usuario a insertar.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos, como una cédula duplicada o sentencia inválida.
-     * @throws NoDataException Si la inserción no se realiza.
-     */
     public void insertar(Usuario usuario) throws GlobalException, NoDataException {
         logger.debug("Insertando usuario: cedula {}, tipo {}", usuario.getCedula(), usuario.getTipo());
         try (Connection conn = dataSource.getConnection();
@@ -64,13 +48,6 @@ public class UsuarioService {
         }
     }
 
-    /**
-     * Modifica un usuario existente en la base de datos.
-     *
-     * @param usuario El objeto Usuario con los datos actualizados.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos, como una sentencia inválida.
-     * @throws NoDataException Si la actualización no se realiza.
-     */
     public void modificar(Usuario usuario) throws GlobalException, NoDataException {
         logger.debug("Modificando usuario: id {}, cedula {}, tipo {}",
                 usuario.getIdUsuario(), usuario.getCedula(), usuario.getTipo());
@@ -91,13 +68,6 @@ public class UsuarioService {
         }
     }
 
-    /**
-     * Elimina un usuario por su ID.
-     *
-     * @param idUsuario El ID del usuario a eliminar.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
-     * @throws NoDataException Si el usuario no existe o no se elimina.
-     */
     public void eliminar(Long idUsuario) throws GlobalException, NoDataException {
         logger.debug("Eliminando usuario: id {}", idUsuario);
         try (Connection conn = dataSource.getConnection();
@@ -114,13 +84,6 @@ public class UsuarioService {
         }
     }
 
-    /**
-     * Lista todos los usuarios registrados.
-     *
-     * @return Lista de objetos Usuario.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
-     * @throws NoDataException Si no hay usuarios registrados.
-     */
     public List<Usuario> listar() throws GlobalException, NoDataException {
         logger.debug("Listando todos los usuarios");
         List<Usuario> usuarios = new ArrayList<>();
@@ -144,14 +107,6 @@ public class UsuarioService {
         return usuarios;
     }
 
-    /**
-     * Busca un usuario por su cédula.
-     *
-     * @param cedula La cédula del usuario.
-     * @return El objeto Usuario encontrado.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
-     * @throws NoDataException Si no se encuentra un usuario con la cédula especificada.
-     */
     public Usuario buscarPorCedula(String cedula) throws GlobalException, NoDataException {
         logger.debug("Buscando usuario por cédula: {}", cedula);
         try (Connection conn = dataSource.getConnection();
@@ -173,15 +128,6 @@ public class UsuarioService {
         throw new NoDataException("No se encontró un usuario con cédula: " + cedula);
     }
 
-    /**
-     * Autentica un usuario mediante su cédula y clave.
-     *
-     * @param cedula La cédula del usuario.
-     * @param clave La clave del usuario.
-     * @return El objeto Usuario autenticado.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
-     * @throws NoDataException Si las credenciales son inválidas o el usuario no se encuentra.
-     */
     public Usuario login(String cedula, String clave) throws GlobalException, NoDataException {
         logger.debug("Autenticando usuario con cédula: {}", cedula);
         try (Connection conn = dataSource.getConnection();
@@ -205,14 +151,6 @@ public class UsuarioService {
     }
 
     // Métodos utilitarios privados
-
-    /**
-     * Mapea un ResultSet a un objeto Usuario.
-     *
-     * @param rs El ResultSet con los datos del usuario.
-     * @return Un objeto Usuario mapeado.
-     * @throws SQLException Si ocurre un error al leer los datos.
-     */
     private Usuario mapResultSetToUsuario(ResultSet rs) throws SQLException {
         return new Usuario(
                 rs.getLong("id_usuario"),
@@ -221,14 +159,6 @@ public class UsuarioService {
         );
     }
 
-    /**
-     * Maneja excepciones SQL genéricas y lanza GlobalException con un mensaje específico.
-     * Usado para operaciones como insertar, modificar, eliminar, listar, buscar y autenticar.
-     *
-     * @param e       La excepción SQL capturada.
-     * @param message El mensaje base para la excepción, que describe la operación fallida.
-     * @throws GlobalException Si ocurre un error en la base de datos, como una sentencia SQL inválida.
-     */
     private void handleSQLException(SQLException e, String message) throws GlobalException {
         throw new GlobalException(message + ": " + e.getMessage());
     }

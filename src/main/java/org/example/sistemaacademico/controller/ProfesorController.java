@@ -23,21 +23,10 @@ public class ProfesorController {
     private static final Logger logger = LoggerFactory.getLogger(ProfesorController.class);
     private final ProfesorService profesorService;
 
-    /**
-     * Constructor que utiliza inyección de dependencias para inicializar el servicio de profesores.
-     *
-     * @param profesorService El servicio de profesores.
-     */
     public ProfesorController(ProfesorService profesorService) {
         this.profesorService = profesorService;
     }
 
-    /**
-     * Crea un nuevo profesor.
-     *
-     * @param profesor El objeto Profesor a crear.
-     * @return ResponseEntity con el estado 201 Created.
-     */
     @PostMapping("/insertar")
     public ResponseEntity<Void> insertar(@RequestBody Profesor profesor) {
         logger.debug("Creando profesor con cédula: {}", profesor.getCedula());
@@ -51,12 +40,6 @@ public class ProfesorController {
         }
     }
 
-    /**
-     * Actualiza un profesor existente.
-     *
-     * @param profesor El objeto Profesor con los datos actualizados.
-     * @return ResponseEntity con el estado 200 OK.
-     */
     @PutMapping("/modificar")
     public ResponseEntity<Void> modificar(@RequestBody Profesor profesor) {
         logger.debug("Actualizando profesor con id: {}", profesor.getIdProfesor());
@@ -70,12 +53,6 @@ public class ProfesorController {
         }
     }
 
-    /**
-     * Elimina un profesor por su ID.
-     *
-     * @param id El ID del profesor a eliminar.
-     * @return ResponseEntity con el estado 204 No Content.
-     */
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable("id") Long id) {
         logger.debug("Eliminando profesor con id: {}", id);
@@ -89,12 +66,6 @@ public class ProfesorController {
         }
     }
 
-    /**
-     * Elimina un profesor por su cédula.
-     *
-     * @param cedula La cédula del profesor a eliminar.
-     * @return ResponseEntity con el estado 204 No Content.
-     */
     @DeleteMapping("/eliminarPorCedula")
     public ResponseEntity<Void> eliminarPorCedula(@RequestParam("cedula") String cedula) {
         logger.debug("Eliminando profesor por cédula: {}", cedula);
@@ -108,11 +79,6 @@ public class ProfesorController {
         }
     }
 
-    /**
-     * Lista todos los profesores registrados.
-     *
-     * @return ResponseEntity con la lista de profesores y estado 200 OK.
-     */
     @GetMapping("/listar")
     public ResponseEntity<List<Profesor>> listar() {
         logger.debug("Listando todos los profesores");
@@ -126,12 +92,6 @@ public class ProfesorController {
         }
     }
 
-    /**
-     * Busca un profesor por su cédula.
-     *
-     * @param cedula La cédula del profesor.
-     * @return ResponseEntity con el profesor encontrado y estado 200 OK.
-     */
     @GetMapping("/buscarPorCedula")
     public ResponseEntity<Profesor> buscarPorCedula(@RequestParam("cedula") String cedula) {
         logger.debug("Buscando profesor por cédula: {}", cedula);
@@ -149,12 +109,6 @@ public class ProfesorController {
         }
     }
 
-    /**
-     * Busca un profesor por su nombre.
-     *
-     * @param nombre El nombre del profesor.
-     * @return ResponseEntity con el profesor encontrado y estado 200 OK.
-     */
     @GetMapping("/buscarPorNombre")
     public ResponseEntity<Profesor> buscarPorNombre(@RequestParam("nombre") String nombre) {
         logger.debug("Buscando profesor por nombre: {}", nombre);

@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 
 /**
  * DTO que representa un curso con información adicional como carrera y ciclo.
- * Utiliza Lombok para generar getters, setters, constructores, toString, equals y hashCode.
  */
 @Data
 @NoArgsConstructor

@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 
 /**
  * DTO que representa la matrícula de un alumno con información adicional del grupo, carrera, curso y profesor.
- * Utiliza Lombok para generar getters, setters, constructores, toString, equals y hashCode.
  */
 @Data
 @NoArgsConstructor

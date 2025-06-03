@@ -14,11 +14,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Servicio para gestionar operaciones relacionadas con Cursos en la base de datos.
- * Implementa operaciones CRUD y búsquedas, asegurando manejo adecuado de excepciones
- * y cierre de recursos.
- */
 @Service
 public class CursoService {
 
@@ -37,23 +32,11 @@ public class CursoService {
 
     private final DataSource dataSource;
 
-    /**
-     * Constructor que utiliza inyección de dependencias para inicializar el DataSource.
-     *
-     * @param dataSource El DataSource gestionado por Spring Boot.
-     */
     @Autowired
     public CursoService(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
-    /**
-     * Inserta un nuevo curso en la base de datos.
-     *
-     * @param curso El objeto Curso a insertar.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
-     * @throws NoDataException Si la inserción no se realiza.
-     */
     public void insertarCurso(Curso curso) throws GlobalException, NoDataException {
         logger.debug("Insertando curso: {}", curso.getCodigo());
         try (Connection conn = dataSource.getConnection();
@@ -73,13 +56,6 @@ public class CursoService {
         }
     }
 
-    /**
-     * Modifica un curso existente en la base de datos.
-     *
-     * @param curso El objeto Curso con los datos actualizados.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
-     * @throws NoDataException Si la actualización no se realiza.
-     */
     public void modificarCurso(Curso curso) throws GlobalException, NoDataException {
         logger.debug("Modificando curso: {}", curso.getCodigo());
         try (Connection conn = dataSource.getConnection();
@@ -100,13 +76,6 @@ public class CursoService {
         }
     }
 
-    /**
-     * Elimina un curso por su ID.
-     *
-     * @param idCurso ID del curso a eliminar.
-     * @throws GlobalException Si hay dependencias o errores en la base de datos.
-     * @throws NoDataException Si el curso no existe o no se elimina.
-     */
     public void eliminarCurso(Long idCurso) throws GlobalException, NoDataException {
         logger.debug("Eliminando curso con ID: {}", idCurso);
         try (Connection conn = dataSource.getConnection();
@@ -123,13 +92,6 @@ public class CursoService {
         }
     }
 
-    /**
-     * Lista todos los cursos registrados.
-     *
-     * @return Lista de objetos Curso.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
-     * @throws NoDataException Si no hay datos disponibles.
-     */
     public List<Curso> listarCursos() throws GlobalException, NoDataException {
         logger.debug("Listando todos los cursos");
         List<Curso> cursos = new ArrayList<>();
@@ -153,13 +115,6 @@ public class CursoService {
         return cursos;
     }
 
-    /**
-     * Busca un curso por su nombre.
-     *
-     * @param nombre Nombre del curso a buscar.
-     * @return El objeto Curso encontrado, o null si no existe.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
-     */
     public Curso buscarCursoPorNombre(String nombre) throws GlobalException {
         logger.debug("Buscando curso por nombre: {}", nombre);
         try (Connection conn = dataSource.getConnection();
@@ -182,13 +137,6 @@ public class CursoService {
         return null;
     }
 
-    /**
-     * Busca un curso por su código.
-     *
-     * @param codigo Código del curso a buscar.
-     * @return El objeto Curso encontrado, o null si no existe.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
-     */
     public Curso buscarCursoPorCodigo(String codigo) throws GlobalException {
         logger.debug("Buscando curso por código: {}", codigo);
         try (Connection conn = dataSource.getConnection();
@@ -211,14 +159,6 @@ public class CursoService {
         return null;
     }
 
-    /**
-     * Busca cursos asociados a una carrera.
-     *
-     * @param idCarrera ID de la carrera.
-     * @return Lista de objetos CursoDto.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
-     * @throws NoDataException Si no hay datos disponibles.
-     */
     public List<CursoDto> buscarCursosPorCarrera(Long idCarrera) throws GlobalException, NoDataException {
         logger.debug("Buscando cursos por carrera: {}", idCarrera);
         List<CursoDto> cursos = new ArrayList<>();
@@ -243,15 +183,6 @@ public class CursoService {
         return cursos;
     }
 
-    /**
-     * Busca cursos por carrera y ciclo.
-     *
-     * @param idCarrera ID de la carrera.
-     * @param idCiclo ID del ciclo.
-     * @return Lista de objetos CursoDto.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
-     * @throws NoDataException Si no hay datos disponibles.
-     */
     public List<CursoDto> buscarCursosPorCarreraYCiclo(Long idCarrera, Long idCiclo) throws GlobalException, NoDataException {
         logger.debug("Buscando cursos por carrera {} y ciclo: {}", idCarrera, idCiclo);
         List<CursoDto> cursos = new ArrayList<>();
@@ -277,14 +208,6 @@ public class CursoService {
         return cursos;
     }
 
-    /**
-     * Busca cursos por ciclo.
-     *
-     * @param idCiclo ID del ciclo.
-     * @return Lista de objetos CursoDto.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
-     * @throws NoDataException Si no hay datos disponibles.
-     */
     public List<CursoDto> buscarCursosPorCiclo(Long idCiclo) throws GlobalException, NoDataException {
         logger.debug("Buscando cursos por ciclo: {}", idCiclo);
         List<CursoDto> cursos = new ArrayList<>();
@@ -310,14 +233,6 @@ public class CursoService {
     }
 
     // Métodos utilitarios privados
-
-    /**
-     * Mapea un ResultSet a un objeto Curso.
-     *
-     * @param rs El ResultSet con los datos del curso.
-     * @return Un objeto Curso mapeado.
-     * @throws SQLException Si ocurre un error al leer los datos.
-     */
     private Curso mapResultSetToCurso(ResultSet rs) throws SQLException {
         return new Curso(
                 rs.getLong("id_curso"),
@@ -328,13 +243,6 @@ public class CursoService {
         );
     }
 
-    /**
-     * Mapea un ResultSet a un objeto CursoDto.
-     *
-     * @param rs El ResultSet con los datos del curso.
-     * @return Un objeto CursoDto mapeado.
-     * @throws SQLException Si ocurre un error al leer los datos.
-     */
     private CursoDto mapResultSetToCursoDto(ResultSet rs) throws SQLException {
         return new CursoDto(
                 rs.getLong("id_curso"),
@@ -349,23 +257,10 @@ public class CursoService {
         );
     }
 
-    /**
-     * Maneja excepciones SQL genéricas y lanza GlobalException con un mensaje específico.
-     *
-     * @param e       La excepción SQL capturada.
-     * @param message El mensaje base para la excepción.
-     * @throws GlobalException Si ocurre un error al ejecutar una operación SQL, encapsulando el mensaje original.
-     */
     private void handleSQLException(SQLException e, String message) throws GlobalException {
         throw new GlobalException(message + ": " + e.getMessage());
     }
 
-    /**
-     * Maneja excepciones SQL específicas para operaciones de eliminación, mapeando códigos de error de triggers.
-     *
-     * @param e La excepción SQL capturada.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
-     */
     private void handleDeleteSQLException(SQLException e) throws GlobalException {
         int errorCode = e.getErrorCode();
         String errorMessage = switch (errorCode) {

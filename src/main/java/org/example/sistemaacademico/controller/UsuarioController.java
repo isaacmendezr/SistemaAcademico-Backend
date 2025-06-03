@@ -12,10 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * Controlador REST para gestionar operaciones relacionadas con usuarios.
- * Proporciona endpoints para CRUD y autenticación de usuarios.
- */
 @RestController
 @RequestMapping("/api/usuarios")
 public class UsuarioController {
@@ -23,21 +19,10 @@ public class UsuarioController {
     private static final Logger logger = LoggerFactory.getLogger(UsuarioController.class);
     private final UsuarioService usuarioService;
 
-    /**
-     * Constructor que utiliza inyección de dependencias para inicializar el servicio de usuarios.
-     *
-     * @param usuarioService El servicio de usuarios.
-     */
     public UsuarioController(UsuarioService usuarioService) {
         this.usuarioService = usuarioService;
     }
 
-    /**
-     * Crea un nuevo usuario.
-     *
-     * @param usuario El objeto Usuario a crear.
-     * @return ResponseEntity con el estado 201 Created.
-     */
     @PostMapping("/insertar")
     public ResponseEntity<Void> insertar(@RequestBody Usuario usuario) {
         logger.debug("Creando usuario con cédula: {}", usuario.getCedula());
@@ -51,12 +36,6 @@ public class UsuarioController {
         }
     }
 
-    /**
-     * Actualiza un usuario existente.
-     *
-     * @param usuario El objeto Usuario con los datos actualizados.
-     * @return ResponseEntity con el estado 200 OK.
-     */
     @PutMapping("/modificar")
     public ResponseEntity<Void> modificar(@RequestBody Usuario usuario) {
         logger.debug("Actualizando usuario con id: {}", usuario.getIdUsuario());
@@ -70,12 +49,6 @@ public class UsuarioController {
         }
     }
 
-    /**
-     * Elimina un usuario por su ID.
-     *
-     * @param id El ID del usuario a eliminar.
-     * @return ResponseEntity con el estado 204 No Content.
-     */
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable("id") Long id) {
         logger.debug("Eliminando usuario con id: {}", id);
@@ -89,11 +62,6 @@ public class UsuarioController {
         }
     }
 
-    /**
-     * Lista todos los usuarios registrados.
-     *
-     * @return ResponseEntity con la lista de usuarios y estado 200 OK.
-     */
     @GetMapping("/listar")
     public ResponseEntity<List<Usuario>> listar() {
         logger.debug("Listando todos los usuarios");
@@ -107,12 +75,6 @@ public class UsuarioController {
         }
     }
 
-    /**
-     * Busca un usuario por su cédula.
-     *
-     * @param cedula La cédula del usuario.
-     * @return ResponseEntity con el usuario encontrado y estado 200 OK.
-     */
     @GetMapping("/buscarPorCedula")
     public ResponseEntity<Usuario> buscarPorCedula(@RequestParam("cedula") String cedula) {
         logger.debug("Buscando usuario por cédula: {}", cedula);
@@ -130,13 +92,6 @@ public class UsuarioController {
         }
     }
 
-    /**
-     * Autentica un usuario mediante su cédula y clave.
-     *
-     * @param cedula La cédula del usuario.
-     * @param clave La clave del usuario.
-     * @return ResponseEntity con el usuario autenticado y estado 200 OK.
-     */
     @PostMapping("/login")
     public ResponseEntity<Usuario> login(@RequestParam("cedula") String cedula, @RequestParam("clave") String clave) {
         logger.debug("Autenticando usuario con cédula: {}", cedula);

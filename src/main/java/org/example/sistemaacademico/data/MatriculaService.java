@@ -14,10 +14,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Servicio para gestionar operaciones relacionadas con Matrículas en la base de datos.
- * Implementa operaciones CRUD y búsquedas, asegurando manejo adecuado de excepciones y cierre de recursos.
- */
 @Service
 public class MatriculaService {
 
@@ -32,23 +28,11 @@ public class MatriculaService {
 
     private final DataSource dataSource;
 
-    /**
-     * Constructor que utiliza inyección de dependencias para inicializar el DataSource.
-     *
-     * @param dataSource El DataSource gestionado por Spring Boot.
-     */
     @Autowired
     public MatriculaService(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
-    /**
-     * Inserta una nueva matrícula en la base de datos.
-     *
-     * @param matricula El objeto Matricula a insertar.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos, como una llave duplicada o sentencia inválida.
-     * @throws NoDataException Si la inserción no se realiza.
-     */
     public void insertarMatricula(Matricula matricula) throws GlobalException, NoDataException {
         logger.debug("Insertando matrícula: alumno {}, grupo {}", matricula.getPkAlumno(), matricula.getPkGrupo());
         try (Connection conn = dataSource.getConnection();
@@ -66,13 +50,6 @@ public class MatriculaService {
         }
     }
 
-    /**
-     * Modifica una matrícula existente en la base de datos.
-     *
-     * @param matricula El objeto Matricula con los datos actualizados.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos, como una sentencia inválida.
-     * @throws NoDataException Si la actualización no se realiza.
-     */
     public void modificarMatricula(Matricula matricula) throws GlobalException, NoDataException {
         logger.debug("Modificando matrícula: id {}, alumno {}, grupo {}, nota {}",
                 matricula.getIdMatricula(), matricula.getPkAlumno(), matricula.getPkGrupo(), matricula.getNota());
@@ -93,13 +70,6 @@ public class MatriculaService {
         }
     }
 
-    /**
-     * Elimina una matrícula por su ID.
-     *
-     * @param idMatricula El ID de la matrícula a eliminar.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
-     * @throws NoDataException Si la matrícula no existe o no se elimina.
-     */
     public void eliminarMatricula(Long idMatricula) throws GlobalException, NoDataException {
         logger.debug("Eliminando matrícula: id {}", idMatricula);
         try (Connection conn = dataSource.getConnection();
@@ -116,14 +86,6 @@ public class MatriculaService {
         }
     }
 
-    /**
-     * Lista las matrículas de un alumno por su cédula.
-     *
-     * @param cedula La cédula del alumno.
-     * @return Lista de objetos MatriculaAlumnoDto con información de las matrículas.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
-     * @throws NoDataException Si no hay matrículas para el alumno.
-     */
     public List<MatriculaAlumnoDto> listarMatriculasPorAlumno(String cedula) throws GlobalException, NoDataException {
         logger.debug("Listando matrículas por alumno con cédula: {}", cedula);
         List<MatriculaAlumnoDto> matriculas = new ArrayList<>();
@@ -148,15 +110,6 @@ public class MatriculaService {
         return matriculas;
     }
 
-    /**
-     * Lista las matrículas de un alumno en un ciclo específico.
-     *
-     * @param idAlumno El ID del alumno.
-     * @param idCiclo El ID del ciclo.
-     * @return Lista de objetos MatriculaAlumnoDto con información de las matrículas.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
-     * @throws NoDataException Si no hay matrículas para el alumno y ciclo seleccionados.
-     */
     public List<MatriculaAlumnoDto> listarMatriculasPorAlumnoYCiclo(Long idAlumno, Long idCiclo) throws GlobalException, NoDataException {
         logger.debug("Listando matrículas por alumno {} y ciclo: {}", idAlumno, idCiclo);
         List<MatriculaAlumnoDto> matriculas = new ArrayList<>();
@@ -184,13 +137,6 @@ public class MatriculaService {
 
     // Métodos utilitarios privados
 
-    /**
-     * Mapea un ResultSet a un objeto MatriculaAlumnoDto.
-     *
-     * @param rs El ResultSet con los datos de la matrícula.
-     * @return Un objeto MatriculaAlumnoDto mapeado.
-     * @throws SQLException Si ocurre un error al leer los datos.
-     */
     private MatriculaAlumnoDto mapResultSetToMatriculaAlumnoDto(ResultSet rs) throws SQLException {
         return new MatriculaAlumnoDto(
                 rs.getLong("id_matricula"),
@@ -206,13 +152,6 @@ public class MatriculaService {
         );
     }
 
-    /**
-     * Maneja excepciones SQL genéricas y lanza GlobalException con un mensaje específico.
-     *
-     * @param e       La excepción SQL capturada.
-     * @param message El mensaje base para la excepción.
-     * @throws GlobalException Si ocurre un error en la base de datos, como una sentencia SQL inválida o una llave duplicada.
-     */
     private void handleSQLException(SQLException e, String message) throws GlobalException {
         throw new GlobalException(message + ": " + e.getMessage());
     }

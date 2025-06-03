@@ -4,10 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Entidad que representa una carrera académica.
- * Utiliza Lombok para generar getters, setters, constructores, toString, equals y hashCode.
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

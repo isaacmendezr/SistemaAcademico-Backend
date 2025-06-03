@@ -12,10 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * Controlador REST para gestionar operaciones relacionadas con carreras.
- * Proporciona endpoints para CRUD, búsqueda y gestión de cursos en carreras.
- */
 @RestController
 @RequestMapping("/api/carreras")
 public class CarreraController {
@@ -23,21 +19,10 @@ public class CarreraController {
     private static final Logger logger = LoggerFactory.getLogger(CarreraController.class);
     private final CarreraService carreraService;
 
-    /**
-     * Constructor que utiliza inyección de dependencias para inicializar el servicio de carreras.
-     *
-     * @param carreraService El servicio de carreras.
-     */
     public CarreraController(CarreraService carreraService) {
         this.carreraService = carreraService;
     }
 
-    /**
-     * Crea una nueva carrera.
-     *
-     * @param carrera El objeto Carrera a crear.
-     * @return ResponseEntity con el estado 201 Created.
-     */
     @PostMapping("/insertar")
     public ResponseEntity<Void> insertar(@RequestBody Carrera carrera) {
         logger.debug("Creando carrera con código: {}", carrera.getCodigo());
@@ -51,12 +36,6 @@ public class CarreraController {
         }
     }
 
-    /**
-     * Actualiza una carrera existente.
-     *
-     * @param carrera El objeto Carrera con los datos actualizados.
-     * @return ResponseEntity con el estado 200 OK.
-     */
     @PutMapping("/modificar")
     public ResponseEntity<Void> modificar(@RequestBody Carrera carrera) {
         logger.debug("Actualizando carrera con id: {}", carrera.getIdCarrera());
@@ -70,12 +49,6 @@ public class CarreraController {
         }
     }
 
-    /**
-     * Elimina una carrera por su ID.
-     *
-     * @param id El ID de la carrera a eliminar.
-     * @return ResponseEntity con el estado 204 No Content.
-     */
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable("id") Long id) {
         logger.debug("Eliminando carrera con id: {}", id);
@@ -89,11 +62,6 @@ public class CarreraController {
         }
     }
 
-    /**
-     * Lista todas las carreras registradas.
-     *
-     * @return ResponseEntity con la lista de carreras y estado 200 OK.
-     */
     @GetMapping("/listar")
     public ResponseEntity<List<Carrera>> listar() {
         logger.debug("Listando todas las carreras");
@@ -107,12 +75,6 @@ public class CarreraController {
         }
     }
 
-    /**
-     * Busca una carrera por su código.
-     *
-     * @param codigo El código de la carrera.
-     * @return ResponseEntity con la carrera encontrada y estado 200 OK.
-     */
     @GetMapping("/buscarPorCodigo")
     public ResponseEntity<Carrera> buscarPorCodigo(@RequestParam("codigo") String codigo) {
         logger.debug("Buscando carrera por código: {}", codigo);
@@ -130,12 +92,6 @@ public class CarreraController {
         }
     }
 
-    /**
-     * Busca una carrera por su nombre.
-     *
-     * @param nombre El nombre de la carrera.
-     * @return ResponseEntity con la carrera encontrada y estado 200 OK.
-     */
     @GetMapping("/buscarPorNombre")
     public ResponseEntity<Carrera> buscarPorNombre(@RequestParam("nombre") String nombre) {
         logger.debug("Buscando carrera por nombre: {}", nombre);
@@ -153,14 +109,6 @@ public class CarreraController {
         }
     }
 
-    /**
-     * Asocia un curso a una carrera en un ciclo específico.
-     *
-     * @param idCarrera El ID de la carrera.
-     * @param idCurso El ID del curso.
-     * @param idCiclo El ID del ciclo.
-     * @return ResponseEntity con el estado 201 Created.
-     */
     @PostMapping("/insertarCursoACarrera/{idCarrera}/{idCurso}/{idCiclo}")
     public ResponseEntity<Void> insertarCursoACarrera(
             @PathVariable("idCarrera") Long idCarrera,
@@ -177,13 +125,6 @@ public class CarreraController {
         }
     }
 
-    /**
-     * Elimina un curso de una carrera.
-     *
-     * @param idCarrera El ID de la carrera.
-     * @param idCurso El ID del curso.
-     * @return ResponseEntity con el estado 204 No Content.
-     */
     @DeleteMapping("/eliminarCursoDeCarrera/{idCarrera}/{idCurso}")
     public ResponseEntity<Void> eliminarCursoDeCarrera(
             @PathVariable("idCarrera") Long idCarrera,
@@ -199,14 +140,6 @@ public class CarreraController {
         }
     }
 
-    /**
-     * Modifica el ciclo de un curso en una carrera.
-     *
-     * @param idCarrera El ID de la carrera.
-     * @param idCurso El ID del curso.
-     * @param nuevoIdCiclo El nuevo ID del ciclo.
-     * @return ResponseEntity con el estado 200 OK.
-     */
     @PutMapping("/modificarOrdenCursoCarrera/{idCarrera}/{idCurso}/{nuevoIdCiclo}")
     public ResponseEntity<Void> modificarOrdenCursoCarrera(
             @PathVariable("idCarrera") Long idCarrera,

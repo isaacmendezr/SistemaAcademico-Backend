@@ -13,11 +13,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Servicio para gestionar operaciones relacionadas con Alumnos en la base de datos.
- * Implementa operaciones CRUD y búsquedas, asegurando manejo adecuado de excepciones
- * y cierre de recursos.
- */
 @Service
 public class AlumnoService {
 
@@ -35,23 +30,11 @@ public class AlumnoService {
 
     private final DataSource dataSource;
 
-    /**
-     * Constructor que utiliza inyección de dependencias para inicializar el DataSource.
-     *
-     * @param dataSource El DataSource gestionado por Spring Boot.
-     */
     @Autowired
     public AlumnoService(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
-    /**
-     * Inserta un nuevo alumno en la base de datos.
-     *
-     * @param alumno El objeto Alumno a insertar.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
-     * @throws NoDataException Si la inserción no se realiza.
-     */
     public void insertarAlumno(Alumno alumno) throws GlobalException, NoDataException {
         logger.debug("Insertando alumno: {}", alumno.getCedula());
         try (Connection conn = dataSource.getConnection();
@@ -68,13 +51,6 @@ public class AlumnoService {
         }
     }
 
-    /**
-     * Modifica un alumno existente en la base de datos.
-     *
-     * @param alumno El objeto Alumno con los datos actualizados.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
-     * @throws NoDataException Si la actualización no se realiza.
-     */
     public void modificarAlumno(Alumno alumno) throws GlobalException, NoDataException {
         logger.debug("Modificando alumno: {}", alumno.getCedula());
         try (Connection conn = dataSource.getConnection();
@@ -92,13 +68,6 @@ public class AlumnoService {
         }
     }
 
-    /**
-     * Elimina un alumno por su ID.
-     *
-     * @param idAlumno ID del alumno a eliminar.
-     * @throws GlobalException Si hay dependencias o errores en la base de datos.
-     * @throws NoDataException Si el alumno no existe o no se elimina.
-     */
     public void eliminarAlumno(Long idAlumno) throws GlobalException, NoDataException {
         logger.debug("Eliminando alumno con ID: {}", idAlumno);
         try (Connection conn = dataSource.getConnection();
@@ -115,12 +84,6 @@ public class AlumnoService {
         }
     }
 
-    /**
-     * Elimina un alumno por su cédula.
-     *
-     * @param cedula Cédula del alumno a eliminar.
-     * @throws GlobalException Si hay dependencias o errores en la base de datos.
-     */
     public void eliminarAlumnoPorCedula(String cedula) throws GlobalException {
         logger.debug("Eliminando alumno con cédula: {}", cedula);
         try (Connection conn = dataSource.getConnection();
@@ -134,13 +97,6 @@ public class AlumnoService {
         }
     }
 
-    /**
-     * Lista todos los alumnos registrados.
-     *
-     * @return Lista de objetos Alumno.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
-     * @throws NoDataException Si no hay datos disponibles.
-     */
     public List<Alumno> listarAlumnos() throws GlobalException, NoDataException {
         logger.debug("Listando todos los alumnos");
         List<Alumno> alumnos = new ArrayList<>();
@@ -164,13 +120,6 @@ public class AlumnoService {
         return alumnos;
     }
 
-    /**
-     * Busca un alumno por su cédula.
-     *
-     * @param cedula Cédula del alumno a buscar.
-     * @return El objeto Alumno encontrado, o null si no existe.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
-     */
     public Alumno buscarAlumnoPorCedula(String cedula) throws GlobalException {
         logger.debug("Buscando alumno por cédula: {}", cedula);
         try (Connection conn = dataSource.getConnection();
@@ -193,13 +142,6 @@ public class AlumnoService {
         return null;
     }
 
-    /**
-     * Busca un alumno por su nombre.
-     *
-     * @param nombre Nombre del alumno a buscar.
-     * @return El objeto Alumno encontrado, o null si no existe.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
-     */
     public Alumno buscarAlumnoPorNombre(String nombre) throws GlobalException {
         logger.debug("Buscando alumno por nombre: {}", nombre);
         try (Connection conn = dataSource.getConnection();
@@ -222,14 +164,6 @@ public class AlumnoService {
         return null;
     }
 
-    /**
-     * Busca alumnos por el ID de su carrera.
-     *
-     * @param carrera ID de la carrera.
-     * @return Lista de alumnos asociados a la carrera.
-     * @throws GlobalException Si ocurre un error relacionado con la base de datos.
-     * @throws NoDataException Si no hay datos disponibles.
-     */
     public List<Alumno> buscarAlumnosPorCarrera(Long carrera) throws GlobalException, NoDataException {
         logger.debug("Buscando alumnos por carrera: {}", carrera);
         List<Alumno> alumnos = new ArrayList<>();
@@ -255,15 +189,6 @@ public class AlumnoService {
     }
 
     // Métodos utilitarios privados
-
-    /**
-     * Establece los parámetros del CallableStatement para operaciones de inserción o modificación.
-     *
-     * @param pstmt  El CallableStatement a configurar.
-     * @param alumno El objeto Alumno con los datos.
-     * @param isUpdate Indica si es una operación de actualización (true) o inserción (false).
-     * @throws SQLException Si ocurre un error al establecer los parámetros.
-     */
     private void setAlumnoParameters(CallableStatement pstmt, Alumno alumno, boolean isUpdate) throws SQLException {
         int startIndex = isUpdate ? 2 : 1;
         pstmt.setString(startIndex, alumno.getCedula());
@@ -274,13 +199,6 @@ public class AlumnoService {
         pstmt.setLong(startIndex + 5, alumno.getPkCarrera());
     }
 
-    /**
-     * Mapea un ResultSet a un objeto Alumno.
-     *
-     * @param rs El ResultSet con los datos del alumno.
-     * @return Un objeto Alumno mapeado.
-     * @throws SQLException Si ocurre un error al leer los datos.
-     */
     private Alumno mapResultSetToAlumno(ResultSet rs) throws SQLException {
         return new Alumno(
                 rs.getLong("id_alumno"),
@@ -293,24 +211,10 @@ public class AlumnoService {
         );
     }
 
-    /**
-     * Maneja excepciones SQL genéricas y lanza GlobalException con un mensaje específico.
-     *
-     * @param e       La excepción SQL capturada.
-     * @param message El mensaje base para la excepción.
-     * @throws GlobalException Con el mensaje detallado del error.
-     */
     private void handleSQLException(SQLException e, String message) throws GlobalException {
         throw new GlobalException(message + ": " + e.getMessage());
     }
 
-    /**
-     * Maneja excepciones SQL específicas para operaciones de eliminación, mapeando códigos de error de triggers.
-     *
-     * @param e       La excepción SQL capturada.
-     * @param message El mensaje base para la excepción.
-     * @throws GlobalException Con el mensaje detallado del error, incluyendo mensajes de triggers.
-     */
     private void handleDeleteSQLException(SQLException e, String message) throws GlobalException {
         int errorCode = e.getErrorCode();
         String errorMessage = switch (errorCode) {

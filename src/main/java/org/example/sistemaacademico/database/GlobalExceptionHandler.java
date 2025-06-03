@@ -13,21 +13,11 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Manejador global de excepciones para controladores REST.
- * Centraliza el manejo de excepciones, proporcionando respuestas HTTP consistentes con mensajes de error detallados.
- */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    /**
-     * Maneja excepciones de tipo NoDataException, indicando que no se encontraron datos.
-     *
-     * @param ex La excepción capturada.
-     * @return ResponseEntity con un mensaje de error y estado HTTP 404 Not Found.
-     */
     @ExceptionHandler(NoDataException.class)
     public ResponseEntity<Map<String, Object>> handleNoDataException(NoDataException ex) {
         logger.warn("NoDataException: {}", ex.getMessage());
@@ -39,12 +29,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
 
-    /**
-     * Maneja excepciones de tipo GlobalException, típicamente errores de base de datos o lógica de negocio.
-     *
-     * @param ex La excepción capturada.
-     * @return ResponseEntity con un mensaje de error y estado HTTP 400 Bad Request.
-     */
     @ExceptionHandler(GlobalException.class)
     public ResponseEntity<Map<String, Object>> handleGlobalException(GlobalException ex) {
         logger.error("GlobalException: {}", ex.getMessage(), ex);
@@ -56,12 +40,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
-    /**
-     * Maneja excepciones de tipo HttpMessageNotReadableException, típicamente por JSON malformado.
-     *
-     * @param ex La excepción capturada.
-     * @return ResponseEntity con un mensaje de error y estado HTTP 400 Bad Request.
-     */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<Map<String, Object>> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
         logger.error("HttpMessageNotReadableException: {}", ex.getMessage());
@@ -73,12 +51,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
-    /**
-     * Maneja excepciones de tipo HttpRequestMethodNotSupportedException, cuando el método HTTP no es soportado.
-     *
-     * @param ex La excepción capturada.
-     * @return ResponseEntity con un mensaje de error y estado HTTP 405 Method Not Allowed.
-     */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<Map<String, Object>> handleMethodNotSupported(HttpRequestMethodNotSupportedException ex) {
         logger.warn("HttpRequestMethodNotSupportedException: {}", ex.getMessage());
@@ -90,12 +62,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(errorResponse);
     }
 
-    /**
-     * Maneja excepciones genéricas no capturadas específicamente.
-     *
-     * @param ex La excepción capturada.
-     * @return ResponseEntity con un mensaje de error y estado HTTP 500 Internal Server Error.
-     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
         logger.error("Excepción no manejada: {}", ex.getMessage(), ex);
