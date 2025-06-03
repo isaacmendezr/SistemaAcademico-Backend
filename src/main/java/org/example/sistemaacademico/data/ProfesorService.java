@@ -36,7 +36,10 @@ public class ProfesorService {
             pstmt.setString(2, profesor.getNombre());
             pstmt.setString(3, profesor.getTelefono());
             pstmt.setString(4, profesor.getEmail());
-            pstmt.execute();
+            int filas = pstmt.executeUpdate();
+            if (filas == 0) {
+                throw new NoDataException("No se realizó la inserción del profesor");
+            }
         } catch (SQLException e) {
             handleSQLException(e, "Error al insertar profesor");
         }
@@ -63,7 +66,10 @@ public class ProfesorService {
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(ELIMINAR_PROFESOR)) {
             pstmt.setLong(1, idProfesor);
-            pstmt.execute();
+            int filas = pstmt.executeUpdate();
+            if (filas == 0) {
+                throw new NoDataException("No se realizó el borrado: el profesor no existe");
+            }
         } catch (SQLException e) {
             handleSQLException(e, "Error al eliminar profesor");
         }
@@ -73,7 +79,10 @@ public class ProfesorService {
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(ELIMINAR_PROFESOR_POR_CEDULA)) {
             pstmt.setString(1, cedula);
-            pstmt.execute();
+            int filas = pstmt.executeUpdate();
+            if (filas == 0) {
+                throw new NoDataException("No se realizó el borrado: el profesor con cédula " + cedula + " no existe");
+            }
         } catch (SQLException e) {
             handleSQLException(e, "Error al eliminar profesor por cédula");
         }

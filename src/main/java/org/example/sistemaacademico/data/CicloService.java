@@ -37,7 +37,10 @@ public class CicloService {
             pstmt.setDate(3, Date.valueOf(ciclo.getFechaInicio()));
             pstmt.setDate(4, Date.valueOf(ciclo.getFechaFin()));
             pstmt.setString(5, ciclo.getEstado());
-            pstmt.execute();
+            int filas = pstmt.executeUpdate();
+            if (filas == 0) {
+                throw new NoDataException("No se realizó la inserción del ciclo");
+            }
         } catch (SQLException e) {
             handleSQLException(e, "Error al insertar ciclo");
         }
@@ -52,7 +55,10 @@ public class CicloService {
             pstmt.setDate(4, Date.valueOf(ciclo.getFechaInicio()));
             pstmt.setDate(5, Date.valueOf(ciclo.getFechaFin()));
             pstmt.setString(6, ciclo.getEstado());
-            pstmt.execute();
+            int filas = pstmt.executeUpdate();
+            if (filas == 0) {
+                throw new NoDataException("No se realizó la actualización del ciclo");
+            }
         } catch (SQLException e) {
             handleSQLException(e, "Error al modificar ciclo");
         }
@@ -62,7 +68,10 @@ public class CicloService {
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(ELIMINAR_CICLO)) {
             pstmt.setLong(1, idCiclo);
-            pstmt.execute();
+            int filas = pstmt.executeUpdate();
+            if (filas == 0) {
+                throw new NoDataException("No se realizó el borrado: el ciclo no existe");
+            }
         } catch (SQLException e) {
             handleSQLException(e, "Error al eliminar ciclo");
         }
@@ -126,7 +135,10 @@ public class CicloService {
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(ACTIVAR_CICLO)) {
             pstmt.setLong(1, idCiclo);
-            pstmt.execute();
+            int filas = pstmt.executeUpdate();
+            if (filas == 0) {
+                throw new NoDataException("No se activó el ciclo: ID no válido");
+            }
         } catch (SQLException e) {
             handleSQLException(e, "Error al activar ciclo");
         }

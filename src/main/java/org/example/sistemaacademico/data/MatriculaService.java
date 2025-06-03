@@ -33,7 +33,10 @@ public class MatriculaService {
              CallableStatement pstmt = conn.prepareCall(INSERTAR_MATRICULA)) {
             pstmt.setLong(1, matricula.getPkAlumno());
             pstmt.setLong(2, matricula.getPkGrupo());
-            pstmt.execute();
+            int filas = pstmt.executeUpdate();
+            if (filas == 0) {
+                throw new NoDataException("No se realizó la inserción de la matrícula");
+            }
         } catch (SQLException e) {
             handleSQLException(e, "Error al insertar matrícula");
         }
@@ -46,7 +49,10 @@ public class MatriculaService {
             pstmt.setLong(2, matricula.getPkAlumno());
             pstmt.setLong(3, matricula.getPkGrupo());
             pstmt.setLong(4, matricula.getNota());
-            pstmt.execute();
+            int filas = pstmt.executeUpdate();
+            if (filas == 0) {
+                throw new NoDataException("No se realizó la actualización de la matrícula");
+            }
         } catch (SQLException e) {
             handleSQLException(e, "Error al modificar matrícula");
         }
@@ -56,7 +62,10 @@ public class MatriculaService {
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(ELIMINAR_MATRICULA)) {
             pstmt.setLong(1, idMatricula);
-            pstmt.execute();
+            int filas = pstmt.executeUpdate();
+            if (filas == 0) {
+                throw new NoDataException("No se realizó el borrado: la matrícula no existe");
+            }
         } catch (SQLException e) {
             handleSQLException(e, "Error al eliminar matrícula");
         }

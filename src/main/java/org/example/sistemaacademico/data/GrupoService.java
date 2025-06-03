@@ -37,7 +37,10 @@ public class GrupoService {
             pstmt.setLong(2, grupo.getNumeroGrupo());
             pstmt.setString(3, grupo.getHorario());
             pstmt.setLong(4, grupo.getIdProfesor());
-            pstmt.execute();
+            int filas = pstmt.executeUpdate();
+            if (filas == 0) {
+                throw new NoDataException("No se realizó la inserción del grupo");
+            }
         } catch (SQLException e) {
             handleSQLException(e, "Error al insertar grupo");
         }
@@ -64,7 +67,10 @@ public class GrupoService {
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(ELIMINAR_GRUPO)) {
             pstmt.setLong(1, idGrupo);
-            pstmt.execute();
+            int filas = pstmt.executeUpdate();
+            if (filas == 0) {
+                throw new NoDataException("No se realizó el borrado: el grupo no existe");
+            }
         } catch (SQLException e) {
             handleSQLException(e, "Error al eliminar grupo");
         }

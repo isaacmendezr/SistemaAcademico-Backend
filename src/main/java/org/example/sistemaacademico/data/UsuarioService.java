@@ -34,7 +34,10 @@ public class UsuarioService {
             pstmt.setString(1, usuario.getCedula());
             pstmt.setString(2, usuario.getClave());
             pstmt.setString(3, usuario.getTipo());
-            pstmt.execute();
+            int filas = pstmt.executeUpdate();
+            if (filas == 0) {
+                throw new NoDataException("No se realizó la inserción del usuario");
+            }
         } catch (SQLException e) {
             handleSQLException(e, "Error al insertar usuario");
         }
@@ -60,7 +63,10 @@ public class UsuarioService {
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(ELIMINAR_USUARIO)) {
             pstmt.setLong(1, idUsuario);
-            pstmt.execute();
+            int filas = pstmt.executeUpdate();
+            if (filas == 0) {
+                throw new NoDataException("No se realizó el borrado: el usuario no existe");
+            }
         } catch (SQLException e) {
             handleSQLException(e, "Error al eliminar usuario");
         }

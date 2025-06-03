@@ -39,7 +39,10 @@ public class CursoService {
             pstmt.setString(2, curso.getNombre());
             pstmt.setLong(3, curso.getCreditos());
             pstmt.setLong(4, curso.getHorasSemanales());
-            pstmt.execute();
+            int filas = pstmt.executeUpdate();
+            if (filas == 0) {
+                throw new NoDataException("No se realizó la inserción del curso");
+            }
         } catch (SQLException e) {
             handleSQLException(e, "Error al insertar curso");
         }
@@ -53,7 +56,10 @@ public class CursoService {
             pstmt.setString(3, curso.getNombre());
             pstmt.setLong(4, curso.getCreditos());
             pstmt.setLong(5, curso.getHorasSemanales());
-            pstmt.execute();
+            int filas = pstmt.executeUpdate();
+            if (filas == 0) {
+                throw new NoDataException("No se realizó la actualización del curso");
+            }
         } catch (SQLException e) {
             handleSQLException(e, "Error al modificar curso");
         }
@@ -63,7 +69,10 @@ public class CursoService {
         try (Connection conn = dataSource.getConnection();
              CallableStatement pstmt = conn.prepareCall(ELIMINAR_CURSO)) {
             pstmt.setLong(1, idCurso);
-            pstmt.execute();
+            int filas = pstmt.executeUpdate();
+            if (filas == 0) {
+                throw new NoDataException("No se realizó el borrado: el curso no existe");
+            }
         } catch (SQLException e) {
             handleSQLException(e, "Error al eliminar curso");
         }
