@@ -98,6 +98,8 @@ BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION buscarAlumnoPorNombre'; EXCEPTION WHEN OT
 /
 BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION buscarAlumnosPorCarrera'; EXCEPTION WHEN OTHERS THEN NULL; END;
 /
+BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION buscarAlumnosConOfertaEnCiclo'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
 
 -- GRUPO
 BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE insertarGrupo'; EXCEPTION WHEN OTHERS THEN NULL; END;
@@ -881,6 +883,28 @@ AS
 BEGIN
     OPEN alumno_cursor FOR
         SELECT id_alumno, cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera FROM Alumno WHERE pk_carrera = carrerabuscar;
+    RETURN alumno_cursor;
+END;
+/
+
+-- Buscar alumnos con oferta en un ciclo
+CREATE OR REPLACE FUNCTION buscarAlumnosConOfertaEnCiclo(p_ciclo_id IN Ciclo.id_ciclo%TYPE)
+    RETURN Types.ref_cursor
+AS
+    alumno_cursor Types.ref_cursor;
+BEGIN
+    OPEN alumno_cursor FOR
+        SELECT DISTINCT
+            a.id_alumno,
+            a.cedula,
+            a.nombre,
+            a.telefono,
+            a.email,
+            a.fecha_nacimiento,
+            a.pk_carrera
+        FROM Alumno a
+                 JOIN Carrera_Curso cc ON a.pk_carrera = cc.pk_carrera
+        WHERE cc.pk_ciclo = p_ciclo_id;
     RETURN alumno_cursor;
 END;
 /

@@ -27,6 +27,7 @@ public class AlumnoService {
     private static final String BUSCAR_POR_CEDULA = "{?=call buscarAlumnoPorCedula(?)}";
     private static final String BUSCAR_POR_NOMBRE = "{?=call buscarAlumnoPorNombre(?)}";
     private static final String BUSCAR_ALUMNOS_POR_CARRERA = "{?=call buscarAlumnosPorCarrera(?)}";
+    private static final String BUSCAR_ALUMNOS_CON_OFERTA = "{?=call buscarAlumnosConOfertaEnCiclo(?)}";
 
     private final DataSource dataSource;
 
@@ -190,6 +191,28 @@ public class AlumnoService {
         }
         if (alumnos.isEmpty()) {
             throw new NoDataException("No hay alumnos asociados a esta carrera");
+        }
+        return alumnos;
+    }
+
+    public List<Alumno> alumnosConOfertaEnCiclo(Long idCiclo) throws GlobalException, NoDataException {
+        List<Alumno> alumnos = new ArrayList<>();
+        try (Connection conn = dataSource.getConnection();
+             CallableStatement pstmt = conn.prepareCall(BUSCAR_ALUMNOS_CON_OFERTA)) {
+            pstmt.registerOutParameter(1, Types.REF_CURSOR);
+            pstmt.setLong(2, idCiclo);
+            pstmt.execute();
+            try (ResultSet rs = (ResultSet) pstmt.getObject(1)) {
+                while (rs.next()) {
+                    alumnos.add(mapResultSetToAlumno(rs));
+                }
+            }
+        } catch (SQLException e) {
+            logger.error("Error al buscar alumnos con oferta en ciclo: {}", e.getMessage(), e);
+            throw new GlobalException("Error al buscar alumnos con oferta en ciclo: " + e.getMessage());
+        }
+        if (alumnos.isEmpty()) {
+            throw new NoDataException("No hay alumnos con oferta en el ciclo " + idCiclo);
         }
         return alumnos;
     }

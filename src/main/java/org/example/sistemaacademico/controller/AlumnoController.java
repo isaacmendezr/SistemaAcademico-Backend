@@ -95,4 +95,12 @@ public class AlumnoController {
         logger.info("Alumnos encontrados para carrera {}: {}", idCarrera, alumnos.size());
         return new ResponseEntity<>(alumnos, HttpStatus.OK);
     }
+
+    @GetMapping("/alumnosConOfertaEnCiclo")
+    public ResponseEntity<List<Alumno>> alumnosConOfertaEnCiclo(@RequestParam("idCiclo") Long idCiclo) {
+        logger.debug("Buscando alumnos con oferta en ciclo: {}", idCiclo);
+        List<Alumno> alumnos = alumnoService.alumnosConOfertaEnCiclo(idCiclo);
+        logger.info("Alumnos con oferta encontrados para ciclo {}: {}", idCiclo, alumnos.size());
+        return new ResponseEntity<>(alumnos, HttpStatus.OK);
+    }
 }
