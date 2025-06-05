@@ -46,7 +46,7 @@ BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE eliminarCiclo'; EXCEPTION WHEN OTHERS TH
 /
 BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION listarCiclos'; EXCEPTION WHEN OTHERS THEN NULL; END;
 /
-BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION buscarCicloPorAnnio'; EXCEPTION WHEN OTHERS THEN NULL; END;
+BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION buscarCicloPorAnio'; EXCEPTION WHEN OTHERS THEN NULL; END;
 /
 BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE activarCiclo'; EXCEPTION WHEN OTHERS THEN NULL; END;
 /
@@ -1111,13 +1111,13 @@ BEGIN
 END;
 /
 
--- Listar Matriculas Por Alumno
+-- Listar Matriculas Por Alumno (cedula)
 CREATE OR REPLACE FUNCTION listarMatriculasPorAlumno(
-    p_id_alumno IN Alumno.id_alumno%TYPE
+    p_cedula IN Alumno.cedula%TYPE
 )
-    RETURN Types.ref_cursor
+    RETURN SYS_REFCURSOR
 AS
-    matriculas_cursor Types.ref_cursor;
+    matriculas_cursor SYS_REFCURSOR;
 BEGIN
     OPEN matriculas_cursor FOR
         SELECT
@@ -1132,12 +1132,14 @@ BEGIN
             p.nombre AS nombre_profesor,
             p.cedula AS cedula_profesor
         FROM Matricula m
+                 JOIN Alumno a ON m.pk_alumno = a.id_alumno
                  JOIN Grupo g ON m.pk_grupo = g.id_grupo
                  JOIN Profesor p ON g.pk_profesor = p.id_profesor
                  JOIN Carrera_Curso cc ON g.pk_carrera_curso = cc.id_carrera_curso
                  JOIN Carrera c ON cc.pk_carrera = c.id_carrera
                  JOIN Curso cu ON cc.pk_curso = cu.id_curso
-        WHERE m.pk_alumno = p_id_alumno;
+        WHERE a.cedula = p_cedula;
+
     RETURN matriculas_cursor;
 END;
 /
@@ -1605,6 +1607,9 @@ INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('BIO101', 
 INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('BIO201', 'Ecologia', 3, 4);
 INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('ING101', 'Introduccion a la Ingenieria', 3, 3);
 INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('ING201', 'Gestion de Produccion', 4, 5);
+INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('INF301', 'Bases de Datos', 4, 5);
+INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('ADM301', 'Marketing Estratégico', 3, 4);
+INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('MAT301', 'Estadística Aplicada', 4, 6);
 
 -- CICLOS
 INSERT INTO Ciclo (anio, numero, fecha_inicio, fecha_fin, estado) VALUES (2025, 1, TO_DATE('2025-02-01', 'YYYY-MM-DD'), TO_DATE('2025-06-01', 'YYYY-MM-DD'), 'Activo');
@@ -1613,7 +1618,7 @@ INSERT INTO Ciclo (anio, numero, fecha_inicio, fecha_fin, estado) VALUES (2026, 
 INSERT INTO Ciclo (anio, numero, fecha_inicio, fecha_fin, estado) VALUES (2026, 2, TO_DATE('2026-07-01', 'YYYY-MM-DD'), TO_DATE('2026-11-01', 'YYYY-MM-DD'), 'Inactivo');
 
 -- CARRERA CURSO
-INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (1, 1, 1);
+INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (1, 2, 1);
 INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (1, 2, 2);
 INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (2, 3, 1);
 INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (2, 4, 2);
@@ -1625,6 +1630,9 @@ INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (5, 9, 1);
 INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (5, 10, 2);
 INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (6, 11, 1);
 INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (6, 12, 2);
+INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (1, 13, 1);
+INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (2, 14, 1);
+INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (4, 15, 1);
 
 -- PROFESORES
 INSERT INTO Profesor (cedula, nombre, telefono, email) VALUES ('100100100', 'Carlos Rojas', '88888888', 'crojas@yahoo.com');
@@ -1661,6 +1669,15 @@ INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES 
 INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (11, 1, 'Viernes 9:00-11:00', 7);
 INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (12, 1, 'Lunes 13:00-15:00', 7);
 INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (3, 2, 'Viernes 13:00-15:00', 3);
+INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (13, 1, 'Lunes 14:00-16:00', 1);
+INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (13, 2, 'Miércoles 16:00-18:00', 3);
+INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (14, 1, 'Martes 10:00-12:00', 2);
+INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (14, 2, 'Jueves 8:00-10:00', 4);
+INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (15, 1, 'Viernes 9:00-11:00', 5);
+INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (15, 2, 'Lunes 10:00-12:00', 6);
+INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (1, 2, 'Martes 14:00-16:00', 2);
+INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (1, 3, 'Jueves 10:00-12:00', 4);
+INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (1, 4, 'Viernes 16:00-18:00', 7);
 
 -- MATRICULAS
 INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (1, 1, 85);
