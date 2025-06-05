@@ -236,19 +236,18 @@ public class CursoService {
                 rs.getString("nombre"),
                 rs.getLong("creditos"),
                 rs.getLong("horas_semanales"),
-                rs.getLong("id_carrera_curso"),
-                rs.getLong("anio"),
-                rs.getLong("numero"),
-                rs.getLong("id_ciclo")
+                rs.getLong("id_carrera_curso")
         );
     }
 
     private void handleSQLException(SQLException e, String message) throws GlobalException {
         int errorCode = Math.abs(e.getErrorCode());
-        String errorMessage = switch (errorCode) {
-            case 20003 -> "No se puede eliminar el curso: está asociado a una carrera o tiene grupos.";
-            default -> message + ": " + e.getMessage();
-        };
+        String errorMessage;
+        if (errorCode == 20003) {
+            errorMessage = "No se puede eliminar el curso: está asociado a una carrera o tiene grupos.";
+        } else {
+            errorMessage = message + ": " + e.getMessage();
+        }
         throw new GlobalException(errorMessage);
     }
 }
