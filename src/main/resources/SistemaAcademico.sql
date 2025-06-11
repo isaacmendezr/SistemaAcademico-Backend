@@ -126,9 +126,13 @@ BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE modificarMatricula'; EXCEPTION WHEN OTHE
 /
 BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE eliminarMatricula'; EXCEPTION WHEN OTHERS THEN NULL; END;
 /
+BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE buscarMatriculaPorId'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
 BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE listarMatriculasPorAlumno'; EXCEPTION WHEN OTHERS THEN NULL; END;
 /
 BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE listarMatriculasPorAlumnoYCiclo'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE listarMatriculasPorGrupo'; EXCEPTION WHEN OTHERS THEN NULL; END;
 /
 
 -- USUARIO
@@ -1111,6 +1115,20 @@ BEGIN
 END;
 /
 
+-- Buscar Matricula por ID
+CREATE OR REPLACE FUNCTION buscarMatriculaPorId(id_matriculain IN Matricula.id_matricula%TYPE)
+    RETURN Types.ref_cursor
+AS
+    matricula_cursor Types.ref_cursor;
+BEGIN
+    OPEN matricula_cursor FOR
+        SELECT id_matricula, pk_alumno, pk_grupo, nota
+        FROM Matricula
+        WHERE id_matricula = id_matriculain;
+    RETURN matricula_cursor;
+END;
+/
+
 -- Listar Matriculas Por Alumno (cedula)
 CREATE OR REPLACE FUNCTION listarMatriculasPorAlumno(
     p_cedula IN Alumno.cedula%TYPE
@@ -1174,6 +1192,38 @@ BEGIN
                  JOIN Ciclo ci ON cc.pk_ciclo = ci.id_ciclo
         WHERE m.pk_alumno = p_id_alumno
           AND ci.id_ciclo = p_id_ciclo;
+    RETURN matriculas_cursor;
+END;
+/
+
+CREATE OR REPLACE FUNCTION listarMatriculasPorGrupo(
+    p_id_grupo IN Grupo.id_grupo%TYPE
+)
+    RETURN SYS_REFCURSOR
+AS
+    matriculas_cursor SYS_REFCURSOR;
+BEGIN
+    OPEN matriculas_cursor FOR
+        SELECT
+            m.id_matricula,
+            m.nota,
+            g.numero_grupo,
+            g.horario,
+            c.codigo AS codigo_carrera,
+            c.nombre AS nombre_carrera,
+            cu.codigo AS codigo_curso,
+            cu.nombre AS nombre_curso,
+            p.nombre AS nombre_profesor,
+            p.cedula AS cedula_profesor
+        FROM Matricula m
+                 JOIN Grupo g ON m.pk_grupo = g.id_grupo
+                 JOIN Profesor p ON g.pk_profesor = p.id_profesor
+                 JOIN Carrera_Curso cc ON g.pk_carrera_curso = cc.id_carrera_curso
+                 JOIN Carrera c ON cc.pk_carrera = c.id_carrera
+                 JOIN Curso cu ON cc.pk_curso = cu.id_curso
+                 JOIN Alumno a ON m.pk_alumno = a.id_alumno
+        WHERE g.id_grupo = p_id_grupo;
+
     RETURN matriculas_cursor;
 END;
 /

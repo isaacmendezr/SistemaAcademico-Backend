@@ -47,6 +47,14 @@ public class MatriculaController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @GetMapping("/buscar/{id}")
+    public ResponseEntity<Matricula> buscarPorId(@PathVariable("id") Long id) {
+        logger.debug("Buscando matrícula por id: {}", id);
+        Matricula matricula = matriculaService.buscarMatriculaPorId(id);
+        logger.info("Matrícula encontrada: id {}", id);
+        return new ResponseEntity<>(matricula, HttpStatus.OK);
+    }
+
     @GetMapping("/listarMatriculasPorAlumno/{cedula}")
     public ResponseEntity<List<MatriculaAlumnoDto>> listarMatriculasPorAlumno(@PathVariable("cedula") String cedula) {
         logger.debug("Listando matrículas para alumno con cédula: {}", cedula);
@@ -62,6 +70,14 @@ public class MatriculaController {
         logger.debug("Listando matrículas para alumno {} y ciclo: {}", idAlumno, idCiclo);
         List<MatriculaAlumnoDto> matriculas = matriculaService.listarMatriculasPorAlumnoYCiclo(idAlumno, idCiclo);
         logger.info("Matrículas encontradas para alumno {} y ciclo {}: {}", idAlumno, idCiclo, matriculas.size());
+        return new ResponseEntity<>(matriculas, HttpStatus.OK);
+    }
+
+    @GetMapping("/listarMatriculasPorGrupo/{idGrupo}")
+    public ResponseEntity<List<MatriculaAlumnoDto>> listarMatriculasPorGrupo(@PathVariable("idGrupo") Long idGrupo) {
+        logger.debug("Listando matrículas para grupo: {}", idGrupo);
+        List<MatriculaAlumnoDto> matriculas = matriculaService.listarMatriculasPorGrupo(idGrupo);
+        logger.info("Matrículas encontradas para grupo {}: {}", idGrupo, matriculas.size());
         return new ResponseEntity<>(matriculas, HttpStatus.OK);
     }
 }

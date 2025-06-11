@@ -64,6 +64,14 @@ public class AlumnoController {
         return new ResponseEntity<>(alumnos, HttpStatus.OK);
     }
 
+    @GetMapping("/buscarPorId/{id}")
+    public ResponseEntity<Alumno> buscarPorId(@PathVariable("id") Long id) {
+        logger.debug("Buscando alumno por id: {}", id);
+        Alumno alumno = alumnoService.buscarAlumnoPorId(id);
+        logger.info("Alumno encontrado: id {}", id);
+        return new ResponseEntity<>(alumno, HttpStatus.OK);
+    }
+
     @GetMapping("/buscarPorCedula")
     public ResponseEntity<Alumno> buscarPorCedula(@RequestParam("cedula") String cedula) {
         logger.debug("Buscando alumno por cédula: {}", cedula);

@@ -18,8 +18,10 @@ public class MatriculaService {
     private static final String INSERTAR_MATRICULA = "{call insertarMatricula(?,?)}";
     private static final String MODIFICAR_MATRICULA = "{call modificarMatricula(?,?,?,?)}";
     private static final String ELIMINAR_MATRICULA = "{call eliminarMatricula(?)}";
+    private static final String BUSCAR_MATRICULA_POR_ID = "{?=call buscarMatriculaPorId(?)}";
     private static final String LISTAR_MATRICULAS_POR_ALUMNO = "{?=call listarMatriculasPorAlumno(?)}";
     private static final String LISTAR_MATRICULAS_POR_ALUMNO_Y_CICLO = "{?=call listarMatriculasPorAlumnoYCiclo(?,?)}";
+    private static final String LISTAR_MATRICULAS_POR_GRUPO = "{?=call listarMatriculasPorGrupo(?)}";
 
     private final DataSource dataSource;
 
@@ -71,6 +73,32 @@ public class MatriculaService {
         }
     }
 
+    public Matricula buscarMatriculaPorId(Long id) throws GlobalException, NoDataException {
+        try (Connection conn = dataSource.getConnection();
+             CallableStatement pstmt = conn.prepareCall(BUSCAR_MATRICULA_POR_ID)) {
+            pstmt.registerOutParameter(1, Types.REF_CURSOR);
+            pstmt.setLong(2, id);
+            pstmt.execute();
+            try (ResultSet rs = (ResultSet) pstmt.getObject(1)) {
+                if (rs.next()) {
+                    return mapResultSetToMatricula(rs);
+                }
+            }
+        } catch (SQLException e) {
+            throw new GlobalException("Error al buscar matrícula por id: " + e.getMessage());
+        }
+        throw new NoDataException("No se encontró matrícula con id: " + id);
+    }
+
+    private Matricula mapResultSetToMatricula(ResultSet rs) throws SQLException {
+        return new Matricula(
+                rs.getLong("id_matricula"),
+                rs.getLong("pk_alumno"),
+                rs.getLong("pk_grupo"),
+                rs.getLong("nota")
+        );
+    }
+
     public List<MatriculaAlumnoDto> listarMatriculasPorAlumno(String cedula) throws GlobalException, NoDataException {
         List<MatriculaAlumnoDto> matriculas = new ArrayList<>();
         try (Connection conn = dataSource.getConnection();
@@ -110,6 +138,27 @@ public class MatriculaService {
         }
         if (matriculas.isEmpty()) {
             throw new NoDataException("No hay matrículas registradas para el alumno " + idAlumno + " en el ciclo " + idCiclo);
+        }
+        return matriculas;
+    }
+
+    public List<MatriculaAlumnoDto> listarMatriculasPorGrupo(Long idGrupo) throws GlobalException, NoDataException {
+        List<MatriculaAlumnoDto> matriculas = new ArrayList<>();
+        try (Connection conn = dataSource.getConnection();
+             CallableStatement pstmt = conn.prepareCall(LISTAR_MATRICULAS_POR_GRUPO)) {
+            pstmt.registerOutParameter(1, Types.REF_CURSOR);
+            pstmt.setLong(2, idGrupo);
+            pstmt.execute();
+            try (ResultSet rs = (ResultSet) pstmt.getObject(1)) {
+                while (rs.next()) {
+                    matriculas.add(mapResultSetToMatriculaAlumnoDto(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new GlobalException("Error al listar matrículas por grupo: " + e.getMessage());
+        }
+        if (matriculas.isEmpty()) {
+            throw new NoDataException("No hay matrículas registradas para el grupo: " + idGrupo);
         }
         return matriculas;
     }
