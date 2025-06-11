@@ -118,6 +118,10 @@ BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION buscarGruposPorProfesorCicloActivo'; EXCE
 /
 BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION buscarGruposPorProfesor'; EXCEPTION WHEN OTHERS THEN NULL; END;
 /
+BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION buscarGrupoPorMatricula'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP FUNCTION buscarCursoPorGrupo'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
 
 -- MATRICULA
 BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE insertarMatricula'; EXCEPTION WHEN OTHERS THEN NULL; END;
@@ -133,6 +137,12 @@ BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE listarMatriculasPorAlumno'; EXCEPTION WH
 BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE listarMatriculasPorAlumnoYCiclo'; EXCEPTION WHEN OTHERS THEN NULL; END;
 /
 BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE listarMatriculasPorGrupo'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE existeMatriculaPorAlumnoYGrupo'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE modificarGrupoMatricula'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP PROCEDURE buscarMatriculaPorGrupo'; EXCEPTION WHEN OTHERS THEN NULL; END;
 /
 
 -- USUARIO
@@ -1075,6 +1085,52 @@ BEGIN
 END;
 /
 
+-- Search grupo by matricula
+CREATE OR REPLACE FUNCTION buscarGrupoPorMatricula(
+    p_id_matricula IN Matricula.id_matricula%TYPE
+) RETURN Types.ref_cursor
+AS
+    grupo_cursor Types.ref_cursor;
+BEGIN
+    OPEN grupo_cursor FOR
+        SELECT
+            g.id_grupo,
+            g.pk_carrera_curso,
+            g.numero_grupo,
+            g.horario,
+            p.id_profesor AS pk_profesor,
+            p.nombre AS nombre_profesor
+        FROM Grupo g
+                 JOIN Matricula m ON g.id_grupo = m.pk_grupo
+                 JOIN Profesor p ON g.pk_profesor = p.id_profesor
+        WHERE m.id_matricula = p_id_matricula;
+    RETURN grupo_cursor;
+END;
+/
+
+-- Search curso by grupo
+CREATE OR REPLACE FUNCTION buscarCursoPorGrupo(
+    p_id_grupo IN Grupo.id_grupo%TYPE
+) RETURN Types.ref_cursor
+AS
+    curso_cursor Types.ref_cursor;
+BEGIN
+    OPEN curso_cursor FOR
+        SELECT
+            c.id_curso,
+            c.codigo,
+            c.nombre,
+            c.creditos,
+            c.horas_semanales,
+            cc.id_carrera_curso
+        FROM Curso c
+                 JOIN Carrera_Curso cc ON c.id_curso = cc.pk_curso
+                 JOIN Grupo g ON cc.id_carrera_curso = g.pk_carrera_curso
+        WHERE g.id_grupo = p_id_grupo;
+    RETURN curso_cursor;
+END;
+/
+
 ------------------------------------------------MATRICULAS--------------------------------------------
 
 -- Insertar Matricula
@@ -1225,6 +1281,53 @@ BEGIN
         WHERE g.id_grupo = p_id_grupo;
 
     RETURN matriculas_cursor;
+END;
+/
+
+-- Check if matricula exists for alumno and grupo
+CREATE OR REPLACE FUNCTION existeMatriculaPorAlumnoYGrupo(
+    p_id_alumno IN Matricula.pk_alumno%TYPE,
+    p_id_grupo IN Matricula.pk_grupo%TYPE
+) RETURN NUMBER
+AS
+    v_count NUMBER;
+BEGIN
+    SELECT COUNT(*) INTO v_count
+    FROM Matricula
+    WHERE pk_alumno = p_id_alumno AND pk_grupo = p_id_grupo;
+    RETURN CASE WHEN v_count > 0 THEN 1 ELSE 0 END;
+END;
+/
+
+-- Update matricula group
+CREATE OR REPLACE PROCEDURE modificarGrupoMatricula(
+    p_id_matricula IN Matricula.id_matricula%TYPE,
+    p_id_grupo IN Matricula.pk_grupo%TYPE
+)
+AS
+BEGIN
+    UPDATE Matricula
+    SET pk_grupo = p_id_grupo
+    WHERE id_matricula = p_id_matricula;
+    IF SQL%ROWCOUNT = 0 THEN
+        RAISE_APPLICATION_ERROR(-20042, 'No se encontró la matrícula para actualizar.');
+    END IF;
+    COMMIT;
+END;
+/
+
+-- Search matricula by grupo
+CREATE OR REPLACE FUNCTION buscarMatriculaPorGrupo(
+    p_id_grupo IN Grupo.id_grupo%TYPE
+) RETURN Types.ref_cursor
+AS
+    matricula_cursor Types.ref_cursor;
+BEGIN
+    OPEN matricula_cursor FOR
+        SELECT id_matricula, pk_alumno, pk_grupo, nota
+        FROM Matricula
+        WHERE pk_grupo = p_id_grupo AND ROWNUM = 1;
+    RETURN matricula_cursor;
 END;
 /
 

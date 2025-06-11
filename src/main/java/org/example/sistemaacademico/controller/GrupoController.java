@@ -2,6 +2,7 @@ package org.example.sistemaacademico.controller;
 
 import org.example.sistemaacademico.data.GrupoService;
 import org.example.sistemaacademico.logic.Grupo;
+import org.example.sistemaacademico.logic.dto.CursoDto;
 import org.example.sistemaacademico.logic.dto.GrupoDto;
 import org.example.sistemaacademico.logic.dto.GrupoProfesorDto;
 import org.slf4j.Logger;
@@ -91,5 +92,21 @@ public class GrupoController {
         List<GrupoProfesorDto> grupos = grupoService.buscarGruposPorProfesorCicloActivo(cedula);
         logger.info("Grupos encontrados para profesor con cédula {} en ciclo activo: {}", cedula, grupos.size());
         return new ResponseEntity<>(grupos, HttpStatus.OK);
+    }
+
+    @GetMapping("/buscarPorMatricula/{idMatricula}")
+    public ResponseEntity<GrupoDto> buscarGrupoPorMatricula(@PathVariable("idMatricula") Long idMatricula) {
+        logger.debug("Buscando grupo por matrícula: {}", idMatricula);
+        GrupoDto grupo = grupoService.buscarGrupoPorMatricula(idMatricula);
+        logger.info("Grupo encontrado para matrícula: {}", idMatricula);
+        return new ResponseEntity<>(grupo, HttpStatus.OK);
+    }
+
+    @GetMapping("/buscarCursoPorGrupo/{idGrupo}")
+    public ResponseEntity<CursoDto> buscarCursoPorGrupo(@PathVariable("idGrupo") Long idGrupo) {
+        logger.debug("Buscando curso por grupo: {}", idGrupo);
+        CursoDto curso = grupoService.buscarCursoPorGrupo(idGrupo);
+        logger.info("Curso encontrado para grupo: {}", idGrupo);
+        return new ResponseEntity<>(curso, HttpStatus.OK);
     }
 }

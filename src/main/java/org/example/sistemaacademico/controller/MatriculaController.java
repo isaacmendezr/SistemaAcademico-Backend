@@ -80,4 +80,32 @@ public class MatriculaController {
         logger.info("Matrículas encontradas para grupo {}: {}", idGrupo, matriculas.size());
         return new ResponseEntity<>(matriculas, HttpStatus.OK);
     }
+
+    @GetMapping("/existeMatricula")
+    public ResponseEntity<Boolean> existeMatriculaPorAlumnoYGrupo(
+            @RequestParam("idAlumno") Long idAlumno,
+            @RequestParam("idGrupo") Long idGrupo) {
+        logger.debug("Verificando existencia de matrícula para alumno: {}, grupo: {}", idAlumno, idGrupo);
+        boolean exists = matriculaService.existeMatriculaPorAlumnoYGrupo(idAlumno, idGrupo);
+        logger.info("Existencia de matrícula verificada para alumno: {}, grupo: {}, resultado: {}", idAlumno, idGrupo, exists);
+        return new ResponseEntity<>(exists, HttpStatus.OK);
+    }
+
+    @PutMapping("/modificarGrupo/{idMatricula}/{idGrupo}")
+    public ResponseEntity<Void> modificarGrupoMatricula(
+            @PathVariable("idMatricula") Long idMatricula,
+            @PathVariable("idGrupo") Long idGrupo) {
+        logger.debug("Modificando grupo de matrícula: idMatricula={}, idGrupo={}", idMatricula, idGrupo);
+        matriculaService.modificarGrupoMatricula(idMatricula, idGrupo);
+        logger.info("Grupo de matrícula modificado exitosamente: idMatricula={}, idGrupo={}", idMatricula, idGrupo);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/buscarPorGrupo/{idGrupo}")
+    public ResponseEntity<Matricula> buscarMatriculaPorGrupo(@PathVariable("idGrupo") Long idGrupo) {
+        logger.debug("Buscando matrícula por grupo: {}", idGrupo);
+        Matricula matricula = matriculaService.buscarMatriculaPorGrupo(idGrupo);
+        logger.info("Matrícula encontrada para grupo: {}", idGrupo);
+        return new ResponseEntity<>(matricula, HttpStatus.OK);
+    }
 }

@@ -22,6 +22,9 @@ public class MatriculaService {
     private static final String LISTAR_MATRICULAS_POR_ALUMNO = "{?=call listarMatriculasPorAlumno(?)}";
     private static final String LISTAR_MATRICULAS_POR_ALUMNO_Y_CICLO = "{?=call listarMatriculasPorAlumnoYCiclo(?,?)}";
     private static final String LISTAR_MATRICULAS_POR_GRUPO = "{?=call listarMatriculasPorGrupo(?)}";
+    private static final String EXISTE_MATRICULA = "{?=call existeMatriculaPorAlumnoYGrupo(?,?)}";
+    private static final String MODIFICAR_GRUPO_MATRICULA = "{call modificarGrupoMatricula(?,?)}";
+    private static final String BUSCAR_MATRICULA_POR_GRUPO = "{?=call buscarMatriculaPorGrupo(?)}";
 
     private final DataSource dataSource;
 
@@ -161,6 +164,47 @@ public class MatriculaService {
             throw new NoDataException("No hay matrículas registradas para el grupo: " + idGrupo);
         }
         return matriculas;
+    }
+
+    public boolean existeMatriculaPorAlumnoYGrupo(Long idAlumno, Long idGrupo) throws GlobalException {
+        try (Connection conn = dataSource.getConnection();
+             CallableStatement pstmt = conn.prepareCall(EXISTE_MATRICULA)) {
+            pstmt.registerOutParameter(1, Types.INTEGER);
+            pstmt.setLong(2, idAlumno);
+            pstmt.setLong(3, idGrupo);
+            pstmt.execute();
+            return pstmt.getInt(1) == 1;
+        } catch (SQLException e) {
+            throw new GlobalException("Error al verificar existencia de matrícula: " + e.getMessage());
+        }
+    }
+
+    public void modificarGrupoMatricula(Long idMatricula, Long idGrupo) throws GlobalException, NoDataException {
+        try (Connection conn = dataSource.getConnection();
+             CallableStatement pstmt = conn.prepareCall(MODIFICAR_GRUPO_MATRICULA)) {
+            pstmt.setLong(1, idMatricula);
+            pstmt.setLong(2, idGrupo);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            handleSQLException(e, "Error al modificar grupo de matrícula");
+        }
+    }
+
+    public Matricula buscarMatriculaPorGrupo(Long idGrupo) throws GlobalException, NoDataException {
+        try (Connection conn = dataSource.getConnection();
+             CallableStatement pstmt = conn.prepareCall(BUSCAR_MATRICULA_POR_GRUPO)) {
+            pstmt.registerOutParameter(1, Types.REF_CURSOR);
+            pstmt.setLong(2, idGrupo);
+            pstmt.execute();
+            try (ResultSet rs = (ResultSet) pstmt.getObject(1)) {
+                if (rs.next()) {
+                    return mapResultSetToMatricula(rs);
+                }
+            }
+            throw new NoDataException("No se encontró matrícula para el grupo: " + idGrupo);
+        } catch (SQLException e) {
+            throw new GlobalException("Error al buscar matrícula por grupo: " + e.getMessage());
+        }
     }
 
     // Utilitarios
