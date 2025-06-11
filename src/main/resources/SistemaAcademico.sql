@@ -1587,130 +1587,71 @@ END;
 ----------------------------------------------------------------------------------------------------------
 
 -- CARRERAS
-INSERT INTO Carrera (codigo, nombre, titulo) VALUES ('INF01', 'Ingenieria en Informatica', 'Bachiller en Ingenieria en Informatica');
-INSERT INTO Carrera (codigo, nombre, titulo) VALUES ('ADM01', 'Administracion de Empresas', 'Bachiller en Administracion');
-INSERT INTO Carrera (codigo, nombre, titulo) VALUES ('TUR01', 'Gestion Turistica', 'Bachiller en Gestion Turistica');
-INSERT INTO Carrera (codigo, nombre, titulo) VALUES ('MAT01', 'Matematicas Aplicadas', 'Bachiller en Matematicas Aplicadas');
-INSERT INTO Carrera (codigo, nombre, titulo) VALUES ('BIO01', 'Biologia', 'Bachiller en Biologia');
-INSERT INTO Carrera (codigo, nombre, titulo) VALUES ('ING01', 'Ingenieria Industrial', 'Bachiller en Ingenieria Industrial');
+INSERT INTO Carrera (codigo, nombre, titulo) VALUES ('INF01', 'Ingeniería en Informática', 'Bachiller en Ingeniería en Informática');
+INSERT INTO Carrera (codigo, nombre, titulo) VALUES ('ADM01', 'Administración de Empresas', 'Bachiller en Administración');
+INSERT INTO Carrera (codigo, nombre, titulo) VALUES ('MAT01', 'Matemáticas Aplicadas', 'Bachiller en Matemáticas Aplicadas');
 
 -- CURSOS
-INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('INF101', 'Programacion I', 4, 6);
+INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('INF101', 'Programación I', 4, 6);
 INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('INF201', 'Estructuras de Datos', 4, 5);
-INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('ADM101', 'Contabilidad Basica', 3, 4);
-INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('ADM201', 'Gestion Financiera', 4, 5);
-INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('TUR101', 'Introduccion al Turismo', 3, 3);
-INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('TUR201', 'Turismo Sostenible', 4, 4);
-INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('MAT101', 'Calculo I', 4, 6);
-INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('MAT201', 'Algebra Lineal', 4, 5);
-INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('BIO101', 'Biologia General', 4, 6);
-INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('BIO201', 'Ecologia', 3, 4);
-INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('ING101', 'Introduccion a la Ingenieria', 3, 3);
-INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('ING201', 'Gestion de Produccion', 4, 5);
-INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('INF301', 'Bases de Datos', 4, 5);
-INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('ADM301', 'Marketing Estratégico', 3, 4);
-INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('MAT301', 'Estadística Aplicada', 4, 6);
+INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('ADM101', 'Contabilidad Básica', 3, 4);
+INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('ADM201', 'Gestión Financiera', 4, 5);
+INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('MAT101', 'Cálculo I', 4, 6);
+INSERT INTO Curso (codigo, nombre, creditos, horas_semanales) VALUES ('MAT201', 'Álgebra Lineal', 4, 5);
 
 -- CICLOS
 INSERT INTO Ciclo (anio, numero, fecha_inicio, fecha_fin, estado) VALUES (2025, 1, TO_DATE('2025-02-01', 'YYYY-MM-DD'), TO_DATE('2025-06-01', 'YYYY-MM-DD'), 'Activo');
 INSERT INTO Ciclo (anio, numero, fecha_inicio, fecha_fin, estado) VALUES (2025, 2, TO_DATE('2025-07-01', 'YYYY-MM-DD'), TO_DATE('2025-11-01', 'YYYY-MM-DD'), 'Inactivo');
-INSERT INTO Ciclo (anio, numero, fecha_inicio, fecha_fin, estado) VALUES (2026, 1, TO_DATE('2026-02-01', 'YYYY-MM-DD'), TO_DATE('2026-06-01', 'YYYY-MM-DD'), 'Inactivo');
-INSERT INTO Ciclo (anio, numero, fecha_inicio, fecha_fin, estado) VALUES (2026, 2, TO_DATE('2026-07-01', 'YYYY-MM-DD'), TO_DATE('2026-11-01', 'YYYY-MM-DD'), 'Inactivo');
 
--- CARRERA CURSO
-INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (1, 2, 1);
-INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (1, 2, 2);
-INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (2, 3, 1);
-INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (2, 4, 2);
-INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (3, 5, 1);
-INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (3, 6, 2);
-INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (4, 7, 1);
-INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (4, 8, 2);
-INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (5, 9, 1);
-INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (5, 10, 2);
-INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (6, 11, 1);
-INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (6, 12, 2);
-INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (1, 13, 1);
-INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (2, 14, 1);
-INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (4, 15, 1);
+-- CARRERA_CURSO
+INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (1, 1, 1); -- INF01, Programación I, Ciclo 1
+INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (1, 2, 1); -- INF01, Estructuras de Datos, Ciclo 1
+INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (2, 3, 1); -- ADM01, Contabilidad Básica, Ciclo 1
+INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (2, 4, 1); -- ADM01, Gestión Financiera, Ciclo 1
+INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (3, 5, 1); -- MAT01, Cálculo I, Ciclo 1
+INSERT INTO Carrera_Curso (pk_carrera, pk_curso, pk_ciclo) VALUES (3, 6, 1); -- MAT01, Álgebra Lineal, Ciclo 1
 
 -- PROFESORES
-INSERT INTO Profesor (cedula, nombre, telefono, email) VALUES ('100100100', 'Carlos Rojas', '88888888', 'crojas@yahoo.com');
-INSERT INTO Profesor (cedula, nombre, telefono, email) VALUES ('200200200', 'Maria Lopez', '87777777', 'mlopez@docente.edu');
-INSERT INTO Profesor (cedula, nombre, telefono, email) VALUES ('300300300', 'Luis Jimenez', '86666666', 'ljimenez@correo.com');
-INSERT INTO Profesor (cedula, nombre, telefono, email) VALUES ('400400400', 'Ana Salas', '85555555', 'asalas@uni.edu');
-INSERT INTO Profesor (cedula, nombre, telefono, email) VALUES ('500500500', 'Elena Gomez', '84444444', 'egomez@academico.net');
-INSERT INTO Profesor (cedula, nombre, telefono, email) VALUES ('600600600', 'Ricardo Vargas', '83333333', 'rvargas@profe.ac.cr');
-INSERT INTO Profesor (cedula, nombre, telefono, email) VALUES ('700700700', 'Clara Martinez', '82222222', 'cmartinez@icloud.com');
+INSERT INTO Profesor (cedula, nombre, telefono, email) VALUES ('100100100', 'Carlos Rojas', '88888888', 'crojas@una.ac.cr');
+INSERT INTO Profesor (cedula, nombre, telefono, email) VALUES ('200200200', 'María López', '87777777', 'mlopez@una.ac.cr');
+INSERT INTO Profesor (cedula, nombre, telefono, email) VALUES ('300300300', 'Luis Jiménez', '86666666', 'ljimenez@una.ac.cr');
+INSERT INTO Profesor (cedula, nombre, telefono, email) VALUES ('400400400', 'Ana Salas', '85555555', 'asalas@una.ac.cr');
 
 -- ALUMNOS
-INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera) VALUES ('111111111', 'Laura Fernandez', '85001234', 'laura@gmail.com', TO_DATE('2000-03-15','YYYY-MM-DD'), 1);
-INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera) VALUES ('222222222', 'Jose Ramirez', '84005678', 'jose@yahoo.com', TO_DATE('1999-11-20','YYYY-MM-DD'), 1);
-INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera) VALUES ('333333333', 'Ana Rodriguez', '87007890', 'ana@outlook.com', TO_DATE('2001-06-10','YYYY-MM-DD'), 2);
-INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera) VALUES ('444444444', 'David Castro', '83009876', 'david@hotmail.com', TO_DATE('2000-12-25','YYYY-MM-DD'), 2);
-INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera) VALUES ('555555555', 'Sofia Vega', '89006789', 'sofia@estudiante.edu', TO_DATE('2002-08-30','YYYY-MM-DD'), 3);
-INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera) VALUES ('666666666', 'Andres Mora', '82001234', 'andres@live.com', TO_DATE('1998-04-17','YYYY-MM-DD'), 3);
-INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera) VALUES ('777777777', 'Carla Sanchez', '81001234', 'carla@alumno.universidad.ac.cr', TO_DATE('2001-05-12','YYYY-MM-DD'), 4);
-INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera) VALUES ('888888888', 'Miguel Torres', '82005678', 'miguel@protonmail.com', TO_DATE('2000-09-25','YYYY-MM-DD'), 4);
-INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera) VALUES ('999999999', 'Lucia Perez', '83007890', 'lucia@icloud.com', TO_DATE('2002-02-14','YYYY-MM-DD'), 5);
-INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera) VALUES ('101010101', 'Felipe Rojas', '84009876', 'felipe@edu.cr', TO_DATE('1999-07-30','YYYY-MM-DD'), 5);
-INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera) VALUES ('121212121', 'Valeria Diaz', '85006789', 'valeria@estudiantes.universidad.edu', TO_DATE('2001-11-05','YYYY-MM-DD'), 6);
-INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera) VALUES ('131313131', 'Esteban Lopez', '86001234', 'esteban@alumno.edu', TO_DATE('2000-01-22','YYYY-MM-DD'), 6);
+INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera) VALUES ('111111111', 'Laura Fernández', '85001234', 'laura@estudiante.una.ac.cr', TO_DATE('2000-03-15', 'YYYY-MM-DD'), 1);
+INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera) VALUES ('222222222', 'José Ramírez', '84005678', 'jose@estudiante.una.ac.cr', TO_DATE('1999-11-20', 'YYYY-MM-DD'), 1);
+INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera) VALUES ('333333333', 'Ana Rodríguez', '87007890', 'ana@estudiante.una.ac.cr', TO_DATE('2001-06-10', 'YYYY-MM-DD'), 2);
+INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera) VALUES ('444444444', 'David Castro', '83009876', 'david@estudiante.una.ac.cr', TO_DATE('2000-12-25', 'YYYY-MM-DD'), 2);
+INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera) VALUES ('555555555', 'Carla Sánchez', '81001234', 'carla@estudiante.una.ac.cr', TO_DATE('2001-05-12', 'YYYY-MM-DD'), 3);
+INSERT INTO Alumno (cedula, nombre, telefono, email, fecha_nacimiento, pk_carrera) VALUES ('666666666', 'Miguel Torres', '82005678', 'miguel@estudiante.una.ac.cr', TO_DATE('2000-09-25', 'YYYY-MM-DD'), 3);
 
 -- GRUPOS
-INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (1, 1, 'Lunes 8:00-10:00', 1);
-INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (2, 1, 'Miercoles 10:00-12:00', 1);
-INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (3, 1, 'Martes 9:00-11:00', 2);
-INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (5, 1, 'Jueves 2:00-4:00', 4);
-INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (7, 1, 'Lunes 10:00-12:00', 5);
-INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (8, 1, 'Martes 14:00-16:00', 5);
-INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (9, 1, 'Miercoles 8:00-10:00', 6);
-INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (10, 1, 'Jueves 10:00-12:00', 6);
-INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (11, 1, 'Viernes 9:00-11:00', 7);
-INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (12, 1, 'Lunes 13:00-15:00', 7);
-INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (3, 2, 'Viernes 13:00-15:00', 3);
-INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (13, 1, 'Lunes 14:00-16:00', 1);
-INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (13, 2, 'Miércoles 16:00-18:00', 3);
-INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (14, 1, 'Martes 10:00-12:00', 2);
-INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (14, 2, 'Jueves 8:00-10:00', 4);
-INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (15, 1, 'Viernes 9:00-11:00', 5);
-INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (15, 2, 'Lunes 10:00-12:00', 6);
-INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (1, 2, 'Martes 14:00-16:00', 2);
-INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (1, 3, 'Jueves 10:00-12:00', 4);
-INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (1, 4, 'Viernes 16:00-18:00', 7);
+INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (1, 1, 'Lunes 8:00-10:00', 1); -- Programación I, Grupo 1, Carlos Rojas
+INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (1, 2, 'Martes 10:00-12:00', 2); -- Programación I, Grupo 2, María López
+INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (3, 1, 'Miércoles 9:00-11:00', 3); -- Contabilidad Básica, Grupo 1, Luis Jiménez
+INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (4, 1, 'Jueves 14:00-16:00', 3); -- Gestión Financiera, Grupo 1, Luis Jiménez
+INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (5, 1, 'Viernes 8:00-10:00', 4); -- Cálculo I, Grupo 1, Ana Salas
+INSERT INTO Grupo (pk_carrera_curso, numero_grupo, horario, pk_profesor) VALUES (6, 1, 'Lunes 10:00-12:00', 4); -- Álgebra Lineal, Grupo 1, Ana Salas
 
 -- MATRICULAS
-INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (1, 1, 85);
-INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (2, 1, 81);
-INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (3, 3, 78);
-INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (4, 3, 88);
-INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (7, 5, 78);
-INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (9, 7, 88);
-INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (10, 7, 90);
-INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (11, 9, 82);
-INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (12, 9, 87);
-INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (1, 1, 87);
+INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (1, 1, 85); -- Laura Fernández, Programación I, Grupo 1
+INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (2, 1, 78); -- José Ramírez, Programación I, Grupo 1
+INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (1, 2, 90); -- Laura Fernández, Programación I, Grupo 2
+INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (3, 3, 82); -- Ana Rodríguez, Contabilidad Básica, Grupo 1
+INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (4, 3, 88); -- David Castro, Contabilidad Básica, Grupo 1
+INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (3, 4, 75); -- Ana Rodríguez, Gestión Financiera, Grupo 1
+INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (5, 5, 92); -- Carla Sánchez, Cálculo I, Grupo 1
+INSERT INTO Matricula (pk_alumno, pk_grupo, nota) VALUES (6, 5, 80); -- Miguel Torres, Cálculo I, Grupo 1
 
 -- USUARIOS
-INSERT INTO Usuario (cedula, clave, tipo) VALUES ('100100100', 'admin123', 'Administrador');
-INSERT INTO Usuario (cedula, clave, tipo) VALUES ('200200200', 'matri456', 'Matriculador');
-INSERT INTO Usuario (cedula, clave, tipo) VALUES ('300300300', 'prof789', 'Profesor');
-INSERT INTO Usuario (cedula, clave, tipo) VALUES ('111111111', 'alumno1', 'Alumno');
-INSERT INTO Usuario (cedula, clave, tipo) VALUES ('333333333', 'alumno2', 'Alumno');
-INSERT INTO Usuario (cedula, clave, tipo) VALUES ('555555555', 'alumno3', 'Alumno');
-INSERT INTO Usuario (cedula, clave, tipo) VALUES ('500500500', 'prof456', 'Profesor');
-INSERT INTO Usuario (cedula, clave, tipo) VALUES ('600600600', 'prof789', 'Profesor');
-INSERT INTO Usuario (cedula, clave, tipo) VALUES ('777777777', 'alumno4', 'Alumno');
-INSERT INTO Usuario (cedula, clave, tipo) VALUES ('999999999', 'alumno5', 'Alumno');
-INSERT INTO Usuario (cedula, clave, tipo) VALUES ('121212121', 'alumno6', 'Alumno');
-INSERT INTO Usuario (cedula, clave, tipo) VALUES ('222222222', 'alumnoX', 'Alumno');
-INSERT INTO Usuario (cedula, clave, tipo) VALUES ('444444444', 'alumnoX', 'Alumno');
-INSERT INTO Usuario (cedula, clave, tipo) VALUES ('101010101', 'alumnoX', 'Alumno');
-INSERT INTO Usuario (cedula, clave, tipo) VALUES ('131313131', 'alumnoX', 'Alumno');
-INSERT INTO Usuario (cedula, clave, tipo) VALUES ('400400400', 'profX', 'Profesor');
-INSERT INTO Usuario (cedula, clave, tipo) VALUES ('666666666', 'alumnoX', 'Alumno');
-INSERT INTO Usuario (cedula, clave, tipo) VALUES ('888888888', 'alumnoX', 'Alumno');
-INSERT INTO Usuario (cedula, clave, tipo) VALUES ('700700700', 'profX', 'Profesor');
+INSERT INTO Usuario (cedula, clave, tipo) VALUES ('100100100', 'prof123', 'Profesor'); -- Carlos Rojas
+INSERT INTO Usuario (cedula, clave, tipo) VALUES ('200200200', 'prof456', 'Profesor'); -- María López
+INSERT INTO Usuario (cedula, clave, tipo) VALUES ('300300300', 'prof789', 'Profesor'); -- Luis Jiménez
+INSERT INTO Usuario (cedula, clave, tipo) VALUES ('111111111', 'alumno1', 'Alumno'); -- Laura Fernández
+INSERT INTO Usuario (cedula, clave, tipo) VALUES ('333333333', 'alumno2', 'Alumno'); -- Ana Rodríguez
+INSERT INTO Usuario (cedula, clave, tipo) VALUES ('555555555', 'alumno3', 'Alumno'); -- Carla Sánchez
+INSERT INTO Usuario (cedula, clave, tipo) VALUES ('500500500', 'admin123', 'Administrador'); -- Administrador
+INSERT INTO Usuario (cedula, clave, tipo) VALUES ('600600600', 'matri123', 'Matriculador'); -- Matriculador
 
 COMMIT;
 
